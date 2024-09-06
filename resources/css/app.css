@@ -1,0 +1,50 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Primary and Surface Palettes */
+:root {
+    --surface-0: 255, 255, 255;
+    --surface-50: 243, 250, 243;
+    --surface-100: 226, 246, 227;
+    --surface-200: 195, 235, 201;
+    --surface-300: 155, 218, 158;
+    --surface-400: 103, 193, 107;
+    --surface-500: 66, 165, 71;
+    --surface-600: 46, 125, 50;
+    --surface-700: 42, 107, 45;
+    --surface-800: 38, 85, 41;
+    --surface-900: 32, 71, 36;
+    --surface-950: 13, 38, 15;
+    --primary-50: var(--surface-50);
+    --primary-100: var(--surface-100);
+    --primary-200: var(--surface-200);
+    --primary-300: var(--surface-300);
+    --primary-400: var(--surface-400);
+    --primary-500: var(--surface-500);
+    --primary-600: var(--surface-600);
+    --primary-700: var(--surface-700);
+    --primary-800: var(--surface-800);
+    --primary-900: var(--surface-900);
+    --primary-950: var(--surface-950);
+    --content-border-radius: 6px;
+}
+
+/* Light Mode */
+:root {
+    --primary-color: var(--primary-500);
+    --primary-contrast-color: var(--surface-0);
+    --primary-hover-color: var(--primary-600);
+    --primary-active-color: var(--primary-700);
+    --content-border-color: var(--surface-200);
+    --content-hover-background: var(--surface-100);
+    --content-hover-color: var(--surface-800);
+    --highlight-background: var(--primary-50);
+    --highlight-color: var(--primary-700);
+    --highlight-focus-background: var(--primary-100);
+    --highlight-focus-color: var(--primary-800);
+    --text-color: var(--surface-700);
+    --text-hover-color: var(--surface-800);
+    --text-muted-color: var(--surface-500);
+    --text-hover-muted-color: var(--surface-600);
+}
