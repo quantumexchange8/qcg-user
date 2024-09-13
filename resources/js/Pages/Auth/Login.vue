@@ -80,7 +80,7 @@ const submit = () => {
 
                 <div class="flex justify-between items-center self-stretch">
                     <label class="flex items-center gap-2">
-                        <Checkbox v-model="form.remember" binary class="w-6 h-6" disabled/>
+                        <Checkbox v-model="form.remember" binary class="w-6 h-6"/>
                         <span class="text-sm text-gray-700 font-medium">{{ $t('public.remember_me') }}</span>
                     </label>
 

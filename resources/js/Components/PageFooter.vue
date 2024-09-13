@@ -3,11 +3,19 @@ import dayjs from "dayjs";
 </script>
 
 <template>
-    <footer class="flex-shrink-0 px-6 py-4">
+    <footer class="flex flex-col flex-shrink-0 gap-3 p-5 text-x bg-white">
+        <div class="flex flex-col gap-1">
+            <p class=" text-gray-700 text-xs font-semibold">
+                {{ $t('public.risk_warning') }}
+            </p>
+            <p class=" text-gray-500 text-xs">
+                {{ $t('public.risk_caption') }}
+            </p>
+        </div>
         <p
-            class="flex items-center justify-center gap-1 text-sm text-gray-600 dark:text-gray-400"
+        class=" text-gray-500 text-xs"
         >
-            © {{ dayjs().year() }} mosanes. All rights reserved.
+            © {{ dayjs().year() }} Quantum Capital Group. All rights reserved.
         </p>
     </footer>
 </template>

@@ -20,6 +20,7 @@ const toggle = (event) => {
 const currentLocale = ref(usePage().props.locale);
 const locales = [
     { label: 'English', value: 'en' },
+    { label: '中文', value: 'tw' },
 ];
 
 const changeLanguage = async (langVal) => {

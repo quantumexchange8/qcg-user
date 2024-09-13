@@ -1,51 +1,60 @@
 <script setup>
-import { computed } from 'vue';
-import GuestLayout from '@/Layouts/Guest.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue'
+import { Link, useForm } from '@inertiajs/vue3'
+import GuestLayout from '@/Layouts/Guest.vue'
+import Button from '@/Components/Button.vue'
 
 const props = defineProps({
-    status: {
-        type: String,
-    },
-});
+    status: String
+})
 
-const form = useForm({});
+const form = useForm()
 
 const submit = () => {
-    form.post(route('verification.send'));
-};
+    form.post(route('verification.send'))
+}
 
-const verificationLinkSent = computed(() => props.status === 'verification-link-sent');
+const verificationLinkSent = computed(() => props.status === 'verification-link-sent')
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Email Verification" />
+    <GuestLayout :title="$t('public.email_verification')">
+        <div class="w-full flex flex-col justify-center items-center self-stretch">
+            <img src="/assets/verify-email.svg" alt="verify-email">
+            <div class="grid gap-8 ">
+                <div class="grid gap-3">
+                    <div class="text-xl text-gray-950 font-bold">
+                        {{ $t('public.verify_email') }}
+                    </div>
 
-        <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your email address by clicking on the link
-            we just emailed to you? If you didn't receive the email, we will gladly send you another.
-        </div>
+                    <div
+                        class="text-md text-gray-500"
+                        v-if="verificationLinkSent"
+                    >
+                        {{ $t('public.verify_email_caption') }}
+                    </div>
+                </div>
 
-        <div class="mb-4 font-medium text-sm text-green-600" v-if="verificationLinkSent">
-            A new verification link has been sent to the email address you provided during registration.
-        </div>
+                <form @submit.prevent="submit" class="grid gap-6">
+                    <div class="flex items-center justify-between mt-4">
+                        <Button variant="primary-flat" size="base" class="w-full px-4 py-3" :href="route('logout')" method="post" >
+                            <span>{{ $t('public.logout') }}</span>
+                        </Button>
 
-        <form @submit.prevent="submit">
-            <div class="mt-4 flex items-center justify-between">
-                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Resend Verification Email
-                </PrimaryButton>
+                        <div class="flex justify-between text-sm text-gray-700">
+                            {{ $t('public.not_received_email') }}
 
-                <Link
-                    :href="route('logout')"
-                    method="post"
-                    as="button"
-                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >Log Out</Link
-                >
+                            <Link
+                                class="text-gray-300 font-semibold"
+                                :class="{ 'opacity-25': form.processing }"
+                                :disabled="form.processing"
+                            >
+                                {{ $t('public.resend') }}
+                            </Link>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </GuestLayout>
 </template>

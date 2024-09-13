@@ -8,7 +8,7 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { i18nVue } from 'laravel-vue-i18n'
 import PrimeVue from 'primevue/config';
 import Aura from '../css/presets/aura';    
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'QCG User';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

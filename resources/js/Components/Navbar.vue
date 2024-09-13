@@ -49,10 +49,10 @@ const changeLanguage = async (langVal) => {
             <IconMenu2 size="20" color="#182230" stroke-width="1.25" />
         </div>
         <div class="w-full h-full flex items-center gap-2">
-            <img src="/img/logo.svg" alt="no data" class="w-7 h-7" />
+            <img src="/assets/QCG-logo.png" alt="no data" class="w-7 h-7" />
             <div class="flex flex-col items-start">
                 <span class="text-gray-950 text-sm font-black tracking-[4.20px]">量子資本集團</span>
-                <span class="text-gray-700 text-xxxs font-medium">QUANTUM CAPITAL GROUP</span>
+                <span class="text-gray-700 text-3xs font-medium">QUANTUM CAPITAL GROUP</span>
             </div>
         </div>
         <!-- <div
@@ -68,18 +68,18 @@ const changeLanguage = async (langVal) => {
                 <IconLanguage size="20" stroke-width="1.25" />
             </div>
             <Link
+                class="w-12 h-12 p-2 items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 hidden md:block focus:bg-gray-100"
+                :href="route('profile')"
+            >
+                <ProfilePhoto class="w-5 h-5" />
+            </Link>
+            <Link
                 class="w-12 h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('logout')"
                 method="post"
                 as="button"
             >
                 <IconTransferOut size="20" stroke-width="1.25" />
-            </Link>
-            <Link
-                class="w-12 h-12 p-2 items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 hidden md:block focus:bg-gray-100"
-                :href="route('profile')"
-            >
-                <ProfilePhoto class="w-8 h-8" />
             </Link>
         </div>
     </nav>
