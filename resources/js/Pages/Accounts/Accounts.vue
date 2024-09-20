@@ -1,7 +1,13 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/Authenticated.vue";
 import Button from "@/Components/Button.vue";
-import {TabGroup, TabList, Tab, TabPanels, TabPanel} from '@headlessui/vue'
+import Tabs from 'primevue/tabs';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
+import TabPanel from 'primevue/tabpanel';
+import IndividualAccount from '@/Pages/Accounts/Partials/IndividualAccount.vue';
+// import DemoAccount from '@/Pages/Accounts/Partials/DemoAccount.vue';
 import {ref, watch} from "vue";
 
 </script>
@@ -40,63 +46,21 @@ import {ref, watch} from "vue";
 
             </div> -->
             <div>
-                <TabGroup>
-                    <div class="w-full flex flex-col sm:flex-row gap-4 sm:justify-between items-center">
-
-                        <TabList 
-                                class="flex space-x-1 rounded-xl p-1 w-full max-w-md">
-                            <Tab
-                                as="template"
-                                v-slot="{ selected }"
-                            >
-                                <button
-                                    :class="[
-                                        'w-full p-3 text-sm font-medium leading-5',
-                                        'ring-white/60 ring-offset-2 ring-offset-primary-200 focus:outline-none focus:ring-2',
-                                        selected
-                                        ? 'bg-white text-primary-500 shadow'
-                                        : 'text-gray-700 hover:bg-white/[0.12] hover:text-primary-600',
-                                    ]"
-                                >
-                                    {{ $t('public.individual') }}
-                                </button>
-                            </Tab>
-
-                            <Tab
-                                as="template"
-                                v-slot="{ selected }"
-                            >
-                                <button
-                                    :class="[
-                                        'w-full p-3 text-sm font-medium leading-5',
-                                        'ring-white/60 ring-offset-2 ring-offset-primary-200 focus:outline-none focus:ring-2',
-                                        selected
-                                        ? 'bg-white text-primary-500 shadow'
-                                        : 'text-gray-700 hover:bg-white/[0.12] hover:text-primary-600',
-                                    ]"
-                                >
-                                    {{ $t('public.demo') }}
-                                </button>
-                            </Tab>
-
-                        </TabList>
-
-                    </div>
-                    <TabPanels class="mt-2">
-                        <TabPanel
-                            class="py-3"
-                        >
-                            <div>individual account panel here</div>
+                <Tabs value="0" class="gap-5">
+                    <TabList>
+                        <Tab value="0"> 
+                            {{ $t('public.individual') }}
+                        </Tab>
+                        <Tab value="1">                
+                            {{ $t('public.demo') }}
+                        </Tab>
+                    </TabList>
+                    <TabPanels>
+                        <TabPanel value="0">
                             <IndividualAccount
-                                :walletSel="walletSel"
-                                :leverageSel="leverageSel"
-                                :accountCounts="accountCounts"
                             />
                         </TabPanel>
-
-                        <TabPanel
-                            class="py-3"
-                        >
+                        <TabPanel value="1">
                             <div>demo account panel here</div>
                             <!-- <DemoAccount
                                 :walletSel="walletSel"
@@ -104,9 +68,8 @@ import {ref, watch} from "vue";
                                 :accountCounts="accountCounts"
                             /> -->
                         </TabPanel>
-
                     </TabPanels>
-                </TabGroup>
+                </Tabs>
             </div>
         </div>
 

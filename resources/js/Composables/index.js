@@ -1,4 +1,8 @@
+// import { useDark, useToggle } from '@vueuse/core'
 import { reactive } from 'vue'
+
+// export const isDark = useDark()
+// export const toggleDarkMode = useToggle(isDark)
 
 export const sidebarState = reactive({
     isOpen: window.innerWidth > 1024,
@@ -10,11 +14,7 @@ export const sidebarState = reactive({
         sidebarState.isHovered = value
     },
     handleWindowResize() {
-        if (window.innerWidth <= 1024) {
-            sidebarState.isOpen = false
-        } else {
-            sidebarState.isOpen = true
-        }
+        sidebarState.isOpen = window.innerWidth > 1024;
     },
 })
 
@@ -46,30 +46,21 @@ export const handleScroll = () => {
 
 export function transactionFormat() {
     function formatDateTime(date, includeTime = true) {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const formattedDate = new Date(date);
 
         const day = formattedDate.getDate().toString().padStart(2, '0');
-        const month = months[formattedDate.getMonth()];
+        // const month = months[formattedDate.getMonth()];
+        const month = (formattedDate.getMonth() + 1).toString().padStart(2, '0');
         const year = formattedDate.getFullYear();
         const hours = formattedDate.getHours().toString().padStart(2, '0');
         const minutes = formattedDate.getMinutes().toString().padStart(2, '0');
         const seconds = formattedDate.getSeconds().toString().padStart(2, '0');
 
         if (includeTime) {
-            return `${day} ${month} ${year} ${hours}:${minutes}:${seconds}`;
+            return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
         } else {
             return `${day} ${month} ${year}`;
-        }
-    }
-
-    function getChannelName(name) {
-        if (name === 'bank') {
-            return 'Bank Transfer';
-        } else if (name === 'crypto') {
-            return 'Cryptocurrency';
-        }else if (name === 'fpx') {
-            return 'FPX';
         }
     }
 
@@ -80,9 +71,23 @@ export function transactionFormat() {
             day: '2-digit',
             timeZone: 'Asia/Kuala_Lumpur'
         });
-        return formattedDate.split('-').join('/');
+        const [year, month, day] = formattedDate.split('-');
+        return `${year}/${month}/${day}`;
     }
 
+    function formatMonthDate(date) {
+        const formattedDate = new Date(date);
+    
+        // Create an Intl.DateTimeFormat instance for formatting the month
+        const monthFormatter = new Intl.DateTimeFormat('en-US', { month: 'long' });
+        const day = formattedDate.getDate().toString().padStart(2, '0');
+    
+        // Format the month and year
+        const month = monthFormatter.format(formattedDate);
+    
+        return `${month} ${day}`;
+    }
+    
     function formatTime(date) {
         const options = {
             hour12: false, // Disable AM/PM indicator
@@ -93,20 +98,6 @@ export function transactionFormat() {
         };
 
         return new Date(date).toLocaleTimeString('en-CA', options);
-    }
-
-    function getStatusClass(status) {
-        if (status === 'Successful') {
-            return 'success';
-        } else if (status === 'Submitted') {
-            return 'warning';
-        } else if (status === 'Processing') {
-            return 'primary';
-        } else if (status === 'Rejected') {
-            return 'danger';
-        } else {
-            return ''; // Default case or handle other statuses
-        }
     }
 
     function formatAmount(amount, decimalPlaces = 2) {
@@ -124,11 +115,23 @@ export function transactionFormat() {
 
     return {
         formatDateTime,
-        getChannelName,
         formatDate,
-        getStatusClass,
+        formatMonthDate,
         formatAmount,
         formatType,
         formatTime
+    };
+}
+
+export function generalFormat() {
+    const formatRgbaColor = (hex, opacity) => {
+        const r = parseInt(hex.slice(0, 2), 16);
+        const g = parseInt(hex.slice(2, 4), 16);
+        const b = parseInt(hex.slice(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
+
+    return {
+        formatRgbaColor
     };
 }
