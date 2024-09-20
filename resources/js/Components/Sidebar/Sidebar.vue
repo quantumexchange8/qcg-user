@@ -39,7 +39,7 @@ onMounted(() => {
             transition-duration: 150ms;
         "
         :class="[
-            'fixed h-full top-0 lg:sticky left-0 z-20 bg-gray-100 flex flex-col lg:top-20  lg:overflow-y-auto lg:h-[calc(90vh)]',
+            'fixed flex flex-col h-full top-0 lg:fixed left-0 z-20 bg-gray-100 lg:top-20  lg:overflow-y-auto lg:h-[calc(90vh)]',
             {
                 'translate-x-0 w-[232px]':
                     sidebarState.isOpen || sidebarState.isHovered,
@@ -50,6 +50,7 @@ onMounted(() => {
         @mouseenter="sidebarState.handleHover(true)"
         @mouseleave="sidebarState.handleHover(false)"
     >
+    
         <div class="w-full h-full flex flex-col flex-1 px-5 py-8 gap-8 bg-white items-center">
                     <!-- <SidebarHeader /> -->
 

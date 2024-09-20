@@ -63,8 +63,8 @@ import {
         <!-- Accounts -->
         <SidebarLink
             :title="$t('public.sidebar.accounts')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('accounts')"
+            :active="route().current('accounts')"
         >
             <template #icon>
                 <IconId :size="20" stroke-width="1.25" />
@@ -74,8 +74,8 @@ import {
         <!-- Network -->
         <SidebarLink
             :title="$t('public.sidebar.network')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('network')"
+            :active="route().current('network')"
         >
             <template #icon>
                 <IconSitemap :size="20" stroke-width="1.25" />
@@ -85,8 +85,8 @@ import {
         <!-- Transaction -->
         <SidebarLink
             :title="$t('public.sidebar.transaction')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('transaction')"
+            :active="route().current('transaction')"
         >
             <template #icon>
                 <IconReportMoney :size="20" stroke-width="1.25" />
@@ -96,8 +96,8 @@ import {
         <!-- Report -->
         <SidebarLink
             :title="$t('public.sidebar.report')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('report')"
+            :active="route().current('report')"
         >
             <template #icon>
                 <IconReport :size="20" stroke-width="1.25" />
@@ -107,8 +107,8 @@ import {
         <!-- Rebate Setting -->
         <SidebarLink
             :title="$t('public.sidebar.rebate_setting')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('rebate_setting')"
+            :active="route().current('rebate_setting')"
         >
             <template #icon>
                 <IconSettingsDollar :size="20" stroke-width="1.25" />
@@ -118,8 +118,8 @@ import {
         <!-- Leaderboard -->
         <SidebarLink
             :title="$t('public.sidebar.leaderboard')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('leaderboard')"
+            :active="route().current('leaderboard')"
         >
             <template #icon>
                 <IconTrophy :size="20" stroke-width="1.25" />
@@ -129,8 +129,8 @@ import {
         <!-- Download Center -->
         <SidebarLink
             :title="$t('public.sidebar.download_center')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('download_center')"
+            :active="route().current('download_center')"
         >
             <template #icon>
                 <IconDownload :size="20" stroke-width="1.25" />
@@ -140,8 +140,8 @@ import {
         <!-- My Profile -->
         <SidebarLink
             :title="$t('public.sidebar.profile')"
-            :href="route('dashboard')"
-            :active="route().current('dashboard')"
+            :href="route('profile')"
+            :active="route().current('profile')"
         >
             <template #icon>
                 <IconUserCircle :size="20" stroke-width="1.25" />

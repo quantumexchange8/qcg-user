@@ -27,14 +27,14 @@ defineProps({
 
                 <div style="transition-property: margin; transition-duration: 150ms"
                 :class="[
-                    'min-h-screen flex flex-col',
+                    'flex flex-col min-h-screen',
                     {
-                        'lg:ml-72': sidebarState.isOpen,
-                        'md:ml-16': !sidebarState.isOpen,
+                        'lg:ml-64': sidebarState.isOpen,
+                        'md:ml-0': !sidebarState.isOpen,
                     },
                 ]">
                     <main class="flex flex-1 justify-center items-start">
-                        <div class="w-full max-w-[1440px]">
+                        <div class="w-full">
                             
                             <ToastList />
                             

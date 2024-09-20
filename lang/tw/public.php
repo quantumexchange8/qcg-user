@@ -43,8 +43,19 @@ return [
     'resend' => "重新發送",
     'sidebar' => [
         'dashboard' => "儀表首頁",
-        
+        'accounts' => "帳戶",
+        'network' => "網路",
+        'transaction' => "交易",
+        'report' => "報告",
+        'rebate_setting' => "返利設置",
+        'leaderboard' => "排行榜",
+        'download_center' => "下載中心",
+        'profile' => "個人資料",
     ],
-    'risk_warning' => 'Risk Warning',
-    'risk_caption' => 'Our products are traded on margin and carry a high level of risk and it is possible to lose all your capital. These products may not be suitable for everyone and you should ensure that you understand the risks involved. High Risk Trading Warning: Trading foreign exchange on margin carries a high level of risk, and may not be suitable for all investors. The high degree of leverage can work against you as well as for you. Before deciding to trade foreign exchange, you should carefully consider your investment objectives, level of experience, and risk appetite. The possibility exists that you could sustain a loss of some or all of your initial investment and therefore you should not invest money that you cannot afford to lose. You should be aware of all the risks associated with foreign exchange trading, and seek advice from an independent financial advisor if you have any doubts.',
+    'risk_warning' => '風險提示',
+    'risk_caption' => '我們的產品以保證金進行交易, 具有很高的風險, 您可能會損失所有資金. 這些產品可能不適合所有人, 您應該確保您了解所涉及的風險. 高風險交易警告: 保證金交易外匯具有高風險, 可能不適用於所有投資者. 高槓桿作用可能對您不利, 也可能對您有利. 在決定進行外匯交易之前, 您應該仔細考慮您的投資目標, 經驗程度和風險偏好. 您可能會損失部分或全部初始投資, 因此您不應投資您無法承受損失的資金. 您應該了解與外匯交易相關的所有風險, 如果您有任何疑問, 請尋求獨立財務顧問的建議.',
+    'open_acc_header' => '準備好像專業人士一樣進行交易?',
+    'open_acc_caption' => '開設真實帳戶並抓住在真實市場進行交易的機會. 您的交易冒險從這裡開始!',
+    'open_account' => '開設帳戶',
+    'demo_account' => '模擬帳戶',
 ];
