@@ -1,11 +1,11 @@
 export default {
     root: ({ context }) => ({
-        class: ['relative flex flex-auto items-center gap-2 p-2 last-of-type:flex-[initial]', { 'cursor-default pointer-events-none select-none opacity-60': context.disabled }, '[&_[data-pc-section=separator]]:has-[~[data-p-active=true]]:bg-primary']
+        class: ['relative flex flex-auto items-center gap-2 p-2 last-of-type:flex-[initial]', { 'cursor-default pointer-events-none select-none opacity-60': context.disabled }, '[&_[data-pc-section=separator]]:has-[~[data-p-active=true]]:bg-primary-600']
     }),
     header: ({ props, context }) => ({
         class: [
           'inline-flex items-center border-0 cursor-pointer rounded-md outline-transparent bg-transparent p-0 gap-2',
-          'focus:outline-none focus:outline-offset-0 focus-visible:ring-1 ring-inset focus-visible:ring-primary-400 dark:focus-visible:ring-primary-300',
+          'focus:outline-none focus:outline-offset-0 focus-visible:ring-1 ring-inset focus-visible:ring-primary-400',
           { '!cursor-default': context.active },
           { 'cursor-auto': props.linear }
         ]
@@ -17,9 +17,9 @@ export default {
           'items-center',
           'justify-center',
           //Colors
-          'border-solid border-2 border-surface-200 dark:border-surface-700',
+          'border-solid border-2 border-gray-200',
           // Colors (Conditional)
-          context.active ? 'text-primary' : 'text-surface-900 dark:text-surface-0',
+          context.active ? 'text-gray-950' : 'text-gray-500',
           // Adjust colors as needed
           // Size and Shape
           'min-w-[2rem]',
@@ -27,7 +27,7 @@ export default {
           'line-height-[2rem]',
           'rounded-full',
           // Text
-          'text-lg',
+          'text-sm',
           // Transitions
           'transition',
           'transition-colors',
@@ -44,8 +44,9 @@ export default {
           'text-ellipsis',
           'max-w-full',
           // Text
-          context.active ? 'text-primary' : 'text-surface-700 dark:text-surface-0/80',
+          context.active ? 'text-gray-950' : 'text-gray-500',
           'font-medium',
+          'text-sm',
           // Transitions
           'transition',
           'transition-colors',

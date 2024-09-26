@@ -45,6 +45,9 @@ import fieldset from './fieldset';
 import panel from './panel';
 import scrollpanel from './scrollpanel';
 import splitter from './splitter';
+import step from './step';
+import steplist from './steplist';
+import steppanels from './steppanels';
 import stepper from './stepper';
 import tabs from './tabs';
 import tablist from './tablist';
@@ -139,6 +142,9 @@ export default {
     panel,
     scrollpanel,
     splitter,
+    step,
+    steplist,
+    steppanels,
     stepper,
     tabs,
     tablist,

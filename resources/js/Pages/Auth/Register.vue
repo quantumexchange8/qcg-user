@@ -17,13 +17,12 @@ import StepPanel from 'primevue/steppanel';
 
 const props = defineProps({
     countries: Array,
-    nationality: Array,
-    referral_code: String
 })
 
-const countryList = ref(CountryLists); 
+const activeStep = ref(1);
 
-const formStep = ref(1);
+const countryList = ref(props.countries); 
+const selectedCountry = ref();
 const showPassword = ref(false);
 const showPassword2 = ref(false);
 
@@ -37,9 +36,10 @@ const togglePasswordVisibilityConfirm = () => {
 }
 
 const form = useForm({
-    name: '',
+    first_name: '',
     email: '',
-    dial_code: '',
+    country: '',
+    phone_code: '',
     phone: '',
     password: '',
     password_confirmation: '',
@@ -51,13 +51,19 @@ const submit = () => {
     })
 }
 
-// const activateCallback = (value) => {
-//     form.post(route('sign_up.first.step'), {
-//         onSuccess: () => {
-//             form.form_step = value;
-//         },
-//     });
-// }
+const validate = (activateCallback) => {
+    console.log(selectedCountry.value);
+    if(selectedCountry.value){
+        form.country = selectedCountry.value.name_en;
+        form.phone_code = selectedCountry.value.phone_code;
+    }
+
+    form.post(route('sign_up.first.step'), {
+        onSuccess: () => {
+            activateCallback(2);
+        },
+    });
+}
 
 
 </script>
@@ -65,13 +71,13 @@ const submit = () => {
 <template>
     <GuestLayout :title="$t('public.sign_up')">
         <form >
-            <Stepper value="1" linear>
+            <Stepper v-model:value="activeStep" linear>
                 <StepList>
-                    <Step value="1">{{$t('public.basic_details')}}</Step>
-                    <Step value="2">{{$t('public.set_password')}}</Step>
+                    <Step :value="1">{{$t('public.basic_details')}}</Step>
+                    <Step :value="2">{{$t('public.set_password')}}</Step>
                 </StepList>
                 <StepPanels>
-                    <StepPanel v-slot="{ activateCallback }" value="1">
+                    <StepPanel v-slot="{ activateCallback }" :value="1">
                         <div class="grid gap-6">
                             <div class ="grid gap-3 text-center">
                                 <p class="text-gray-950 text-xl font-bold">
@@ -85,19 +91,19 @@ const submit = () => {
                             <div class="space-y-4">
                                 <div class="space-y-1.5">
                                     <Label
-                                        for="name"
+                                        for="first_name"
                                         :value="$t('public.full_name')"
                                     />
                                     <Input
-                                        id="name"
+                                        id="first_name"
                                         type="text"
                                         class="block w-full"
                                         :placeholder="$t('public.name_placeholder')"
                                         autofocus
-                                        v-model="form.name"
-                                        :invalid="form.errors.name"
+                                        v-model="form.first_name"
+                                        :invalid="form.errors.first_name"
                                     />
-                                    <InputError :message="form.errors.name" />
+                                    <InputError :message="form.errors.first_name" />
                                 </div>
 
                                 <div class="space-y-1.5">
@@ -123,17 +129,18 @@ const submit = () => {
                                         :value="$t('public.phone_number')"
                                     />
                                     <div class="flex gap-3">
-                                        <Select filter v-model="form.dial_code" :options="countryList" optionLabel="label" optionValue="value" :placeholder="$t('public.select_country')" class="w-full md:w-56">
-                                            <template #value="{ value }" >
-                                                <div v-if="value" class="flex items-center">
-                                                    <div class="text-black">{{ value }}
+                                        <Select filter :filterFields="['name_en', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name_en" :placeholder="$t('public.select_country')" class="w-full md:w-56"
+                                        :invalid="form.errors.phone_code">
+                                            <template #value="slotProps" >
+                                                <div v-if="slotProps.value" class="flex items-center">
+                                                    <div class="text-black">{{ slotProps.value.phone_code }}
                                                     </div>
                                                 </div>
                                                 <span v-else>{{ $t('public.select_country') }}</span>
                                             </template>
-                                            <template #option="{ option }">
+                                            <template #option="slotProps">
                                                 <div class="flex items-center">
-                                                    <div class="text-black">{{ option.label }} ({{ option.value }})</div>
+                                                    <div class="text-black">{{ slotProps.option.name_en }} ({{ slotProps.option.phone_code }})</div>
                                                 </div>
                                             </template>
                                         </Select>
@@ -147,12 +154,13 @@ const submit = () => {
                                             :invalid="form.errors.phone"
                                         />
                                     </div>
+                                    <InputError :message="form.errors.phone_code"/>
                                     <InputError :message="form.errors.phone"/>
                                 </div>
                             </div>
 
                             <div class="grid items-center gap-6">
-                                <Button type="button" variant="primary-flat" size="base" class="w-full px-4 py-3" @click="activateCallback('2')" >
+                                <Button type="button" variant="primary-flat" size="base" class="w-full px-4 py-3" @click="() => validate(activateCallback)" >
                                     <span>{{ $t('public.continue') }}</span>
                                 </Button>
 
@@ -165,7 +173,7 @@ const submit = () => {
                             </div>
                         </div>
                     </StepPanel>
-                    <StepPanel v-slot="{ activateCallback }" value="2">
+                    <StepPanel v-slot="{ activateCallback }" :value="2">
                         <div class="grid gap-6">
                             <div class ="grid gap-3 text-center">
                                 <p class="text-gray-950 text-xl font-bold">
@@ -241,7 +249,7 @@ const submit = () => {
                                 <Button
                                 type="button"
                                 variant="primary-text"
-                                @click="activateCallback('1')"
+                                @click="activateCallback(1)"
                                 class="px-4 py-3"
                                 >
                                     <span>{{ $t('public.previous_page') }}</span>

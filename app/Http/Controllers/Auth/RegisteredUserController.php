@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Country;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -28,37 +29,42 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        $countries = Country::select('name_en', 'phone_code')->get();
+
+        return Inertia::render('Auth/Register', [
+            'countries' => $countries,
+        ]);
     }
 
     public function firstStep(Request $request)
     {
         $rules = [
-            'name' => 'required|string|max:255|unique:' . User::class,
+            'first_name' => 'required|string|max:255|unique:' . User::class,
             'email' => 'required|string|email|max:255|unique:' . User::class,
+            'phone_code' => 'required',
             'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:8|unique:' . User::class,
         ];
 
         $attributes = [
-            'name' => trans('public.full_name'),
+            'first_name' => trans('public.full_name'),
             'email' => trans('public.email'),
+            'phone_code' => trans('public.phone_code'),
             'phone' => trans('public.phone_number'),
-            
         ];
 
-        $dial_code = $request->dial_code;
+        $phone_code = $request->phone_code;
         $phone = $request->phone;
 
         // Remove leading '+' from dial code if present
-        $dial_code = ltrim($dial_code, '+');
+        $phone_code = ltrim($phone_code, '+');
 
         // Remove leading '+' from phone number if present
         $phone = ltrim($phone, '+');
 
         // Check if phone number already starts with dial code
-        if (!str_starts_with($phone, $dial_code)) {
+        if (!str_starts_with($phone, $phone_code)) {
             // Concatenate dial code and phone number
-            $phone = '+' . $dial_code . $phone;
+            $phone = '+' . $phone_code . $phone;
         } else {
             // If phone number already starts with dial code, use the phone number directly
             $phone = '+' . $phone;
@@ -70,34 +76,34 @@ class RegisteredUserController extends Controller
         $validator = Validator::make($request->all(), $rules);
         $validator->setAttributeNames($attributes);
 
-        if ($request->form_step == 1) {
-            $validator->validate();
-        } elseif ($request->form_step == 2) {
-            // Validation rules for step 2
-            $additionalRules = [
-                'password' => ['required', 'confirmed', Password::min(6)->letters()->symbols()->numbers()->mixedCase()],
-            ];
+        
+        $validator->validate();
+        // } elseif ($request->form_step == 2) {
+        //     // Validation rules for step 2
+        //     $additionalRules = [
+        //         'password' => ['required', 'confirmed', Password::min(6)->letters()->symbols()->numbers()->mixedCase()],
+        //     ];
 
-            // Merge additional rules with existing rules
-            $rules = array_merge($rules, $additionalRules);
+        //     // Merge additional rules with existing rules
+        //     $rules = array_merge($rules, $additionalRules);
 
-            // Set additional attributes
-            $additionalAttributes = [
-                'password' => trans('public.password'),
-            ];
+        //     // Set additional attributes
+        //     $additionalAttributes = [
+        //         'password' => trans('public.password'),
+        //     ];
 
-            // Merge additional attributes with existing attributes
-            $attributes = array_merge($attributes, $additionalAttributes);
+        //     // Merge additional attributes with existing attributes
+        //     $attributes = array_merge($attributes, $additionalAttributes);
 
-            // Create a new validator with updated rules and attributes
-            $validator = Validator::make($request->all(), $rules);
-            $validator->setAttributeNames($attributes);
+        //     // Create a new validator with updated rules and attributes
+        //     $validator = Validator::make($request->all(), $rules);
+        //     $validator->setAttributeNames($attributes);
 
-            // Validate the request
-            $validator->validate();
-        }
+        //     // Validate the request
+        //     $validator->validate();
+        // }
 
-        return to_route('register');
+        return to_route('sign_up');
     }
 
     /**
@@ -120,60 +126,53 @@ class RegisteredUserController extends Controller
 //        if($otp->otp != $request->verification_code){
 //            throw ValidationException::withMessages(['verification_code' => 'Invalid Verification Code']);
 //        }
+        // Validation rules for step 2
+        $rules = [
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->symbols()->numbers()->mixedCase()],
+        ];
 
-        $dial_code = $request->dial_code;
+        // Set additional attributes
+        $attributes = [
+            'password' => trans('public.password'),
+        ];
+
+        // Create a new validator with updated rules and attributes
+        $validator = Validator::make($request->all(), $rules);
+        $validator->setAttributeNames($attributes);
+
+        // Validate the request
+        $validator->validate();
+
+        $phone_code = $request->phone_code;
         $phone = $request->phone;
 
         // Remove leading '+' from dial code if present
-        $dial_code = ltrim($dial_code, '+');
+        $phone_code = ltrim($phone_code, '+');
 
         // Remove leading '+' from phone number if present
         $phone = ltrim($phone, '+');
 
         // Check if phone number already starts with dial code
-        if (!str_starts_with($phone, $dial_code)) {
+        if (!str_starts_with($phone, $phone_code)) {
             // Concatenate dial code and phone number
-            $phone = '+' . $dial_code . $phone;
+            $phone = '+' . $phone_code . $phone;
         } else {
             // If phone number already starts with dial code, use the phone number directly
             $phone = '+' . $phone;
         }
 
         $userData = [
-            'first_name' => $request->name,
+            'first_name' => $request->first_name,
             'email' => $request->email,
-            // 'country' => $request->country,
-            // 'nationality' => $request->nationality,
+            'country' => $request->country,
             'phone' => $phone,
-            // 'dob' => $dob,
             'password' => Hash::make($request->password),
-            // 'role' => 'user',
-            // 'top_leader_id' => null,
         ];
 
-        // if ($request->referral_code) {
-        //     $referral_code = $request->input('referral_code');
-        //     $check_referral_code = User::where('referral_code', $referral_code)->first();
-
-        //     if ($check_referral_code) {
-        //         $upline_id = $check_referral_code->id;
-        //         $top_leader_id = $check_referral_code->top_leader_id ? $check_referral_code->top_leader_id : $check_referral_code->id;
-        //         $hierarchyList = empty($check_referral_code['hierarchyList']) ? "-" . $upline_id . "-" : $check_referral_code['hierarchyList'] . $upline_id . "-";
-
-        //         $userData['top_leader_id'] = $top_leader_id;
-        //         $userData['upline_id'] = $upline_id;
-        //         $userData['hierarchyList'] = $hierarchyList;
-        //         $userData['is_public'] = $check_referral_code->is_public;
-
-        //         if ($userData['top_leader_id'] != 7) {
-        //             $userData['rank_up_status'] = 'manual';
-        //         }
-        //     }
-        // }
 
         $user = User::create($userData);
 
-        // $user->setReferralId();
+        $user->setReferralId();
 
         event(new Registered($user));
 

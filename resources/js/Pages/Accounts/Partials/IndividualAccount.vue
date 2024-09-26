@@ -1,5 +1,5 @@
 <script setup>
-import { IconAlertCircleFilled, IconTrashX } from '@tabler/icons-vue';
+import { IconAlertCircleFilled, IconTrashX, IconDotsVertical } from '@tabler/icons-vue';
 import { ref, h, computed, watchEffect } from 'vue';
 import Empty from '@/Components/Empty.vue';
 import { generalFormat, transactionFormat } from "@/Composables/index.js";
@@ -9,6 +9,8 @@ import { router } from "@inertiajs/vue3";
 import { useConfirm } from "primevue/useconfirm";
 import { trans, wTrans } from "laravel-vue-i18n";
 import Loader from "@/Components/Loader.vue";
+import Deposit from "@/Pages/Accounts/Partials/Deposit.vue";
+import Transfer from "@/Pages/Accounts/Partials/Transfer.vue";
 
 // const props = defineProps({
 //     user_id: Number
@@ -107,7 +109,7 @@ watchEffect(() => {
             class="flex flex-col justify-center items-center px-3 py-3 gap-3 rounded-lg border-l-[12px] bg-white shadow-card"
             :style="{'borderColor': `#${tradingAccount.account_type_color}`}"
         >
-            <div class="flex items-center gap=5 self-stretch">
+            <div class="flex items-center gap-5 self-stretch">
                 <div class="w-full flex items-center content-center gap-x-4 gap-y-2 flex-wrap">
                     <div class="text-gray-950 font-semibold md:text-lg">#{{ tradingAccount.meta_login }}</div>
                     <div
@@ -119,34 +121,54 @@ watchEffect(() => {
                     >
                         {{ $t('public.' + tradingAccount.account_type) }}
                     </div>
-                    <!-- <div v-if="isInactive(tradingAccount.updated_at)" class="text-error-500">
-                        <IconAlertCircleFilled :size="20" stroke-width="1.25" />
-                    </div> -->
                 </div>
+                <Button
+                    variant="gray-text"
+                    size="sm"
+                    type="button"
+                    iconOnly
+                    pill
+                    aria-haspopup="true"
+                    aria-controls="overlay_tmenu"
+                >
+                    <IconDotsVertical size="16" stroke-width="1.25" />
+                </Button>
             </div>
             <div class="grid grid-cols-2 gap-2 self-stretch md:grid-cols-4">
                 <div class="w-full flex flex-col items-center gap-1 flex-grow">
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }} ($)</span>
                     <span class="self-stretch text-gray-950 text-sm font-medium truncate w-full">$&nbsp;{{ formatAmount(tradingAccount.balance) }}</span>
                 </div>
                 <div class="w-full flex flex-col items-center gap-1 flex-grow">
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.equity') }} ($)</span>
                     <span class="self-stretch text-gray-950 text-sm font-medium truncate w-full">$&nbsp;{{ formatAmount(tradingAccount.equity) }}</span>
                 </div>
                 <div class="w-full flex flex-col items-center gap-1 flex-grow">
-                    <span class="self-stretch text-gray-500 text-xs">{{ tradingAccount.account_type === 'premium_account' ? $t('public.pamm') : $t('public.credit') }}:</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ tradingAccount.account_type === 'premium_account' ? $t('public.pamm') : $t('public.credit') }} ($)</span>
                     <div class="self-stretch text-gray-950 text-sm font-medium truncate w-full">
                         <span v-if="tradingAccount.account_type === 'premium_account'">{{ tradingAccount.asset_master_name ?? '-' }}</span>
                         <span v-else>$&nbsp;{{ formatAmount(tradingAccount.credit) }}</span>
                     </div>
                 </div>
                 <div class="w-full flex flex-col items-center gap-1 flex-grow">
-                    <span class="self-stretch text-gray-500 text-xs">{{ tradingAccount.account_type === 'premium_account' ? $t('public.mature_in') : $t('public.leverage') }}:</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ tradingAccount.account_type === 'premium_account' ? $t('public.mature_in') : $t('public.leverage') }}</span>
                     <div class="self-stretch text-gray-950 text-sm font-medium truncate w-full">
                         <span v-if="tradingAccount.account_type === 'premium_account'">{{ tradingAccount.asset_master_name ? tradingAccount.remaining_days + ' ' + $t('public.days') : '-' }}</span>
                         <span v-else>{{ `1:${tradingAccount.leverage}` }}</span>
                     </div>
                 </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 self-stretch">
+                <Deposit 
+                
+                />
+                <Button
+                    variant="gray-outlined"
+                    size="sm"
+                    type="button"
+                >
+                    {{ $t('public.transfer') }}
+                </Button>
             </div>
         </div>
     </div>

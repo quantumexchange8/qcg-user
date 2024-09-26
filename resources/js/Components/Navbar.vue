@@ -3,12 +3,14 @@ import { sidebarState } from '@/Composables'
 import {
     IconLanguage,
     IconTransferOut,
-    IconMenu2
+    IconMenu2,
+    IconQrcode
 } from '@tabler/icons-vue';
 import ProfilePhoto from "@/Components/ProfilePhoto.vue";
 import {Link, usePage} from "@inertiajs/vue3";
 import TieredMenu from "primevue/tieredmenu";
 import {ref} from "vue";
+import Button from "@/Components/Button.vue";
 import {loadLanguageAsync} from "laravel-vue-i18n";
 
 defineProps({
@@ -67,12 +69,16 @@ const changeLanguage = async (langVal) => {
             >
                 <IconLanguage size="20" stroke-width="1.25" />
             </div>
-            <Link
-                class="w-12 h-12 p-2 items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 hidden md:block focus:bg-gray-100"
-                :href="route('profile')"
+            <Button
+                variant="gray-text"
+                class="w-12 h-12 p-3.5 !ring-0"
+                size="base"
+                type="button"
+                iconOnly
+                pill
             >
-                <ProfilePhoto class="w-5 h-5" />
-            </Link>
+                <IconQrcode size="20" stroke-width="1.5" />
+            </Button>
             <Link
                 class="w-12 h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('logout')"

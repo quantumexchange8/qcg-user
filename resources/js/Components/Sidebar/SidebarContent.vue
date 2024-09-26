@@ -44,10 +44,10 @@ import {
 </script>
 
 <template>
-    <PerfectScrollbar
+    <div
         tagname="nav"
         aria-label="main"
-        class="relative flex flex-col flex-1 max-w-full max-h-full gap-1 items-center"
+        class="relative w-full flex flex-col flex-1 max-w-full max-h-full gap-1 items-center"
     >
         <!-- Dashboard -->
         <SidebarLink
@@ -148,5 +148,5 @@ import {
             </template>
         </SidebarLink>
 
-    </PerfectScrollbar>
+    </div>
 </template>

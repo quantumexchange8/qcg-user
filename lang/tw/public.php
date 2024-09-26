@@ -58,4 +58,12 @@ return [
     'open_acc_caption' => '開設真實帳戶並抓住在真實市場進行交易的機會. 您的交易冒險從這裡開始!',
     'open_account' => '開設帳戶',
     'demo_account' => '模擬帳戶',
+    'standard_account' => '標準帳戶',
+    'ECN' => 'ECN',
+    'balance' => '净值',
+    'equity' => '结余',
+    'credit' => '信用',
+    'leverage' => '槓桿',
+    'deposit' => '存款',
+    'transfer' => '转账',
 ];

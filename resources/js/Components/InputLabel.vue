@@ -16,7 +16,7 @@ defineProps({
         }"
     >
         <div v-if="value">
-            {{ value }}
+            {{ value }}<span class="text-error-600 text-sm"> *</span>
         </div>
         <div v-else>
             <slot />

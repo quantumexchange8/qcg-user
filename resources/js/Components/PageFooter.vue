@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 </script>
 
 <template>
-    <footer class="flex flex-col flex-shrink-0 gap-3 p-5 text-x bg-white">
+    <footer class="flex flex-col flex-shrink-0 md:mt-auto mt-[100px] gap-3 p-5 text-x bg-white">
         <div class="flex flex-col gap-1">
             <p class=" text-gray-700 text-xs font-semibold">
                 {{ $t('public.risk_warning') }}
