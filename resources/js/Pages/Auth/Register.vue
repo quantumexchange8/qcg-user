@@ -52,7 +52,7 @@ const submit = () => {
 }
 
 const validate = (activateCallback) => {
-    console.log(selectedCountry.value);
+    // console.log(selectedCountry.value);
     if(selectedCountry.value){
         form.country = selectedCountry.value.name_en;
         form.phone_code = selectedCountry.value.phone_code;

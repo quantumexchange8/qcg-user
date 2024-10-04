@@ -9,29 +9,27 @@ import InputNumber from 'primevue/inputnumber';
 import {transactionFormat} from "@/Composables/index.js";
 
 
-// const props = defineProps({
-//     masterAccount: Object,
-//     terms: Object,
-// })
+const props = defineProps({
+    tradingAccount: Object,
+})
 
 const visible = ref(false)
 const transactionVisible = ref(false)
+const { formatAmount } = transactionFormat();
 
 const closeDialog = () => {
     visible.value = false;
 }
+
 
 const form = useForm({
     account_type: '',
     leverage: '',
 });
 
-const submitForm = () => {
+const deposit = () => {
 
 };
-
-const leverages = ref();
-const selectedLeverage = ref();
 
 // const getResults = async () => {
 //     try {
@@ -84,8 +82,8 @@ const selectedLeverage = ref();
     <Dialog v-model:visible="transactionVisible" modal :header="$t('public.deposit')" class="dialog-sm">
         <div class="flex flex-col py-6 gap-8">
             <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
-                <span class="text-xs text-center text-gray-500">#8000123 - {{ $t('public.current_account_balance') }}</span>
-                <span class="text-lg text-center font-bold text-gray-950">$ 1,000.00</span>
+                <span class="text-xs text-center text-gray-500">{{ props.tradingAccount.meta_login }} - {{ $t('public.current_account_balance') }}</span>
+                <span class="text-lg text-center font-bold text-gray-950">$ {{ formatAmount(props.tradingAccount.balance) }}</span>
             </div>
             <div class="flex flex-row gap-3 items-start">
                 <div><IconInfoCircle size="24" color="#030712" stroke-width="2"/></div>
@@ -96,7 +94,7 @@ const selectedLeverage = ref();
             </div>
         </div>
         <div class="pt-6 w-full">
-            <Button variant="primary-flat" type="button" class="justify-center w-full">
+            <Button variant="primary-flat" type="button" class="justify-center w-full" @click="deposit">
                 {{$t('public.deposit_now')}}
             </Button>
         </div>

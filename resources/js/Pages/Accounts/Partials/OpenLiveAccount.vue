@@ -28,7 +28,12 @@ const form = useForm({
 });
 
 const submitForm = () => {
-
+    form.leverage = selectedLeverage.value.value;
+    form.post(route('accounts.createTradingAccount'), {
+        onSuccess: () => {
+            form.reset();
+        },
+    })
 };
 
 const selectedLeverage = ref();
@@ -36,17 +41,19 @@ const chips = [
     {
         label: 'Standard Account',
         type: 'standard',
+        value: 1,
         caption: 'Versatile account with flexible spreads, suitable for traders of all levels and trading strategies.',
     },
     {
         label: 'ECN',
         type: 'ecn',
+        value: 3,
         caption: 'test',
     },
 ];
 
-const handleChipClick = (type) => {
-    form.account_type = type;
+const handleChipClick = (value) => {
+    form.account_type = value;
 };
 
 // const getResults = async () => {
@@ -89,13 +96,13 @@ const handleChipClick = (type) => {
                             <Chip 
                                 class="px-4 py-3 flex flex-col !gap-1 w-full !items-start"
                                 :class="{
-                                        'border-primary-600 !bg-primary-50': form.account_type === chip.type,
+                                        'border-primary-600 !bg-primary-50': form.account_type === chip.value,
                                     }"
-                                @click="handleChipClick(chip.type)"
+                                @click="handleChipClick(chip.value)"
                             >
                                 <div class="flex flex-row gap-3 w-full justify-between">
                                     <span class="text-sm font-semibold text-gray-950">{{ chip.label }}</span>
-                                    <IconCircleCheckFilled v-if="form.account_type === chip.type" size="20" color="#2E7D32" stroke-width="1.25"/>
+                                    <IconCircleCheckFilled v-if="form.account_type === chip.value" size="20" color="#2E7D32" stroke-width="1.25"/>
                                 </div>
                                 <span class="text-xs text-gray-500">{{ chip.caption }}</span>
                             </Chip>
@@ -107,7 +114,20 @@ const handleChipClick = (type) => {
                             for="leverage"
                             :value="$t('public.leverage')"
                         />
-                        <Select v-model="selectedLeverage" :options="props.leverages" :placeholder="$t('public.select_leverage')" class="w-full" />
+                        <Select v-model="selectedLeverage" :options="props.leverages" :placeholder="$t('public.select_leverage')" class="w-full">
+                            <template #value="slotProps" >
+                                <div v-if="slotProps.value" class="flex items-center">
+                                    <div class="text-black">{{ slotProps.value.leverage }}
+                                    </div>
+                                </div>
+                                <span v-else>{{ $t('public.select_leverage') }}</span>
+                            </template>
+                            <template #option="slotProps">
+                                <div class="flex items-center">
+                                    <div class="text-black">{{ slotProps.option.leverage }}</div>
+                                </div>
+                            </template>
+                        </Select>
                     </div>
                 </div>
                 <div class="flex justify-center gap-3 items-center self-stretch">

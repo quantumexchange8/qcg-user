@@ -25,4 +25,9 @@ class AccountType extends Model
         'color',
         'edited_by',
     ];
+
+    public function metaGroup()
+    {
+        return $this->belongsTo(Group::class, 'group', 'id');
+    }
 }

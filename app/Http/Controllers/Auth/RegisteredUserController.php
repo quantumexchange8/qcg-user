@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\RegisterRequest;
 use App\Notifications\OtpNotification;
 use App\Models\Wallet;
+use App\Services\CTraderService;
 
 class RegisteredUserController extends Controller
 {
@@ -113,6 +114,24 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $conn = (new CTraderService)->connectionStatus();
+        
+        if ($conn['code'] != 0) {
+            return collect([
+                'toast' => [
+                    'title' => 'Connection Error',
+                    'type' => 'error'
+                ]
+            ]);
+        }
+
+        // if ($conn['code'] != 0) {
+        //     if ($conn['code'] == 10) {
+        //         return back()->with('error_message', 'No connection with cTrader Server');
+        //     }
+        //     return back()->with('error_message', $conn['message']);
+        // }
+
 //        $otp = VerifyOtp::where('email', $request->email)->first();
 //
 //        $expirationTime = Carbon::parse($otp->updated_at)->addMinutes(5);
@@ -161,12 +180,16 @@ class RegisteredUserController extends Controller
             $phone = '+' . $phone;
         }
 
+        $ctUser = (new CTraderService)->CreateCTID($request->email);
+
         $userData = [
             'first_name' => $request->first_name,
             'email' => $request->email,
             'country' => $request->country,
             'phone' => $phone,
             'password' => Hash::make($request->password),
+            'ct_user_id' => $ctUser['userId'],
+            'remarks' => 'TW Test Trading Group',
         ];
 
 
@@ -176,9 +199,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        return redirect()->route('login')
-            ->with('title', trans('public.success_registration'))
-            ->with('success', trans('public.successfully_registration'));
+        return redirect('/login')->with('toast', 'Successfully Created Account');
     }
 
 }

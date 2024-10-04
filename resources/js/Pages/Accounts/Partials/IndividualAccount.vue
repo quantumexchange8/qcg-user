@@ -21,50 +21,50 @@ const { formatRgbaColor } = generalFormat()
 const tradingAccounts = ref();
 const isLoading = ref(false);
 
-// const getTradingAccounts = async () => {
-//     isLoading.value = true;
-
-//     try {
-//         const response = await axios.get(`/member/getTradingAccounts?id=${props.user_id}`);
-
-//         tradingAccounts.value = response.data.tradingAccounts;
-//         // console.log(tradingAccounts);
-//     } catch (error) {
-//         console.error('Error get trading accounts:', error);
-//     } finally {
-//         isLoading.value = false;
-//     }
-// };
-
 const getTradingAccounts = async () => {
-    // Replace with dummy data
-    tradingAccounts.value = [
-        {
-            id: 1,
-            meta_login: '8000759',
-            account_type: 'standard_account',
-            account_type_color: '009688',
-            balance: 10000,
-            equity: 15000,
-            credit: 5000,
-            asset_master_name: 'Asset Master 1',
-            remaining_days: 30,
-            leverage: 50,
-            updated_at: new Date().toISOString() // Set to current date
-        },
-        {
-            id: 2,
-            meta_login: '8000447',
-            account_type: 'ECN',
-            account_type_color: '009688',
-            balance: 2000,
-            equity: 2500,
-            credit: 500,
-            leverage: 100,
-            updated_at: new Date(new Date().setDate(new Date().getDate() - 100)).toISOString() // Set to 100 days ago
-        }
-    ];
+    isLoading.value = true;
+
+    try {
+        const response = await axios.get(`/accounts/getTradingAccounts`);
+
+        tradingAccounts.value = response.data.tradingAccounts;
+        // console.log(tradingAccounts);
+    } catch (error) {
+        console.error('Error get trading accounts:', error);
+    } finally {
+        isLoading.value = false;
+    }
 };
+
+// const getTradingAccounts = async () => {
+//     // Replace with dummy data
+//     tradingAccounts.value = [
+//         {
+//             id: 1,
+//             meta_login: '8000759',
+//             account_type: 'standard_account',
+//             account_type_color: '009688',
+//             balance: 10000,
+//             equity: 15000,
+//             credit: 5000,
+//             asset_master_name: 'Asset Master 1',
+//             remaining_days: 30,
+//             leverage: 50,
+//             updated_at: new Date().toISOString() // Set to current date
+//         },
+//         {
+//             id: 2,
+//             meta_login: '8000447',
+//             account_type: 'ECN',
+//             account_type_color: '009688',
+//             balance: 2000,
+//             equity: 2500,
+//             credit: 500,
+//             leverage: 100,
+//             updated_at: new Date(new Date().setDate(new Date().getDate() - 100)).toISOString() // Set to 100 days ago
+//         }
+//     ];
+// };
 
 getTradingAccounts();
 
@@ -93,7 +93,7 @@ watchEffect(() => {
 </script>
 
 <template>
-    <!-- <div v-if="tradingAccounts?.length <= 0" class="flex flex-col justify-center items-center h-[200px]">
+    <div v-if="tradingAccounts?.length <= 0" class="flex flex-col justify-center items-center h-[200px]">
         <Empty :message="$t('public.empty_trading_account_message')">
             <template #image></template>
         </Empty>
@@ -101,9 +101,9 @@ watchEffect(() => {
     <div v-else-if="isLoading" class="flex flex-col gap-2 items-center justify-center">
         <Loader />
         <span class="text-sm text-gray-700">{{ $t('public.loading_transactions_caption') }}</span>
-    </div> -->
+    </div>
 
-    <div class="grid md:grid-cols-2 gap-3 md:gap-5">
+    <div v-else class="grid md:grid-cols-2 gap-3 md:gap-5">
         <div
             v-for="tradingAccount in tradingAccounts" :key="tradingAccount.id"
             class="flex flex-col justify-center items-center px-3 py-3 gap-3 rounded-lg border-l-[12px] bg-white shadow-card"
@@ -116,7 +116,7 @@ watchEffect(() => {
                         v-if="tradingAccount.account_type"
                         class="flex px-2 py-1 justify-center items-center text-white text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded-sm"
                         :style="{
-                            backgroundColor: `#${tradingAccount.account_type_color}`,
+                            backgroundColor: tradingAccount.account_type_color ? `#${tradingAccount.account_type_color}` : '#009688'
                         }"
                     >
                         {{ $t('public.' + tradingAccount.account_type) }}
@@ -160,7 +160,7 @@ watchEffect(() => {
             </div>
             <div class="grid grid-cols-2 gap-3 self-stretch">
                 <Deposit 
-                
+                    :tradingAccount="tradingAccount"
                 />
                 <Button
                     variant="gray-outlined"

@@ -6,10 +6,13 @@ use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\AccountType;
 use App\Models\TradingUser;
+use App\Models\TradingAccount;
 use App\Models\Transaction;
 use App\Models\SettingLeverage;
+use App\Services\CTraderService;
 
 class AccountController extends Controller
 {
@@ -26,13 +29,45 @@ class AccountController extends Controller
         ]);
     }
 
-    public function createTradingAccounts(Request $request)
+    public function createTradingAccount(Request $request)
     {
+        $user = Auth::user();
 
+        $cTraderService = new CTraderService;
+
+        $conn = $cTraderService->connectionStatus();
+        if ($conn['code'] != 0) {
+            return back()
+                ->with('toast', [
+                    'title' => 'Connection Error',
+                    'type' => 'error'
+                ]);
+        }
+
+        /*
+        $mainPassword = Str::random(8);
+        $investorPassword = Str::random(8);
+         Mail::to($user->email)->send(new NewMetaAccount($mainPassword, $investorPassword));
+        return true; */
+
+        $account_type = $request->account_type;
+        $mainPassword = Str::random(8);
+        $investorPassword = Str::random(8);
+        // $group = 'real\ETIQECNElite_A';
+        // $group = Group::where('value', $group)->first()->value('meta_group_name');
+        $account_type = AccountType::with('metaGroup')->where('id', $account_type)->get()->value('metaGroup.meta_group_name');
+
+        // $remarks = 'TW Test Trading Group';
+        $remarks = $user->remark;
+        $ctAccount = (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $account_type, $request->leverage, $request->account_type, null, null, $remarks);
+        //Mail::to($user->email)->send(new NewMetaAccount($ctAccount['login'], $mainPassword, $investorPassword));
+        return back()->with('toast', 'Successfully Created Trading Account');
+        // return true;
     }
 
     public function getTradingAccounts(Request $request)
     {
+        $user = Auth::user();
         // $cTraderService = new CTraderService;
 
         // $conn = $cTraderService->connectionStatus();
@@ -58,7 +93,7 @@ class AccountController extends Controller
 
         // Fetch trading accounts based on user ID
         $tradingAccounts = TradingAccount::query()
-            ->where('user_id', $request->id)
+            ->where('user_id', $user->id)
             ->get() // Fetch the results from the database
             ->map(function($trading_account) {
                 return [

@@ -44,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('accounts')->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('accounts');
 
+        Route::post('/createTradingAccount', [AccountController::class, 'createTradingAccount'])->name('accounts.createTradingAccount');
+        Route::get('/getTradingAccounts', [AccountController::class, 'getTradingAccounts'])->name('accounts.getTradingAccounts');
         // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
         // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -66,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('transaction')->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('transaction');
 
+        Route::get('/getTransactionHistory', [TransactionController::class, 'getTransactionHistory'])->name('transaction.getTransactionHistory');
         // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
         // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
