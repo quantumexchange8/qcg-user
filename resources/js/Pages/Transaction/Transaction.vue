@@ -81,10 +81,18 @@ const transactions = ref();
 //     }
 // ];
 
-const selectedDate = ref([]);
-const transactionType = ref();
-const status = ref();
-const search = ref();
+// Get current date
+const today = new Date();
+
+// Define minDate and maxDate
+const minDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
+const maxDate = ref(today);
+
+// Reactive variable for selected date range
+const selectedDate = ref([minDate.value, maxDate.value]);
+const transactionType = ref('');
+const status = ref('');
+const search = ref('');
 const filteredValueCount = ref(0);
 
 // Define the transfer type options
@@ -116,9 +124,6 @@ const getStatusColor = (status) => {
   }
 };
 
-const today = new Date();
-const maxDate = ref(today);
-
 const getResults = async (search = '', type = '', status = '', dateRanges = null) => {
     loading.value = true;
 
@@ -142,7 +147,7 @@ const getResults = async (search = '', type = '', status = '', dateRanges = null
             params.append('startDate', dayjs(startDate).format('YYYY-MM-DD'));
             params.append('endDate', dayjs(endDate).format('YYYY-MM-DD'));
         }
-
+        console.log('Params:', params.toString());
         const response = await axios.get('/transaction/getTransactionHistory', { params });
         transactions.value = response.data.transactions;
 
@@ -154,36 +159,33 @@ const getResults = async (search = '', type = '', status = '', dateRanges = null
 
 };
 
-getResults();
+getResults(search.value, transactionType.value, status.value, selectedDate.value);
 
 watch(
-    [search, transactionType, status],
-    debounce(([searchValue, typeValue, statusValue, dateValue]) => {
-        getResults(searchValue, typeValue, statusValue, dateValue);
+    [search, transactionType, status, selectedDate],
+    debounce(([searchValue, typeValue, statusValue, dateRange]) => {
+        if (Array.isArray(dateRange)) {
+            const [startDate, endDate] = dateRange;
+
+            if (startDate && endDate) {
+                getResults(searchValue, typeValue, statusValue, [startDate, endDate]);
+            } else if (startDate || endDate) {
+                getResults(searchValue, typeValue, statusValue, [startDate || endDate, endDate || startDate]);
+            } else {
+                getResults(searchValue, typeValue, statusValue);
+            }
+        } else {
+            console.warn('Invalid date range format:', dateRange);
+        }
     }, 300)
 );
 
-watch(selectedDate, (newDateRange) => {
-    if (Array.isArray(newDateRange)) {
-        const [startDate, endDate] = newDateRange;
 
-        if (startDate && endDate) {
-            getResults(search.value, transactionType.value, status.value, [startDate, endDate]);
-        } else if (startDate || endDate) {
-            getResults(search.value, transactionType.value, status.value, [startDate || endDate, endDate || startDate]);
-        } else {
-            getResults();
-        }
-    } else {
-        console.warn('Invalid date range format:', newDateRange);
-    }
-});
-
-watchEffect(() => {
-    if (usePage().props.toast !== null) {
-        getResults();
-    }
-});
+// watchEffect(() => {
+//     if (usePage().props.toast !== null) {
+//         getResults();
+//     }
+// });
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -204,7 +206,7 @@ const clearFilter = () => {
         transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
 
-    selectedDate.value = [];
+    selectedDate.value = [minDate.value, maxDate.value];
     transactionType.value = null;
     status.value = null;
 };
@@ -214,7 +216,22 @@ const handleFilter = (e) => {
 };
 
 const exportCSV = () => {
-    dt.value.exportCSV();
+    // dt.value.exportCSV();
+    const dtComponent = dt.value;
+
+    // Manually specify the fields to include in the CSV export
+    const exportFields = [
+        { field: 'created_at', header: wTrans('public.date') },
+        { field: 'transaction_number', header: wTrans('public.id') },
+        { field: 'description', header: wTrans('public.description') },
+        { field: 'asset', header: wTrans('public.asset') },
+        { field: 'amount', header: `${wTrans('public.amount')} ($)` },
+        { field: 'status', header: wTrans('public.status') },
+    ];
+
+    dtComponent.exportCSV({
+        exportColumns: exportFields, // Specify columns for export
+    });
 };
 
 // dialog

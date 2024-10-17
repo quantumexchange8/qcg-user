@@ -13,7 +13,8 @@ const props = defineProps({
     <!-- Slot for custom image or content -->
     <slot name="image">
       <!-- Default image content if no custom content is provided -->
-      <EmptyRecordIcon class="w-60 h-[180px]" />
+      <img src="/assets/empty-record.svg" alt="no data" class="w-60 h-[180px]"/>
+      <!-- <EmptyRecordIcon class="w-60 h-[180px]" /> -->
     </slot>
 
     <div class="flex flex-col items-center gap-2 self-stretch">

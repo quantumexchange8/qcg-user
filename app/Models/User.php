@@ -4,13 +4,21 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, Notifiable, SoftDeletes, InteractsWithMedia, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -44,10 +52,10 @@ class User extends Authenticatable
 
     public function setReferralId(): void
     {
-        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randomString = '';
+        $characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $randomString = 'MOS';
 
-        $length = 10; // Length of the random string you want
+        $length = 10 - strlen($randomString);
 
         for ($i = 0; $i < $length; $i++) {
             $randomString .= $characters[rand(0, strlen($characters) - 1)];
@@ -55,6 +63,18 @@ class User extends Authenticatable
 
         $this->referral_code = $randomString;
         $this->save();
+    }
+
+    public function getChildrenIds(): array
+    {
+        return User::query()->where('hierarchyList', 'like', '%-' . $this->id . '-%')
+            ->pluck('id')
+            ->toArray();
+    }
+
+    public function directChildren(): HasMany
+    {
+        return $this->hasMany(User::class, 'upline_id', 'id');
     }
 
     public function upline(): BelongsTo
@@ -77,8 +97,24 @@ class User extends Authenticatable
         return $this->hasMany(TradingUser::class, 'user_id', 'id');
     }
 
+    public function rebate_wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'id')->where('type', 'rebate_wallet');
+    }
+
+    public function incentive_wallet(): HasOne
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'id')->where('type', 'incentive_wallet');
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class, 'user_id', 'id');
     }
+
+    public function rebateAllocations(): HasMany
+    {
+        return $this->hasMany(RebateAllocation::class, 'user_id', 'id');
+    }
+
 }

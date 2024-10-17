@@ -58,6 +58,11 @@ Route::middleware(['auth'])->group(function () {
      */
     Route::prefix('network')->group(function () {
         Route::get('/', [NetworkController::class, 'index'])->name('network');
+
+        Route::get('/getDownlineData', [NetworkController::class, 'getDownlineData'])->name('network.getDownlineData');
+        Route::get('/formatUserData', [NetworkController::class, 'formatUserData'])->name('network.formatUserData');
+        Route::get('/calculateLevel', [NetworkController::class, 'calculateLevel'])->name('network.calculateLevel');
+        Route::get('/getChildrenCount', [NetworkController::class, 'getChildrenCount'])->name('network.getChildrenCount');
     });
     
     /**
@@ -69,9 +74,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [TransactionController::class, 'index'])->name('transaction');
 
         Route::get('/getTransactionHistory', [TransactionController::class, 'getTransactionHistory'])->name('transaction.getTransactionHistory');
-        // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
-        // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     });
 
     /**
@@ -94,9 +97,10 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('rebate_setting')->group(function () {
         Route::get('/', [RebateSettingController::class, 'index'])->name('rebate_setting');
 
-        // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
-        // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/getRebateData', [RebateSettingController::class, 'getRebateData'])->name('rebate_setting.getRebateData');
+        Route::get('/getAgents', [RebateSettingController::class, 'getAgents'])->name('rebate_setting.getAgents');
+
+        Route::post('/updateRebateAmount', [RebateSettingController::class, 'updateRebateAmount'])->name('rebate_setting.updateRebateAmount');
     });
 
     /**

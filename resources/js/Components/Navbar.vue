@@ -54,7 +54,7 @@ const changeLanguage = async (langVal) => {
             <img src="/assets/QCG-logo.png" alt="no data" class="w-7 h-7" />
             <div class="flex flex-col items-start">
                 <span class="text-gray-950 text-sm font-black tracking-[4.20px]">量子資本集團</span>
-                <span class="text-gray-700 text-3xs font-medium">QUANTUM CAPITAL GROUP</span>
+                <span class="text-gray-700 text-xxxs font-medium">QUANTUM CAPITAL GROUP</span>
             </div>
         </div>
         <!-- <div
