@@ -33,7 +33,10 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'profile_image' => $request->user() ? $request->user()->getFirstMediaUrl('profile_image') : null,
             ],
+            'toast' => session('toast'),
+            'locale' => session('locale') ? session('locale') : app()->getLocale(),
         ];
     }
 }

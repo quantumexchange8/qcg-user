@@ -279,4 +279,5 @@ return [
     'ecn' => 'ECN',
     'negative_ecn_pro' => 'Negative ECN Pro',
     'loading_direct_agents_caption' => 'Loading direct agents...',
+    'token_address' => 'Token Address',
 ];

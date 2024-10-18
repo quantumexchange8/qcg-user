@@ -6,19 +6,19 @@ import {ref} from "vue";
 import Avatar from 'primevue/avatar';
 
 const form = useForm({
-    profile_photo: null,
+    profile_image: null,
     action: ''
 })
 
 const removeProfilePhoto = () => {
     selectedProfilePhoto.value = null;
-    form.profile_photo = null;
+    form.profile_image = null;
 
     form.action = 'remove';
     form.post(route('profile.updateProfilePhoto'))
 };
 
-const selectedProfilePhoto = ref(usePage().props.auth.profile_photo);
+const selectedProfilePhoto = ref(usePage().props.auth.profile_image);
 const handleUploadProfilePhoto = (event) => {
     const profilePhotoInput = event.target;
     const file = profilePhotoInput.files[0];
@@ -30,7 +30,7 @@ const handleUploadProfilePhoto = (event) => {
             selectedProfilePhoto.value = reader.result;
         };
         reader.readAsDataURL(file);
-        form.profile_photo = event.target.files[0];
+        form.profile_image = event.target.files[0];
         form.action = 'upload';
         form.post(route('profile.updateProfilePhoto'))
     } else {
@@ -43,7 +43,7 @@ const handleUploadProfilePhoto = (event) => {
     <div class="w-full h-full flex flex-col items-center p-3 gap-8 rounded-lg bg-white shadow-card md:p-6">
         <div class="w-full flex flex-col justify-center items-start gap-1">
             <span class="text-gray-950 font-bold">{{ $t('public.change_profile') }}</span>
-            <span class="text-gray-500 text-xs">{{ $t('public.change_profile_caption') }}</span>
+            <span class="text-gray-500 text-xs">{{ $t('public.upload_photo_caption') }}</span>
         </div>
 
         <div class="flex flex-col gap-5 items-center self-stretch">
@@ -86,7 +86,7 @@ const handleUploadProfilePhoto = (event) => {
                 </Button>
             </div>
 
-            <span class="text-xs text-gray-500">{{ $t('public.file_size_limit') }}</span>
+            <span class="text-xs text-gray-500">{{ $t('public.attachment_caption') }}</span>
         </div>
     </div>
 </template>

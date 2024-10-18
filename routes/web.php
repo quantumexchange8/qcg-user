@@ -111,9 +111,9 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('leaderboard')->group(function () {
         Route::get('/', [LeaderboardController::class, 'index'])->name('leaderboard');
 
-        // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
-        // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::post('/getAchievements', [LeaderboardController::class, 'getAchievements'])->name('leaderboard.getAchievements');
+        Route::post('/getAgents', [LeaderboardController::class, 'getAgents'])->name('leaderboard.getAgents');
+        Route::post('/getStatementData', [LeaderboardController::class, 'getStatementData'])->name('leaderboard.getStatementData');
     });
 
     /**
@@ -137,8 +137,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile');
 
-        // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 });
