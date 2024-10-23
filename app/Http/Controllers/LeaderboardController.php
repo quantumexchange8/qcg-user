@@ -22,6 +22,77 @@ class LeaderboardController extends Controller
         return Inertia::render('Leaderboard/Leaderboard');
     }
 
+    public function getTotalIncentiveGraph(Request $request)
+    {
+        $user_id = Auth::id();
+        $incentiveYear = $request->query('year', Carbon::now()->year); 
+
+        $monthlyIncentives = LeaderboardBonus::selectRaw('MONTH(created_at) as month, SUM(incentive_amount) as total')
+            ->where('user_id', $user_id)
+            ->whereYear('created_at', $incentiveYear)
+            ->whereIn('id', function($query) use ($user_id, $incentiveYear) {
+                $query->selectRaw('MAX(id)')
+                    ->from('leaderboard_bonuses')
+                    ->where('user_id', $user_id)
+                    ->whereYear('created_at', $incentiveYear)
+                    ->groupBy('leaderboard_profile_id', \DB::raw('MONTH(created_at)'));
+            })
+            ->groupBy(\DB::raw('MONTH(created_at)'))
+            ->orderBy(\DB::raw('MONTH(created_at)'))
+            ->get();
+
+        $totalYearlyIncentive = $monthlyIncentives->sum('total');
+
+        return response()->json([
+            'totalYearlyIncentive' => $totalYearlyIncentive,   
+            'monthlyIncentives' => $monthlyIncentives     
+        ]); 
+    }
+
+    public function getWithdrawalHistory(Request $request)
+    {
+        $id = Auth::id();
+
+        $query = Transaction::where('user_id', $id);
+
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
+        if ($startDate && $endDate) {
+            $start_date = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
+            $end_date = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+
+            $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        $transactions = $query
+            ->get()
+            ->map(function ($transaction) {
+                $description = $transaction->transaction_type;
+                $asset = $transaction->to_meta_login ? $transaction->to_meta_login : 'Unknown';
+
+                return [
+                    'id' => $transaction->id,
+                    'created_at' => $transaction->created_at,
+                    'transaction_number' => $transaction->transaction_number,
+                    'description' => $description,
+                    'asset' => $asset,
+                    'amount' => $transaction->amount,
+                    'status' => $transaction->status,
+                    'to_wallet_address' => $transaction->to_wallet_address,
+                    'from_wallet_address' => $transaction->from_wallet_address,
+                    'txn_hash' => $transaction->txn_hash,
+                    'remarks' => $transaction->comment,
+                ];
+            });
+
+        return response()->json([
+            'transactions' => $transactions,
+            // 'totalDeposit' => $bonusQuery->sum('amount'),
+            // 'totalWithdrawal' => $bonusQuery->sum('amount'),
+        ]);  
+    }
+
+
     public function getAchievements(Request $request)
     {
         $bonusQuery = LeaderboardProfile::query();

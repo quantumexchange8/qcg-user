@@ -12,7 +12,7 @@ export default {
             { 'first:ml-0 ml-[-1px]': parent.instance.$name == 'InputGroup' && !props.showButtons },
 
             // Color and Background
-            { 'bg-surface-0': !props.disabled },
+            { 'bg-white': !props.disabled },
 
             'border',
             { '': parent.instance.$name != 'InputGroup' },
@@ -37,7 +37,8 @@ export default {
             // Misc
             'cursor-pointer',
             'select-none',
-            { 'bg-gray-100 select-none pointer-events-none cursor-default': props.disabled }
+            { 'bg-gray-100 select-none pointer-events-none cursor-default': props.disabled },
+
         ]
     }),
     label: ({ props, parent }) => ({
@@ -92,7 +93,7 @@ export default {
             'text-gray-500',
 
             // Size
-            'w-12',
+            'w-10',
 
             // Shape
             'rounded-r',
