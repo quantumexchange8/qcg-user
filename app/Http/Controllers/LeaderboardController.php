@@ -64,62 +64,34 @@ class LeaderboardController extends Controller
             $query->whereBetween('created_at', [$start_date, $end_date]);
         }
 
-        $transactions = $query
+        $withdrawals = $query
             ->get()
-            ->map(function ($transaction) {
-                $description = $transaction->transaction_type;
-                $asset = $transaction->to_meta_login ? $transaction->to_meta_login : 'Unknown';
-
+            ->map(function ($withdrawal) {
                 return [
-                    'id' => $transaction->id,
-                    'created_at' => $transaction->created_at,
-                    'transaction_number' => $transaction->transaction_number,
-                    'description' => $description,
-                    'asset' => $asset,
-                    'amount' => $transaction->amount,
-                    'status' => $transaction->status,
-                    'to_wallet_address' => $transaction->to_wallet_address,
-                    'from_wallet_address' => $transaction->from_wallet_address,
-                    'txn_hash' => $transaction->txn_hash,
-                    'remarks' => $transaction->comment,
+                    'id' => $withdrawal->id,
+                    'created_at' => $withdrawal->created_at,
+                    'transaction_number' => $withdrawal->transaction_number,
+                    'amount' => $withdrawal->amount,
+                    'status' => $withdrawal->status,
+                    'to_wallet_id' => $withdrawal->to_wallet_id,
+                    'to_wallet_address' => $withdrawal->to_wallet_address,
+                    'remarks' => $withdrawal->comment,
                 ];
             });
 
         return response()->json([
-            'transactions' => $transactions,
-            // 'totalDeposit' => $bonusQuery->sum('amount'),
-            // 'totalWithdrawal' => $bonusQuery->sum('amount'),
+            'withdrawals' => $withdrawals,
+            'totalWithdrawalAmount' => $query->sum('amount'),
         ]);  
     }
 
 
     public function getAchievements(Request $request)
     {
-        $bonusQuery = LeaderboardProfile::query();
+        $user_id = Auth::id();
+        $bonusQuery = LeaderboardProfile::query()->where('user_id', $user_id);
 
-        $search = $request->search;
-        $sales_calculation_mode = $request->sales_calculation_mode;
-        $sales_category = $request->sales_category;
-
-        if (!empty($search)) {
-            $bonusQuery->whereHas('user', function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%')
-                    ->orWhere('id_number', 'like', '%' . $search . '%');
-            });
-        }
-
-        if (!empty($sales_calculation_mode)) {
-            $bonusQuery->where('sales_calculation_mode', $sales_calculation_mode);
-        }
-
-        if (!empty($sales_category)) {
-            $bonusQuery->where('sales_category', $sales_category);
-        }
-
-        $totalRecords = $bonusQuery->count();
-
-        $profiles = $bonusQuery->paginate($request->paginate);
+        $profiles = $bonusQuery->get();
 
         $formattedProfiles = $profiles->map(function($profile) {
             $incentive_amount = 0;
@@ -296,8 +268,8 @@ class LeaderboardController extends Controller
 
         return response()->json([
             'incentiveProfiles' => $formattedProfiles,
-            'totalRecords' => $totalRecords,
-            'currentPage' => $profiles->currentPage(),
+            // 'totalRecords' => $totalRecords,
+            // 'currentPage' => $profiles->currentPage(),
         ]);
     }
 

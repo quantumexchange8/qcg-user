@@ -90,8 +90,6 @@ const getResults = async (incentiveYear = selectedYear.value) => {
         }
 
         chartData.value = monthlyData; // Set the chart data to be used in the chart
-
-        console.log(totalYearlyIncentive.value, monthlyIncentives.value);
     } catch (error) {
         console.error('Error fetching data:', error);
     } finally {

@@ -17,6 +17,7 @@ import { trans, wTrans } from "laravel-vue-i18n";
 
 
 const visible = ref(false);
+const visible2 = ref(false);
 
 const closeDialog = () => {
     visible.value = false;
@@ -47,7 +48,7 @@ const getResults = async (dateRanges = null) => {
             params.append('endDate', dayjs(endDate).format('YYYY-MM-DD'));
         }
         console.log('Params:', params.toString());
-        const response = await axios.get('/leaderboard/getIncentiveHistory', { params });
+        const response = await axios.get('/leaderboard/getWithdrawalHistory', { params });
         withdrawals.value = response.data.withdrawals;
         totalWithdrawalAmount.value = response.data.totalWithdrawalAmount;
     } catch (error) {
@@ -95,6 +96,11 @@ const exportCSV = () => {
     });
 };
 
+const openDialog = (rowData) => {
+    visible2.value = true;
+    data.value = rowData;
+};
+
 </script>
 
 <template>
@@ -113,7 +119,7 @@ const exportCSV = () => {
         :header="$t('public.incentive_withdrawal_history')"
         class="dialog-xs md:dialog-md"
     >
-        <div>
+        <div class="pt-6">
             <DataTable
                 :value="withdrawals"
                 removableSort
@@ -122,6 +128,7 @@ const exportCSV = () => {
                 tableStyle="md:min-width: 50rem"
                 ref="dt"
                 :loading="loading"
+                @row-click="(event) => openDialog(event.data)"
             >
                 <template #header>
                     <div class="flex flex-col items-center gap-4 mb-4 md:mb-8">
@@ -158,11 +165,11 @@ const exportCSV = () => {
                         </div>
                         <div v-if="withdrawals?.length > 0" class="flex items-center gap-3 self-stretch md:hidden">
                             <span class="text-gray-500 text-sm font-normal">{{ $t('public.total') }}:</span>
-                            <span class="text-gray-950 font-semibold">$&nbsp;{{ formatAmount(totalBonusAmount) }}</span>
+                            <span class="text-gray-950 font-semibold">$&nbsp;{{ formatAmount(totalWithdrawalAmount) }}</span>
                         </div>
                     </div>
                 </template>
-                <template #empty><Empty :title="$t('public.empty_pending_request_title')" :message="$t('public.empty_pending_request_message')" /></template>
+                <template #empty><Empty :title="$t('public.empty_incentive_withdrawal_title')" :message="$t('public.empty_incentive_withdrawal_message')" /></template>
                 <template #loading>
                     <div class="flex flex-col gap-2 items-center justify-center">
                         <Loader />
@@ -197,7 +204,7 @@ const exportCSV = () => {
                             <Column class="hidden md:table-cell" :footer="formatAmount(totalWithdrawalAmount ? totalWithdrawalAmount : 0)" />
                         </Row>
                     </ColumnGroup>
-                    <Column style="width: 50%" class="md:hidden" headerClass="hidden">
+                    <!-- <Column style="width: 50%" class="md:hidden" headerClass="hidden">
                         <template #body="slotProps">
                             <div class="flex flex-col items-start gap-1 self-stretch">
                                 <span class="self-stretch text-gray-950 font-semibold">{{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}</span>
@@ -225,9 +232,54 @@ const exportCSV = () => {
                                 </div>
                             </div>
                         </template>
-                    </Column>
+                    </Column> -->
                 </template>
             </DataTable>
+        </div>
+    </Dialog>
+
+    <Dialog v-model:visible="visible2" modal :header="$t('public.details')" class="dialog-xs md:dialog-md">
+        <div class="flex flex-col justify-center items-center gap-3 self-stretch pt-4 md:pt-6">
+            <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.date') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ dayjs(data.created_at).format('YYYY/MM/DD') }}</span>
+                </div>
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.transaction_id') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.transaction_number }}</span>
+                </div>
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.description') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ $t('public.incentive_withdrawal') }}</span>
+                </div>
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm" >{{ $t('public.amount') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ `$&nbsp;${formatAmount(data.amount)}` }}</span>
+                </div>
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.status') }}</span>
+                    <span class="px-2 py-1 truncate text-white text-sm font-medium rounded-sm" :style="{ backgroundColor: getStatusColor(data.status) }">{{ $t(`public.${data.status}`) }}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.wallet_name') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.to_wallet_id }}</span>
+                </div>
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.receiving_address') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.to_wallet_address }}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.remarks') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.comment }}</span>
+                </div>
+            </div>
         </div>
     </Dialog>
 </template>
