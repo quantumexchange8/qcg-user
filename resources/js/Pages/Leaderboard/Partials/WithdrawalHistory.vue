@@ -29,12 +29,14 @@ const loading = ref(false);
 const dt = ref();
 const withdrawals = ref()
 const totalWithdrawalAmount = ref(0);
-// Reactive variable for selected date range
-const selectedDate = ref([]);
 
-// Get current date
+
 const today = new Date();
+
+// Define minDate and maxDate
+const minDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
 const maxDate = ref(today);
+const selectedDate = ref([minDate.value, maxDate.value]);
 
 const getResults = async (dateRanges = null) => {
     loading.value = true;
@@ -77,7 +79,7 @@ watch(selectedDate, (newDateRange) => {
 })
 
 const clearDate = () => {
-    selectedDate.value = [];
+    selectedDate.value = [minDate.value, maxDate.value];
 };
 
 const exportCSV = () => {

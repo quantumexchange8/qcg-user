@@ -51,12 +51,12 @@ watch(search,
     }, 300)
 );
 
-const selectDownline = (downlineId) => {
-    upline_id.value = parent.value.id;
-    parent_id.value = downlineId;
+// const selectDownline = (downlineId) => {
+//     upline_id.value = parent.value.id;
+//     parent_id.value = downlineId;
 
-    getResult(upline_id.value, parent_id.value)
-}
+//     getResult(upline_id.value, parent_id.value)
+// }
 
 const collapseAll = () => {
     upline_id.value = null;
@@ -64,17 +64,17 @@ const collapseAll = () => {
     getResult()
 }
 
-const backToUpline = (parentLevel) => {
-    if (parentLevel === 1) {
-        upline_id.value = null;
-        parent_id.value = null;
-        getResult()
-    } else {
-        parent_id.value = parent.value.upline_id;
-        upline_id.value = parent.value.upper_upline_id;
-        getResult(upline_id.value, parent_id.value)
-    }
-}
+// const backToUpline = (parentLevel) => {
+//     if (parentLevel === 1) {
+//         upline_id.value = null;
+//         parent_id.value = null;
+//         getResult()
+//     } else {
+//         parent_id.value = parent.value.upline_id;
+//         upline_id.value = parent.value.upper_upline_id;
+//         getResult(upline_id.value, parent_id.value)
+//     }
+// }
 
 const clearSearch = () => {
     search.value = '';
@@ -97,13 +97,13 @@ const clearSearch = () => {
                     <IconCircleXFilled size="16" />
                 </div>
             </div>
-            <div class="grid grid-cols-2 w-full gap-3">
-                <div class="flex items-center gap-1">
+            <div class="grid grid-cols-1 w-full gap-3">
+                <!-- <div class="flex items-center gap-1">
                         <Toggleswitch v-model="checked" class="w-[42px] h-6" />
                     <div class="text-gray-950">
                         {{ $t('public.show_upline') }}
                     </div>
-                </div>
+                </div> -->
                 <div class="w-full flex justify-end">
                     <Button
                         variant="primary-outlined"

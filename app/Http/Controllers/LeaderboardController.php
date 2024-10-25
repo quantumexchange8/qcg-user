@@ -53,7 +53,7 @@ class LeaderboardController extends Controller
     {
         $id = Auth::id();
 
-        $query = Transaction::where('user_id', $id);
+        $query = Transaction::where('user_id', $id)->where('transaction_type', 'withdrawal')->where('category', 'incentive');
 
         $startDate = $request->query('startDate');
         $endDate = $request->query('endDate');

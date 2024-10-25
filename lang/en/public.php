@@ -284,4 +284,5 @@ return [
     'empty_incentive_withdrawal_message' => "There are no incentive withdrawals to display at the moment. Check back later for updates.",
     'empty_incentive_profiles_title' => "No Incentive Profiles Found",
     'empty_incentive_profiles_caption' => "There are no incentive profiles to display at the moment. Check back later for updates.",
+    'total_approved' => 'Total Approved',
 ];

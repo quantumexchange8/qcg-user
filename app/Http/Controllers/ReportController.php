@@ -13,4 +13,19 @@ class ReportController extends Controller
     {
         return Inertia::render('Report/Report');
     }
+
+    public function getRebateBreakdown(Request $request)
+    {
+        $user = Auth::user();
+
+        // Fetch rebate details
+        $rebate_details = $user->rebateAllocations()
+        ->where('account_type_id', $request->account_type_id)
+        ->with(['symbol_group:id,display'])  // Eager load symbol_group relation
+        ->get();
+
+        return response()->json([
+            'rebateDetails' => $rebate_details
+        ]);
+    }
 }

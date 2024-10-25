@@ -14,6 +14,7 @@ const chartData = ref(new Array(12).fill(0)); // Initialize with zeros for each 
 // Chart options (optional for additional customization)
 const chartOptions = ref({
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
         y: {
             grid: {
@@ -122,8 +123,8 @@ const formattedChartData = computed(() => {
 </script>
 
 <template>
-    <div class="flex flex-col px-8 py-6 w-[610px] items-center gap-3 rounded-lg bg-white shadow-card">
-        <div class="flex justify-center items-start gap-8 self-stretch">
+    <div class="flex flex-col px-8 py-6 h-[292px] items-center gap-3 rounded-lg bg-white shadow-card">
+        <div class="flex md:justify-center items-start gap-3 md:gap-8 self-stretch">
             <div class="flex flex-col items-start gap-2 flex-1">
                 <span class="text-gray-500 text-sm">{{ $t('public.total_incentive_earned') }}</span>
                 <span class="text-gray-950 text-xxl font-semibold">{{ `$&nbsp;${formatAmount(totalYearlyIncentive)}` }}</span>
@@ -135,7 +136,14 @@ const formattedChartData = computed(() => {
                 />
             </div>
         </div>
-        <Chart type="bar" :data="formattedChartData" :options="chartOptions" class="w-full flex px-20 py-0 justify-between items-end flex-shrink-0"/>
+        <div class="w-full h-full flex px-5 py-0 justify-between items-end">
+            <Chart 
+            type="bar" 
+            :data="formattedChartData" 
+            :options="chartOptions"
+            style="width: 100%; "
+            />
+        </div>
     </div>
 
 </template>

@@ -6,8 +6,8 @@ import { ref } from "vue";
 </script>
 
 <template>
-    <div class="flex flex-col w-[358px] h-[292px] items-center rounded-lg bg-white shadow-card">
-        <div class="flex flex-col justify-center items-center gap-3 flex-1 self-stretch px-6 pt-6 border-b border-gray-100">
+    <div class="flex flex-col md:h-[292px] items-center rounded-lg bg-white shadow-card">
+        <div class="flex flex-col justify-center items-center gap-3 flex-1 self-stretch px-3 md:px-6 py-5 md:pt-6 md:pb-0 border-b border-gray-100">
             <div class="flex flex-col justify-center items-center gap-3 flex-1 self-stretch">
                 <span class="self-stretch text-gray-500 text-center">
                     {{ $t('public.available_incentive') }}

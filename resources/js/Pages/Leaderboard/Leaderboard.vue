@@ -63,9 +63,9 @@ watchEffect(() => {
 <template>
     <AuthenticatedLayout :title="$t('public.sidebar.leaderboard')">
         <div class="flex flex-col items-center self-stretch gap-5">
-            <div class="flex justify-center items-start gap-5 self-stretch">
-                <TotalIncentiveGraph/>
-                <IncentiveWithdrawal/>
+            <div class="grid grid-cols-1 md:grid-cols-3 justify-center items-start gap-5 self-stretch">
+                <TotalIncentiveGraph class="col-span-1 md:col-span-2" />
+                <IncentiveWithdrawal class="col-span-1" />
             </div>
             <div class="flex flex-col justify-center items-center p-6 gap-6 self-stretch rounded-lg bg-white shadow-card">
                 <div class="flex h-6 flex-col justify-center self-stretch text-gray-950 text-md font-bold">{{ $t('public.my_achievements') }}</div>
