@@ -1,35 +1,69 @@
 <script setup>
 import { transactionFormat } from "@/Composables/index.js";
 import { ref, computed, watch, onMounted } from "vue";
-import Select from 'primevue/select';
+import RebateDetailsTable from '@/Pages/Report/Partials/RebateDetailsTable.vue';
 import Chart from 'primevue/chart';
-import { IconCircleXFilled, IconSearch, IconDownload, IconFilterOff } from "@tabler/icons-vue";
-import Loader from "@/Components/Loader.vue";
-import Dialog from "primevue/dialog";
-import DataTable from "primevue/datatable";
-import InputText from "primevue/inputtext";
-import Column from "primevue/column";
-import ColumnGroup from "primevue/columngroup";
-import Row from "primevue/row";
-import Button from '@/Components/Button.vue';
-import DatePicker from 'primevue/datepicker';
-import { FilterMatchMode } from '@primevue/core/api';
-import Empty from "@/Components/Empty.vue";
-import dayjs from "dayjs";
-import debounce from "lodash/debounce.js";
 import { trans, wTrans } from "laravel-vue-i18n";
 
-const { formatAmount, formatDate } = transactionFormat();
-// Chart labels (static, for months)
-const labels = ['Forex', 'Stocks', 'Indices', 'Commodities', 'Cryptocurrency'];
+const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
-// To hold the chart data from the API
-const chartData = ref(new Array(5).fill(0)); // Initialize with zeros for each month
+// Define reactive variables
+const rebateBreakdown = ref([]);
+const totalVolume = ref(0);
+const totalRebate = ref(0);
+const dateRange = ref([]);
+
+// Function to fetch rebate summary data
+const getResults = async (dateRange) => {
+    const [startDate, endDate] = dateRange;
+    let url = `/report/getRebateBreakdown`;
+
+    // Append date range to the URL if it's not null
+    if (startDate && endDate) {
+        url += `?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}`;
+    }
+
+    try {
+        const response = await axios.get(url);
+        const data = response.data;
+
+        // Update the rebateSummary and totals
+        rebateBreakdown.value = data.rebateBreakdown;
+        totalVolume.value = data.totalVolume;
+        totalRebate.value = data.totalRebate;
+    } catch (error) {
+        console.error('Error fetching rebate summary:', error);
+    }
+};
+
+// Watch for changes in the dateRange and fetch rebate summary data
+watch(dateRange, (newDateRange) => {
+    if (newDateRange === null || newDateRange === undefined) {
+        // Handle null or undefined newDateRange
+        getResults([]);
+    } else {
+        getResults(newDateRange);
+    }
+});
+
+// Handle the update-date event from RebateListingTable
+const handleUpdateDate = (newDateRange) => {
+    // console.log('Date Range Received:', newDateRange);
+    dateRange.value = newDateRange;
+};
+
+// Function to calculate percentage of each rebate
+const calculatePercentages = (rebates, totalRebate) => {
+    if (totalRebate === 0) return rebates.map(() => 0);
+    return rebates.map(item => (item.rebate / totalRebate) * 100);
+};
 
 // Chart options (optional for additional customization)
 const chartOptions = ref({
     responsive: true,
     maintainAspectRatio: true,
+    rotation: 0, // Start from the top
+    circumference: 360, // Complete the full circle
     plugins: {
         legend: {
             position: 'bottom',
@@ -45,45 +79,55 @@ const chartOptions = ref({
     }
 });
 
-const loading = ref(false);
-// Get current date
-const today = new Date();
+// Base colors
+const baseColors = [
+    '#204724',
+    '#2A6B2D',
+    '#42A547',
+    '#9BDA9E',
+    '#E2F6E3',
+];
 
-// Define minDate and maxDate
-const minDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
-const maxDate = ref(today);
+// Function to darken color
+const darkenColor = (color, percent) => {
+    let r = parseInt(color.slice(1, 3), 16);
+    let g = parseInt(color.slice(3, 5), 16);
+    let b = parseInt(color.slice(5, 7), 16);
 
-// Reactive variable for selected date range
-const selectedDate = ref([minDate.value, maxDate.value]);
+    r = Math.max(0, Math.min(255, r - r * percent));
+    g = Math.max(0, Math.min(255, g - g * percent));
+    b = Math.max(0, Math.min(255, b - b * percent));
 
-// Function to fetch results
-// const getResults = async () => {
-//     loading.value = true;
+    return `#${Math.round(r).toString(16).padStart(2, '0')}${Math.round(g).toString(16).padStart(2, '0')}${Math.round(b).toString(16).padStart(2, '0')}`;
+};
 
-//     try {
-//         let url = `/report/getRebateBreakdown`;
+// Darken each color by 20%
+const darkerColors = baseColors.map(color => darkenColor(color, 0.2));
 
-//         const response = await axios.get(url);
+const chartData = computed(() => {
+    if (rebateBreakdown.value.length === 0 || totalRebate.value === 0) {
+        return {
+            labels: [trans('public.' + 'no_data')],
+            datasets: [
+                {
+                    data: [100],
+                    backgroundColor: ['#F2F4F7'],
+                    hoverBackgroundColor: ['#E0E2E5'],
+                    borderWidth: 0, 
+                }
+            ]
+        };
+    }
 
-//     } catch (error) {
-//         console.error('Error fetching data:', error);
-//     } finally {
-//         loading.value = false;
-//     }
-// };
-
-// // Call getResults initially with the current year
-// getResults();
-
-// Combine the static labels with the dynamic data from the API
-const formattedChartData = computed(() => {
+    const percentages = calculatePercentages(rebateBreakdown.value, totalRebate.value);
     return {
-        labels,
+        labels: rebateBreakdown.value.map(item => trans('public.' + item.symbol_group)),
         datasets: [
             {
-                label: 'Rebate Distribution',
-                backgroundColor: ['#204724', '#2A6B2D', '#42A547', '#9BDA9E', '#E2F6E3'],
-                data: chartData.value // This should always have 5 values, filled with zeros or real data
+                data: percentages,
+                backgroundColor: baseColors,
+                hoverBackgroundColor: darkerColors,
+                borderWidth: 0, 
             }
         ]
     };
@@ -93,7 +137,7 @@ const formattedChartData = computed(() => {
 
 <template>
     <div class="flex flex-col items-center gap-5 self-stretch">
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 xl:h-[394px] justify-center items-center self-stretch">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 justify-center items-center self-stretch">
             <div class="flex flex-col px-8 py-6 items-center gap-7 flex-1 self-stretch rounded-lg bg-white shadow-card">
                 <span class="text-gray-950 text-md font-bold">
                     {{ $t('public.rebate_percentage_breakdown') }}
@@ -101,7 +145,7 @@ const formattedChartData = computed(() => {
                 <div class="">
                     <Chart 
                         type="doughnut" 
-                        :data="formattedChartData" 
+                        :data="chartData" 
                         :options="chartOptions"
                         style="width: 100%;"
                     />
@@ -111,139 +155,40 @@ const formattedChartData = computed(() => {
                 <div class="flex items-center gap-5 self-stretch">
                     <div class="flex flex-col py-3 items-center gap-2 flex-1">
                         <span class="text-gray-500 text-center">{{ $t('public.total_trade_volume') }} (Ł)</span>
-                        <span class="text-gray-950 text-xxl font-semibold">0.00</span>
+                        <span class="text-gray-950 text-xxl font-semibold">{{ formatAmount(totalVolume) }}</span>
                     </div>
-                    <div>
-                        
-                    </div>
+                    <div class="w-[1px] h-[52px] rounded-full bg-gray-300"></div>
                     <div class="flex flex-col py-3 items-center gap-2 flex-1">
                         <span class="text-gray-500 text-center">{{ $t('public.total_rebate_earned') }} ($)</span>
-                        <span class="text-gray-950 text-xxl font-semibold">0.00</span>
+                        <span class="text-gray-950 text-xxl font-semibold">{{ formatAmount(totalRebate) }}</span>
                     </div>
                 </div>
                 <div class="flex flex-col justify-center items-center self-stretch">
-                    <div class="flex py-3 items-center gap-5 self-stretch">
-                        <span class="flex-1 text-gray-950 text-md font-semibold">{{ $t('public.forex') }}</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">0.00 Ł</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">$ 0.00</span>
-                    </div>
-                    <div class="flex py-3 items-center gap-5 self-stretch">
-                        <span class="flex-1 text-gray-950 text-md font-semibold">{{ $t('public.stocks') }}</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">0.00 Ł</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">$ 0.00</span>
-                    </div>
-                    <div class="flex py-3 items-center gap-5 self-stretch">
-                        <span class="flex-1 text-gray-950 text-md font-semibold">{{ $t('public.indices') }}</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">0.00 Ł</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">$ 0.00</span>
-                    </div>
-                    <div class="flex py-3 items-center gap-5 self-stretch">
-                        <span class="flex-1 text-gray-950 text-md font-semibold">{{ $t('public.commodities') }}</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">0.00 Ł</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">$ 0.00</span>
-                    </div>
-                    <div class="flex py-3 items-center gap-5 self-stretch">
-                        <span class="flex-1 text-gray-950 text-md font-semibold">{{ $t('public.cryptocurrency') }}</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">0.00 Ł</span>
-                        <span class="flex-1 text-gray-950 text-md text-right">$ 0.00</span>
+                    <div v-for="(item, index) in rebateBreakdown" :key="index" class="flex items-center py-3 gap-4 self-stretch md:gap-5">
+                        <!-- <img :src="`/img/rebate/3d-${item.symbol_group}.svg`"  alt=""  class="w-9 h-9 flex-shrink-0 md:w-10 md:h-10"> -->
+                        <!-- sm -->
+                        <div class="w-full flex flex-col items-start md:hidden">
+                            <span class="self-stretch truncate text-gray-950 text-sm font-semibold">
+                                {{ $t('public.' + item.symbol_group) }}
+                            </span>
+                            <span class="self-stretch text-gray-500 text-sm">
+                                {{ item.volume > 0 ? `${formatAmount(item.volume)}&nbsp;Ł` : '-' }}
+                            </span>
+                        </div>
+                        <!-- md -->
+                        <span class="w-full hidden md:block truncate text-gray-950 text-base font-medium">
+                            {{ $t('public.' + item.symbol_group) }}
+                        </span>
+                        <span class="w-full hidden md:block text-right text-gray-950 text-base">
+                            {{ item.volume > 0 ? `${formatAmount(item.volume)}&nbsp;Ł` : '-' }}
+                        </span>
+                        <span class="w-full truncate text-gray-950 text-right font-semibold md md:font-normal">
+                            {{ item.rebate > 0 ? `$&nbsp;${formatAmount(item.rebate)}` : '-' }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="flex flex-col justify-center items-center px-3 py-5 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
-            <div class="flex flex-col pb-3 gap-3 items-center self-stretch md:flex-row md:gap-0 md:justify-between md:pb-0">
-                <DatePicker 
-                    v-model="selectedDate"
-                    selectionMode="range"
-                    :manualInput="false"
-                    :maxDate="maxDate"
-                    dateFormat="dd/mm/yy"
-                    showIcon
-                    iconDisplay="input"
-                    :placeholder="$t('public.select_date')"
-                    class="font-normal w-full md:w-60"
-                />
-                <div class="flex flex-col gap-3 items-center self-stretch md:flex-row md:gap-5">
-                    <div class="relative w-full md:w-60">
-                        <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-500">
-                            <IconSearch size="20" stroke-width="1.25" />
-                        </div>
-                        <InputText          :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-60" />
-                        <div
-                            
-                            class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
-                            @click="clearFilterGlobal"
-                        >
-                            <IconCircleXFilled size="16" />
-                        </div>
-                    </div>
-                    <Button variant="primary-outlined" @click="exportCSV" class="w-full md:w-auto">
-                        <IconDownload size="20" stroke-width="1.25" />
-                        {{ $t('public.export') }}
-                    </Button>
-                </div>
-            </div>
-            <DataTable
-                v-model:filters="filters"
-                :value="transactions"
-                :paginator="transactions?.length > 0 && filteredValueCount > 0"
-                removableSort
-                :rows="10"
-                :rowsPerPageOptions="[10, 20, 50, 100]"
-                paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                :currentPageReportTemplate="$t('public.paginator_caption')"
-                :globalFilterFields="['name', 'email', 'account']"
-                ref="dt"
-                :loading="loading"
-                selectionMode="single"
-                @filter="handleFilter"
-                @row-click="(event) => openDialog(event.data)"
-            >
-                <template #empty>
-                    <Empty 
-                        :title="$t('public.empty_transaction_title')" 
-                        :message="$t('public.empty_transaction_message')" 
-                    />
-                </template>
-                <template #loading>
-                    <div class="flex flex-col gap-2 items-center justify-center">
-                        <Loader />
-                        <span class="text-sm text-gray-700">{{ $t('public.loading_transactions_caption') }}</span>
-                    </div>
-                </template>
-                <template v-if="transactions?.length > 0 && filteredValueCount > 0">
-                    <Column field="name" :header="$t('public.name')" sortable class="hidden md:table-cell w-[15%]">
-                        <template #body="slotProps">
-                            <div class="text-gray-950 text-sm">
-                                {{ slotProps.data.name }}
-                            </div>
-                        </template>
-                    </Column>
-                    <Column field="account" :header="$t('public.account')" class="hidden md:table-cell w-[15%]">
-                        <template #body="slotProps">
-                            <div class="text-gray-950 text-sm">
-                                {{ slotProps.data.account }}
-                            </div>
-                        </template>
-                    </Column>
-                    <Column field="volume" :header="`${$t('public.volume')}&nbsp;(Ł)`" sortable class="w-1/2 md:w-[15%]">
-                        <template #body="slotProps">
-                            <div class="text-gray-950 text-sm">
-                                {{ formatAmount(slotProps.data.volume) }}
-                            </div>
-                        </template>
-                    </Column>
-                    <Column field="rebate" :header="`${$t('public.rebate')}&nbsp;($)`" sortable class="w-1/2 md:w-[15%]">
-                        <template #body="slotProps">
-                            <div class="text-gray-950 text-sm">
-                                {{ formatAmount(slotProps.data.rebate) }}
-                            </div>
-                        </template>
-                    </Column>
-
-                </template>
-            </DataTable>
-        </div>
+        <RebateDetailsTable  @update-date="handleUpdateDate"/>
     </div>
-    
 </template>

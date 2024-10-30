@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\NetworkController;
@@ -25,16 +26,27 @@ Route::get('/', function () {
     return redirect(route('login'));
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return Inertia::render('Dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
-    // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // Route::get('/getPendingCounts', [DashboardController::class, 'getPendingCounts'])->name('dashboard.getPendingCounts');
-    // Route::get('/getAccountData', [DashboardController::class, 'getAccountData'])->name('dashboard.getAccountData');
-    // Route::get('/getPendingData', [DashboardController::class, 'getPendingData'])->name('dashboard.getPendingData');
-    // Route::get('/getAssetData', [DashboardController::class, 'getAssetData'])->name('dashboard.getAssetData');
+Route::middleware(['auth', 'verified'])->group(function () {
+    /**
+     * ==============================
+     *          Dashboard
+     * ==============================
+     */
+    Route::prefix('dashboard')->group(function() {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/getDashboardData', [DashboardController::class, 'getDashboardData'])->name('getDashboardData');
+        Route::get('/getRebateEarnData', [DashboardController::class, 'getRebateEarnData'])->name('getRebateEarnData');
+        Route::get('/getPosts', [DashboardController::class, 'getPosts'])->name('member.getPosts');
+
+        Route::post('/applyRebate', [TransactionController::class, 'applyRebate'])->name('dashboard.applyRebate');
+        Route::post('/walletTransfer', [TransactionController::class, 'walletTransfer'])->name('dashboard.walletTransfer');
+        Route::post('/walletWithdrawal', [TransactionController::class, 'walletWithdrawal'])->name('dashboard.walletWithdrawal');
+        Route::post('/createPost', [DashboardController::class, 'createPost'])->name('dashboard.createPost');
+    });
 
     /**
      * ==============================
@@ -85,6 +97,9 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('report')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('report');
 
+        Route::get('/getGroupTransaction', [ReportController::class, 'getGroupTransaction'])->name('report.getGroupTransaction');
+        Route::get('/getRebateBreakdown', [ReportController::class, 'getRebateBreakdown'])->name('report.getRebateBreakdown');
+        Route::get('/getRebateDetails', [ReportController::class, 'getRebateDetails'])->name('report.getRebateDetails');
         // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
         // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

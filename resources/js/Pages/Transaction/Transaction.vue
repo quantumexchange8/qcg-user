@@ -147,7 +147,7 @@ const getResults = async (search = '', type = '', status = '', dateRanges = null
             params.append('startDate', dayjs(startDate).format('YYYY-MM-DD'));
             params.append('endDate', dayjs(endDate).format('YYYY-MM-DD'));
         }
-        console.log('Params:', params.toString());
+
         const response = await axios.get('/transaction/getTransactionHistory', { params });
         transactions.value = response.data.transactions;
 
@@ -174,6 +174,8 @@ watch(
             } else {
                 getResults(searchValue, typeValue, statusValue);
             }
+        } else if (dateRange === null) {
+            getResults([]);
         } else {
             console.warn('Invalid date range format:', dateRange);
         }
@@ -206,7 +208,7 @@ const clearFilter = () => {
         transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
 
-    selectedDate.value = [minDate.value, maxDate.value];
+    selectedDate.value = null;
     transactionType.value = null;
     status.value = null;
 };
