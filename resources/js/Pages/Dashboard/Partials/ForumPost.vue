@@ -67,7 +67,7 @@ watchEffect(() => {
         class="flex flex-col gap-5 self-stretch p-4 md:py-6 md:px-8 bg-white rounded-2xl shadow-toast w-full h-[680px]"
     >
         <div class="flex justify-between items-center w-full">
-            <span class="text-gray-950 font-bold">{{ $t('public.welcome_to_forum') }} 🌟</span>
+            <span class="text-gray-950 font-bold">{{ $t('public.welcome_to_forum') }}</span>
             <CreatePost
                 v-if="hasPermission('post_forum')"
                 :authorName="authorName"

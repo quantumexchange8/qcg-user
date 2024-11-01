@@ -20,7 +20,7 @@ const emit = defineEmits(['update:visible'])
 
 const getOptions = async () => {
     try {
-        const response = await axios.get('/account/getOptions');
+        const response = await axios.get('/accounts/getOptions');
         walletOptions.value = response.data.walletOptions;
     } catch (error) {
         console.error('Error changing locale:', error);

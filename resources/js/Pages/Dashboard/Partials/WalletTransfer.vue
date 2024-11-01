@@ -4,7 +4,7 @@ import InputNumber from 'primevue/inputnumber';
 import {useForm} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue"
 import InputError from "@/Components/InputError.vue";
-import Dropdown from "primevue/dropdown";
+import Select from "primevue/select";
 import {ref, watch} from "vue";
 import {transactionFormat} from "@/Composables/index.js";
 
@@ -19,7 +19,7 @@ const emit = defineEmits(['update:visible'])
 
 const getOptions = async () => {
     try {
-        const response = await axios.get('/account/getOptions');
+        const response = await axios.get('/accounts/getOptions');
         transferOptions.value = response.data.transferOptions;
     } catch (error) {
         console.error('Error changing locale:', error);
@@ -62,17 +62,17 @@ const closeDialog = () => {
 
 <template>
     <form>
-        <div class="flex flex-col items-center gap-8 self-stretch md:gap-10">
+        <div class="flex flex-col items-center gap-8 pt-6 self-stretch md:gap-10">
             <div class="flex flex-col items-center gap-5 self-stretch">
-                <div class="flex flex-col justify-center items-center py-4 px-8 gap-2 self-stretch bg-logo">
-                    <span class="w-full text-gray-100 text-center text-xs font-medium">{{ $t('public.available_rebate_balance') }}</span>
-                    <span class="w-full text-white text-center text-xl font-semibold">$ {{ formatAmount(rebateWallet.balance) }}</span>
+                <div class="flex flex-col justify-center items-center py-3 px-8 gap-1 self-stretch bg-gray-100">
+                    <span class="w-full text-gray-500 text-center text-xs">{{ $t('public.available_rebate_balance') }}</span>
+                    <span class="w-full text-gray-950 text-center text-lg font-semibold">$ {{ formatAmount(rebateWallet.balance) }}</span>
                 </div>
 
                 <!-- input fields -->
                 <div class="flex flex-col items-start gap-1 self-stretch">
                     <InputLabel for="receiving_wallet" :value="$t('public.transfer_to')" />
-                    <Dropdown
+                    <Select
                         v-model="transferAmount"
                         :options="transferOptions"
                         optionLabel="name"
@@ -114,7 +114,7 @@ const closeDialog = () => {
                             {{ form.amount ? $t('public.clear') : $t('public.full_amount') }}
                         </div>
                     </div>
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(30,0) }}</span>
+                    <!-- <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(30,0) }}</span> -->
                     <InputError :message="form.errors.amount" />
                 </div>
             </div>
@@ -122,8 +122,8 @@ const closeDialog = () => {
         <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-7">
             <Button
                 type="button"
-                variant="gray-tonal"
-                class="w-full md:w-[120px]"
+                variant="gray-outlined"
+                class="w-full"
                 @click.prevent="closeDialog()"
                 :disabled="form.processing"
             >
@@ -131,11 +131,11 @@ const closeDialog = () => {
             </Button>
             <Button
                 variant="primary-flat"
-                class="w-full md:w-[120px]"
+                class="w-full"
                 @click.prevent="submitForm"
                 :disabled="form.processing || !transferOptions.length"
             >
-                {{ $t('public.confirm') }}
+                {{ $t('public.transfer') }}
             </Button>
         </div>
     </form>

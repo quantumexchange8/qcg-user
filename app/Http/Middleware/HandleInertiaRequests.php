@@ -34,9 +34,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'profile_image' => $request->user() ? $request->user()->getFirstMediaUrl('profile_image') : null,
+                'payment_account' => $request->user() ? $request->user()->paymentAccounts : null,
             ],
             'toast' => session('toast'),
             'locale' => session('locale') ? session('locale') : app()->getLocale(),
+            'permissions' => $request->user() ? $request->user()->getAllPermissions()->pluck('name')->toArray() : 'no permission',
         ];
     }
 }

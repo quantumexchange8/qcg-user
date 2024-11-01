@@ -1,11 +1,12 @@
 <script setup>
 import Button from "@/Components/Button.vue";
-import {ref} from "vue";
+import { h,ref} from "vue";
 import dayjs from "dayjs";
 import {useConfirm} from "primevue/useconfirm";
 import {trans} from "laravel-vue-i18n";
 import {useForm} from "@inertiajs/vue3";
 import Vue3Autocounter from 'vue3-autocounter';
+import { IconCash } from "@tabler/icons-vue";
 
 const rebateEarn = ref();
 const lastAppliedOn = ref();
@@ -30,12 +31,12 @@ const confirm = useConfirm();
 
 const requireConfirmation = () => {
     confirm.require({
-        group: 'headless-primary',
+        group: 'headless',
+        color: 'primary',
+        icon: h(IconCash),
         header: trans('public.apply_rebate'),
         actionType: 'rebate',
-        message: {
-            text: trans('public.apply_rebate_desc'),
-        },
+        message:  trans('public.apply_rebate_message'),
         cancelButton: trans('public.cancel'),
         acceptButton: trans('public.confirm'),
         accept: () => {

@@ -1,12 +1,13 @@
 <script setup>
 import Button from "@/Components/Button.vue";
-import {ref} from "vue";
+import { h, ref } from "vue";
 import Dialog from "primevue/dialog";
 import WalletWithdrawal from "@/Pages/Dashboard/Partials/WalletWithdrawal.vue";
 import {usePage} from "@inertiajs/vue3";
 import {trans} from "laravel-vue-i18n";
 import {useConfirm} from "primevue/useconfirm";
 import WalletTransfer from "@/Pages/Dashboard/Partials/WalletTransfer.vue";
+import { IconQuestionMark } from "@tabler/icons-vue";
 
 const props = defineProps({
     rebateWallet: Object,
@@ -21,29 +22,29 @@ const confirm = useConfirm();
 const requireAccountConfirmation = (accountType) => {
     const messages = {
         crypto: {
-            group: 'headless-primary',
-            header: trans('public.crypto_wallet_required'),
-            text: trans('public.crypto_wallet_required_text'),
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconQuestionMark),
+            header: trans('public.missing_cryptocurrency_wallet'),
+            message: trans('public.missing_cryptocurrency_message'),
             actionType: 'crypto',
             cancelButton: trans('public.later'),
-            acceptButton: trans('public.add_Wallet'),
+            acceptButton: trans('public.add_wallet'),
             action: () => {
                 window.location.href = route('profile');
             }
         }
     };
 
-    const { group, header, text, dynamicText, suffix, actionType, cancelButton, acceptButton, action } = messages[accountType];
+    const { group, color, icon, header, message, actionType, cancelButton, acceptButton, action } = messages[accountType];
 
     confirm.require({
         group,
+        color,
+        icon,
         header,
         actionType,
-        message: {
-            text,
-            dynamicText,
-            suffix
-        },
+        message,
         cancelButton,
         acceptButton,
         accept: action

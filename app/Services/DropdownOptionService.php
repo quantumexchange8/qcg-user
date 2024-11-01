@@ -10,7 +10,10 @@ use App\Models\TeamHasUser;
 use App\Models\Transaction;
 use App\Models\GroupHasUser;
 use App\Models\SettingLeverage;
+use App\Models\PaymentAccount;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class DropdownOptionService
 {
@@ -98,6 +101,52 @@ class DropdownOptionService
             ->values();
 
         return $months;
+    }
+
+    public function getLeveragesOptions(): Collection
+    {
+        $leverages = SettingLeverage::where('status', 'active')
+                    ->get()
+                    ->map(function ($leverage) {
+                        return [
+                            'name' => $leverage->display,
+                            'value' => $leverage->value,
+                        ];
+                    });
+        return $leverages;
+    }
+
+    public function getInternalTransferOptions(): Collection
+    {
+        $user = Auth::user();
+
+        $trading_accounts = $user->tradingAccounts;
+        try {
+            foreach ($trading_accounts as $trading_account) {
+                (new CTraderService)->getUserInfo($trading_account->meta_login);
+            }
+        } catch (\Throwable $e) {
+            Log::error($e->getMessage());
+        }
+
+        return $user->tradingAccounts->map(function($trading_account) {
+            return [
+                'name' => $trading_account->meta_login,
+                'value' => $trading_account->balance,
+            ];
+        });
+    }
+
+    public function getWalletOptions(): Collection
+    {
+        return PaymentAccount::where('user_id', Auth::id())
+                    ->get()
+                    ->map(function ($walletOption) {
+                        return [
+                            'name' => $walletOption->payment_account_name,
+                            'value' => $walletOption->account_no,
+                        ];
+                    });
     }
 
 }

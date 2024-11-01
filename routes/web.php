@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/createTradingAccount', [AccountController::class, 'createTradingAccount'])->name('accounts.createTradingAccount');
         Route::get('/getTradingAccounts', [AccountController::class, 'getTradingAccounts'])->name('accounts.getTradingAccounts');
+        Route::get('/getOptions', [AccountController::class, 'getOptions'])->name('accounts.getOptions');
         // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
         // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

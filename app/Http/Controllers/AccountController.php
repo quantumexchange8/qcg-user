@@ -13,6 +13,7 @@ use App\Models\TradingAccount;
 use App\Models\Transaction;
 use App\Models\SettingLeverage;
 use App\Services\CTraderService;
+use App\Services\DropdownOptionService;
 
 class AccountController extends Controller
 {
@@ -112,6 +113,33 @@ class AccountController extends Controller
         // Return the response as JSON
         return response()->json([
             'tradingAccounts' => $tradingAccounts,
+        ]);
+    }
+
+    public function getOptions()
+    {
+        $locale = app()->getLocale();
+
+        $accountOptions = AccountType::whereNot('account_group', 'Demo Account')
+            ->where('status', 'active')
+            ->get()
+            ->map(function ($accountType) use ($locale) {
+                $translations = json_decode($accountType->descriptions, true);
+                return [
+                    'id' => $accountType->id,
+                    'name' => $accountType->name,
+                    'slug' => $accountType->slug,
+                    'account_group' => $accountType->account_group,
+                    'leverage' => $accountType->leverage,
+                    'descriptions' => $translations[$locale],
+                ];
+            });
+
+        return response()->json([
+            'leverages' => (new DropdownOptionService())->getLeveragesOptions(),
+            'transferOptions' => (new DropdownOptionService())->getInternalTransferOptions(),
+            'walletOptions' => (new DropdownOptionService())->getWalletOptions(),
+            'accountOptions' => $accountOptions,
         ]);
     }
 }
