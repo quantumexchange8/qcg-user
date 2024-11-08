@@ -172,7 +172,7 @@ watch(
             } else if (startDate || endDate) {
                 getResults(searchValue, typeValue, statusValue, [startDate || endDate, endDate || startDate]);
             } else {
-                getResults(searchValue, typeValue, statusValue);
+                getResults(searchValue, typeValue, statusValue, []);
             }
         } else if (dateRange === null) {
             getResults([]);
@@ -323,7 +323,7 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_type')"
-                                    class="w-full md:w-60"
+                                    class="w-full md:w-60 font-normal"
                                     scroll-height="236px"
                                 />
                                 <Select
@@ -334,7 +334,7 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_status')"
-                                    class="w-full md:w-60"
+                                    class="w-full md:w-60 font-normal"
                                     scroll-height="236px"
                                 />
                             </div>
@@ -475,11 +475,11 @@ const openDialog = (rowData) => {
             <div v-else class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.wallet_name') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.wallet_name }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.payment_account_name }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.receiving_address') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.from_wallet_address }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.account_no }}</span>
                 </div>
             </div>
 

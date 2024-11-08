@@ -1,7 +1,5 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/Authenticated.vue';
-import AgentRebate from '@/Pages/Dashboard/Partials/AgentRebate.vue';
-import Forum from '@/Pages/Dashboard/Partials/Forum.vue';
 import Button from '@/Components/Button.vue';
 import {usePage} from "@inertiajs/vue3";
 import {transactionFormat} from "@/Composables/index.js";
@@ -14,9 +12,9 @@ import {
 } from '@/Components/Icons/outline.jsx';
 import {IconReport} from '@tabler/icons-vue';
 import {trans} from "laravel-vue-i18n";
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import RebateWalletAction from "@/Pages/Dashboard/Partials/RebateWalletAction.vue";
 import RebateEarn from "@/Pages/Dashboard/Partials/RebateEarn.vue";
+import RebateHistory from "@/Pages/Dashboard/Partials/RebateHistory.vue";
 import Vue3Autocounter from "vue3-autocounter";
 import ForumPost from "@/Pages/Dashboard/Partials/ForumPost.vue";
 
@@ -39,7 +37,7 @@ const dataOverviews = computed(() => [
     {
         icon: DepositIcon,
         total: groupTotalDeposit.value,
-        label: user.role === 'member' ? trans('public.dashboard_total_deposit') : trans('public.group_total_deposit'),
+        label: user.role === 'member' ? trans('public.total_deposit') : trans('public.group_total_deposit'),
         borderColor: 'border-green',
     },
     {
@@ -90,7 +88,7 @@ watchEffect(() => {
                 <div class="flex flex-col gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
                     <div class="bg-white rounded-lg h-[120px] md:h-40 shadow-card relative overflow-hidden p-3 md:px-6 md:py-8 items-center w-full">
-                        <div class="flex flex-col gap-2 items-start justify-center w-full h-24 md:max-w-[500px] max-w-[170px] xl:max-w-[270px]">
+                        <div class="flex flex-col gap-2 items-start justify-center w-full h-24 md:max-w-[500px] max-w-[170px]">
                             <span class="md:text-xl text-sm text-gray-950 font-bold">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
                             <span class="md:text-sm text-xs text-gray-700">{{ $t('public.welcome_back_caption') }}</span>
                         </div>
@@ -134,15 +132,7 @@ watchEffect(() => {
                         <span class="text-gray-950 text-md font-bold">
                             {{ $t('public.agent_rebate') }}
                         </span>
-                        <Button
-                            variant="gray-outlined"
-                            type="button"
-                            size="sm"
-                            iconOnly
-                            pill
-                        >
-                            <IconReport size="16" stroke-width="1.5" />
-                        </Button>
+                        <RebateHistory />
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-6 items-center self-stretch h-full w-full">

@@ -45,6 +45,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/applyRebate', [TransactionController::class, 'applyRebate'])->name('dashboard.applyRebate');
         Route::post('/walletTransfer', [TransactionController::class, 'walletTransfer'])->name('dashboard.walletTransfer');
         Route::post('/walletWithdrawal', [TransactionController::class, 'walletWithdrawal'])->name('dashboard.walletWithdrawal');
+        Route::get('/getRebateTransactions', [TransactionController::class, 'getRebateTransactions'])->name('dashboard.getRebateTransactions');
         Route::post('/createPost', [DashboardController::class, 'createPost'])->name('dashboard.createPost');
     });
 
@@ -59,9 +60,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/createTradingAccount', [AccountController::class, 'createTradingAccount'])->name('accounts.createTradingAccount');
         Route::get('/getTradingAccounts', [AccountController::class, 'getTradingAccounts'])->name('accounts.getTradingAccounts');
         Route::get('/getOptions', [AccountController::class, 'getOptions'])->name('accounts.getOptions');
-        // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
-        // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/getAccountReport', [AccountController::class, 'getAccountReport'])->name('accounts.getAccountReport');
+        Route::get('/getLiveAccount', [AccountController::class, 'getLiveAccount'])->name('accounts.getLiveAccount');
+        Route::post('/create_live_account', [AccountController::class, 'create_live_account'])->name('accounts.create_live_account');
+        Route::post('/create_demo_account', [AccountController::class, 'create_demo_account'])->name('accounts.create_demo_account');
+        Route::post('/deposit_to_account', [AccountController::class, 'deposit_to_account'])->name('accounts.deposit_to_account');
+        Route::post('/withdrawal_from_account', [AccountController::class, 'withdrawal_from_account'])->name('accounts.withdrawal_from_account');
+        Route::post('/change_leverage', [AccountController::class, 'change_leverage'])->name('accounts.change_leverage');
+        Route::post('/internal_transfer', [AccountController::class, 'internal_transfer'])->name('accounts.internal_transfer');
+        Route::delete('/delete_account', [AccountController::class, 'delete_account'])->name('accounts.delete_account');
     });
 
     /**
@@ -73,9 +80,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [NetworkController::class, 'index'])->name('network');
 
         Route::get('/getDownlineData', [NetworkController::class, 'getDownlineData'])->name('network.getDownlineData');
-        Route::get('/formatUserData', [NetworkController::class, 'formatUserData'])->name('network.formatUserData');
-        Route::get('/calculateLevel', [NetworkController::class, 'calculateLevel'])->name('network.calculateLevel');
-        Route::get('/getChildrenCount', [NetworkController::class, 'getChildrenCount'])->name('network.getChildrenCount');
+        Route::get('/getDownlineListingData', [NetworkController::class, 'getDownlineListingData'])->name('network.getDownlineListingData');
+        Route::get('/getFilterData', [NetworkController::class, 'getFilterData'])->name('network.getFilterData');
+        Route::get('/downline/{id_number}', [NetworkController::class, 'viewDownline'])->name('network.viewDownline');
+        Route::get('/getUserData', [NetworkController::class, 'getUserData'])->name('network.getUserData');
     });
     
     /**

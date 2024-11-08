@@ -9,6 +9,7 @@ import Chip from "primevue/chip";
 import Select from "primevue/select";
 import {transactionFormat} from "@/Composables/index.js";
 import {IconCircleCheckFilled} from "@tabler/icons-vue";
+import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 
 const props = defineProps({
     account_types: Array,
@@ -133,13 +134,7 @@ const handleChipClick = (value) => {
                 <div class="flex justify-center gap-3 items-center self-stretch">
                     <span class="text-xs text-gray-700">
                         {{ $t('public.acknowledgement') }}
-                        <Button
-                            class="text-xs font-medium text-primary-500 hover:text-primary-600 focus:text-primary-600 !p-0"
-                            @click="agreementVisible = true"
-                            type="button"
-                        >
-                        {{ $t('public.trading_account_agreement') }}
-                        </Button>.
+                        <TermsAndCondition/>.
                     </span>
                     
                 </div>
@@ -153,44 +148,6 @@ const handleChipClick = (value) => {
         </form>
     </Dialog>
 
-    <Dialog v-model:visible="agreementVisible" modal :header="$t('public.trading_account_agreement')" class="dialog-lg">
-        <div class="flex flex-col pt-6 gap-8 text-sm">
-            <span>{{ $t('public.trading_account_agreement_caption') }}</span>
-            <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_1') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_1') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_2') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_2') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_3') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_3') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_4') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_4') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_5') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_5') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_6') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_6') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_7') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_7') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_8') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_8') }}</span>
-                </div>
-            </div>
-        </div>
-    </Dialog>
+    
 
 </template>

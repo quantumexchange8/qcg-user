@@ -1,25 +1,27 @@
 <script setup>
-import {IconSearch, IconCircleXFilled, IconUserCircle, IconChevronUp, IconMinus} from "@tabler/icons-vue";
+import {IconSearch, IconCircleXFilled, IconChevronUp, IconMinus, IconUserCircle} from "@tabler/icons-vue";
 import InputText from "primevue/inputtext";
 import Button from "@/Components/Button.vue";
 import {ref, watch} from "vue";
-import Toggleswitch from 'primevue/toggleswitch';
-import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import {transactionFormat} from "@/Composables/index.js";
 import debounce from "lodash/debounce.js";
+import { usePage } from "@inertiajs/vue3";
+
+const emit = defineEmits();
 
 const search = ref('');
-const checked = ref(false);
+const checked = ref(true);
 const upline = ref(null);
 const parent = ref([]);
 const children = ref([]);
 const upline_id = ref();
 const parent_id = ref();
 const loading = ref(false);
+const user = usePage().props.auth.user;
 
 const { formatAmount } = transactionFormat();
 
-const getResult = async (filterUplineId = upline_id.value, filterParentId = parent_id.value, filterSearch = search.value) => {
+const getNetwork = async (filterUplineId = upline_id.value, filterParentId = parent_id.value, filterSearch = search.value) => {
     loading.value = true;
     try {
         let url = `/network/getDownlineData?search=` + filterSearch;
@@ -33,9 +35,20 @@ const getResult = async (filterUplineId = upline_id.value, filterParentId = pare
         }
 
         const response = await axios.get(url);
+
         upline.value = response.data.upline;
         parent.value = response.data.parent;
         children.value = response.data.direct_children;
+
+        // Check upline first
+        if (upline.value && upline.value.total_agent_count === 0 && upline.value.total_member_count === 0) {
+            emit('noData');
+        } 
+        // If upline is not available, check parent
+        else if (!upline.value && parent.value && parent.value.total_agent_count === 0 && parent.value.total_member_count === 0) {
+            emit('noData');
+        }
+
     } catch (error) {
         console.error('Error get network:', error);
     } finally {
@@ -43,38 +56,38 @@ const getResult = async (filterUplineId = upline_id.value, filterParentId = pare
     }
 };
 
-getResult();
+getNetwork();
 
 watch(search,
     debounce((newSearchValue) => {
-        getResult(upline_id.value, parent_id.value, newSearchValue)
+        getNetwork(upline_id.value, parent_id.value, newSearchValue)
     }, 300)
 );
 
-// const selectDownline = (downlineId) => {
-//     upline_id.value = parent.value.id;
-//     parent_id.value = downlineId;
+const selectDownline = (downlineId) => {
+    upline_id.value = parent.value.id;
+    parent_id.value = downlineId;
 
-//     getResult(upline_id.value, parent_id.value)
-// }
+    getNetwork(upline_id.value, parent_id.value)
+}
 
 const collapseAll = () => {
     upline_id.value = null;
     parent_id.value = null;
-    getResult()
+    getNetwork()
 }
 
-// const backToUpline = (parentLevel) => {
-//     if (parentLevel === 1) {
-//         upline_id.value = null;
-//         parent_id.value = null;
-//         getResult()
-//     } else {
-//         parent_id.value = parent.value.upline_id;
-//         upline_id.value = parent.value.upper_upline_id;
-//         getResult(upline_id.value, parent_id.value)
-//     }
-// }
+const backToUpline = (parentLevel) => {
+    if (parentLevel === 1) {
+        upline_id.value = null;
+        parent_id.value = null;
+        getNetwork()
+    } else {
+        parent_id.value = parent.value.upline_id;
+        upline_id.value = parent.value.upper_upline_id;
+        getNetwork(upline_id.value, parent_id.value)
+    }
+}
 
 const clearSearch = () => {
     search.value = '';
@@ -172,7 +185,7 @@ const clearSearch = () => {
                     >
                         <div class="pt-3 pb-2 px-3 rounded-t flex flex-col items-center w-full self-stretch">
                             <div class="w-full font-semibold text-gray-950 truncate">
-                                {{ upline.name }}
+                                {{ upline.first_name }}
                             </div>
                             <div class="w-full text-sm text-gray-500 truncate">
                                 {{ upline.id_number }}
@@ -267,7 +280,7 @@ const clearSearch = () => {
                     >
                         <div class="pt-3 pb-2 px-3 rounded-t flex flex-col items-center w-full self-stretch">
                             <div class="w-full font-semibold text-gray-950 truncate">
-                                {{ parent.name }}
+                                {{ parent.first_name }}
                             </div>
                             <div class="w-full text-sm text-gray-500 truncate">
                                 {{ parent.id_number }}
@@ -352,7 +365,7 @@ const clearSearch = () => {
                     >
                         <div class="pt-3 pb-2 px-3 rounded-t flex flex-col items-center w-full self-stretch">
                             <div class="w-full font-semibold text-gray-950 truncate">
-                                {{ downline.name }}
+                                {{ downline.first_name }}
                             </div>
                             <div class="w-full text-sm text-gray-500 truncate">
                                 {{ downline.id_number }}
@@ -382,3 +395,4 @@ const clearSearch = () => {
         </div>
     </div>
 </template>
+

@@ -19,13 +19,13 @@ class DropdownOptionService
 {
     public function getUplines(): Collection
     {
-        return User::whereIn('role', ['agent', 'member'])
-            ->select('id', 'name')
+        return User::whereIn('id', User::find(Auth::id())->getChildrenIds())
+            ->select('id', 'first_name')
             ->get()
             ->map(function ($user) {
                 return [
                     'value' => $user->id,
-                    'name' => $user->name,
+                    'name' => $user->first_name,
                     'profile_photo' => $user->getFirstMediaUrl('profile_photo')
                 ];
             });
@@ -74,12 +74,12 @@ class DropdownOptionService
 
         $users = User::where('role', 'agent')
             ->whereNotIn('id', $has_team)
-            ->select('id', 'name')
+            ->select('id', 'first_name')
             ->get()
             ->map(function ($user) {
                 return [
                     'value' => $user->id,
-                    'name' => $user->name,
+                    'name' => $user->first_name,
                     'profile_photo' => $user->getFirstMediaUrl('profile_photo')
                 ];
             });

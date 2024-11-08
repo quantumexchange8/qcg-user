@@ -258,4 +258,64 @@ class TransactionController extends Controller
             ]);
         }
     }
+
+    public function getRebateTransactions(Request $request)
+    {
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
+        $description = $request->query('description');
+
+        $query = Transaction::where(['category' => 'rebate_wallet', 'user_id' => Auth::id()]);
+
+        if ($description) {
+            if ($description == 'rebate_payout'){
+                $query->where('transaction_type', 'rebate_payout');
+            }
+            elseif ($description == 'apply_rebate'){
+                $query->where('transaction_type', 'apply_rebate');
+            }
+            elseif ($description == 'transfer'){
+                $query->where('transaction_type', 'transfer');
+            }
+            elseif ($description == 'withdrawal'){
+                $query->where('transaction_type', 'withdrawal');
+            }
+        }
+
+        if ($startDate && $endDate) {
+            $start_date = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
+            $end_date = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+
+            $query->whereBetween('created_at', [$start_date, $end_date]);
+        }
+
+        $transactions = $query
+            ->latest()
+            ->get()
+            ->map(function ($transaction) {
+                return [
+                    'category' => $transaction->category,
+                    'transaction_type' => $transaction->transaction_type,
+                    'from_meta_login' => $transaction->from_meta_login,
+                    'to_meta_login' => $transaction->to_meta_login,
+                    'transaction_number' => $transaction->transaction_number,
+                    'payment_account_id' => $transaction->payment_account_id,
+                    'from_wallet_address' => $transaction->from_wallet_address,
+                    'to_wallet_address' => $transaction->to_wallet_address,
+                    'txn_hash' => $transaction->txn_hash,
+                    'amount' => $transaction->amount,
+                    'transaction_charges' => $transaction->transaction_charges,
+                    'transaction_amount' => $transaction->transaction_amount,
+                    'status' => $transaction->status,
+                    'comment' => $transaction->comment,
+                    'remarks' => $transaction->remarks,
+                    'created_at' => $transaction->created_at,
+                    'wallet_name' => $transaction->payment_account->payment_account_name ?? '-'
+                ];
+            });
+
+        return response()->json([
+            'transactions' => $transactions,
+        ]);
+    }
 }
