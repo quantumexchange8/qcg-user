@@ -22,7 +22,7 @@ const props = defineProps({
 const activeStep = ref(1);
 
 const countryList = ref(props.countries); 
-const selectedCountry = ref();
+const selectedCountry = ref({name_en: 'Malaysia', phone_code: '+60'});
 const showPassword = ref(false);
 const showPassword2 = ref(false);
 

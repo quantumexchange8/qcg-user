@@ -49,20 +49,20 @@ watchEffect(() => {
                 <div class="w-20 h-2.5 bg-gray-200 rounded-full my-2"></div>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-2 self-stretch">
-            <div class="w-full flex items-center gap-1 flex-grow">
+        <div class="grid grid-cols-2 gap-2 self-stretch xl:grid-cols-4">
+            <div class="w-full flex items-start gap-1 flex-col">
                 <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
                 <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
             </div>
-            <div class="w-full flex items-center gap-1 flex-grow">
+            <div class="w-full flex items-start gap-1 flex-col">
                 <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
                 <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
             </div>
-            <div class="w-full flex items-center gap-1 flex-grow">
+            <div class="w-full flex items-start gap-1 flex-col">
                 <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
                 <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
             </div>
-            <div class="w-full flex items-center gap-1 flex-grow">
+            <div class="w-full flex items-start gap-1 flex-col">
                 <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>
                 <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
             </div>
@@ -76,12 +76,12 @@ watchEffect(() => {
         <div
             v-for="account in accounts"
             :key="account.id"
-            class="flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-2xl border-l-8 bg-white shadow-toast w-full"
+            class="flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-3 flex-grow md:pr-6 rounded-2xl border-l-8 bg-white shadow-toast w-full"
             :style="{'borderColor': `#${account.account_type_color}`}"
         >
             <div class="flex items-center gap-5 self-stretch">
-                <div class="flex items-center content-center gap-3 md:gap-4 flex-grow">
-                    <span class="text-gray-950 font-semibold md:text-lg">#{{ account.meta_login }}</span>
+                <div class="flex items-center content-center gap-y-2 gap-x-4 flex-grow">
+                    <span class="text-gray-950 font-semibold text-lg">#{{ account.meta_login }}</span>
                     <div
                         class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
                         :style="{
@@ -94,20 +94,20 @@ watchEffect(() => {
                 </div>
                 <Action :account="account" :type="accountType" />
             </div>
-            <div class="grid grid-cols-2 gap-2 self-stretch">
-                <div class="w-full flex items-center gap-1 flex-grow">
+            <div class="grid grid-cols-2 gap-2 self-stretch xl:grid-cols-4">
+                <div class="w-full flex items-start gap-1 flex-col">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.balance) }}</span>
                 </div>
-                <div class="w-full flex items-center gap-1 flex-grow">
+                <div class="w-full flex items-start gap-1 flex-col">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.equity) }}</span>
                 </div>
-                <div class="w-full flex items-center gap-1 flex-grow">
+                <div class="w-full flex items-start gap-1 flex-col">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.credit) }}</span>
                 </div>
-                <div class="w-full flex items-center gap-1 flex-grow">
+                <div class="w-full flex items-start gap-1 flex-col">
                     <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>
                     <span class="text-gray-950 text-xs font-medium">1:{{ account.leverage }}</span>
                 </div>

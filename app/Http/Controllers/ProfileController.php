@@ -127,4 +127,78 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function updateCryptoWalletInfo(Request $request)
+    {
+        $wallet_names = $request->wallet_name;
+        $token_addresses = $request->token_address;
+
+        $errors = [];
+
+        // Validate wallets and addresses
+        foreach ($wallet_names as $index => $wallet_name) {
+            $token_address = $token_addresses[$index] ?? '';
+
+            if (empty($wallet_name) && !empty($token_address)) {
+                $errors["wallet_name.$index"] = trans('validation.required', ['attribute' => trans('public.wallet_name') . ' #' . ($index + 1)]);
+            }
+
+            if (!empty($wallet_name) && empty($token_address)) {
+                $errors["token_address.$index"] = trans('validation.required', ['attribute' => trans('public.token_address') . ' #' . ($index + 1)]);
+            }
+        }
+
+        foreach ($token_addresses as $index => $token_address) {
+            $wallet_name = $wallet_names[$index] ?? '';
+
+            if (empty($token_address) && !empty($wallet_name)) {
+                $errors["token_address.$index"] = trans('validation.required', ['attribute' => trans('public.token_address') . ' #' . ($index + 1)]);
+            }
+
+            if (!empty($token_address) && empty($wallet_name)) {
+                $errors["wallet_name.$index"] = trans('validation.required', ['attribute' => trans('public.wallet_name') . ' #' . ($index + 1)]);
+            }
+        }
+
+        if (!empty($errors)) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        if ($wallet_names && $token_addresses) {
+            foreach ($wallet_names as $index => $wallet_name) {
+                // Skip iteration if id or token_address is null
+                if (is_null($token_addresses[$index])) {
+                    continue;
+                }
+
+                $conditions = [
+                    'user_id' => $request->user_id,
+                ];
+
+                // Check if 'id' is set and valid
+                if (!empty($request->id[$index])) {
+                    $conditions['id'] = $request->id[$index];
+                } else {
+                    $conditions['id'] = 0;
+                }
+
+                PaymentAccount::updateOrCreate(
+                    $conditions,
+                    [
+                        'user_id' => $request->user_id,
+                        'status' => 'active',
+                        'payment_account_name' => $wallet_name,
+                        'payment_platform' => 'crypto',
+                        'payment_platform_name' => 'USDT (TRC20)',
+                        'account_no' => $token_addresses[$index],
+                        'currency' => 'USDT'
+                    ]
+                );
+            }
+        }
+
+        return redirect()->back()->with('toast', [
+            'title' => trans('public.toast_update_crypto_wallet_success'),
+            'type' => 'success'
+        ]);
+    }
 }

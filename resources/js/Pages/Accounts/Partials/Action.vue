@@ -4,12 +4,12 @@ import { usePage, useForm } from "@inertiajs/vue3";
 import Dialog from 'primevue/dialog';
 import Button from "@/Components/Button.vue";
 import {
-    IconDots,
-    IconCreditCardPay,
-    IconScale,
-    IconHistory,
-    IconDatabaseMinus,
-    IconTrash
+    IconDotsVertical,
+    // IconDatabaseMinus,
+    IconCash,
+    IconTool,
+    IconReportMoney,
+    IconTrashX
 } from '@tabler/icons-vue';
 import toast from '@/Composables/toast';
 import AccountReport from '@/Pages/Accounts/Partials/AccountReport.vue';
@@ -32,7 +32,7 @@ const dialogType = ref('');
 const items = ref([
     {
         label: 'withdrawal',
-        icon: h(IconCreditCardPay),
+        icon: h(IconCash),
         command: () => {
             if (paymentAccounts.length === 0) {
                 requireAccountConfirmation('crypto');
@@ -44,7 +44,7 @@ const items = ref([
     },
     {
         label: 'change_leverage',
-        icon: h(IconScale),
+        icon: h(IconTool),
         command: () => {
             if (props.account.account_type_leverage === 0) {
                 visible.value = true;
@@ -56,31 +56,19 @@ const items = ref([
                 });
             }
         },
-        account_type: 'standard_account'
-    },
-    {
-        label: 'revoke_pamm',
-        icon: h(IconDatabaseMinus),
-        command: () => {
-            requireAccountConfirmation('revoke');
-        },
-        account_type: 'premium_account',
-        disabled: props.account.status === 'pending' || props.account.status === null,
+        // account_type: 'standard_account'
     },
     {
         label: 'account_report',
-        icon: h(IconHistory),
+        icon: h(IconReportMoney),
         command: () => {
             visible.value = true;
             dialogType.value = 'account_report';
         },
     },
     {
-        separator: true,
-    },
-    {
-        label: 'delete_account',
-        icon: h(IconTrash),
+        label: 'delete',
+        icon: h(IconTrashX),
         command: () => {
             requireAccountConfirmation('live');
         },
@@ -90,7 +78,7 @@ const items = ref([
 const filteredItems = computed(() => {
     return items.value.filter(item => {
         if (props.account.asset_master_id) {
-            return !(item.label === 'withdrawal' || item.label === 'change_leverage' || item.label === 'delete_account' || item.separator);
+            return !(item.label === 'withdrawal' || item.label === 'change_leverage' || item.label === 'delete' || item.separator);
         }
 
         if (item.account_type) {
@@ -138,18 +126,6 @@ const requireAccountConfirmation = (accountType) => {
                 form.delete(route('account.delete_account'));
             }
         },
-        revoke: {
-            group: 'headless-error',
-            header: trans('public.revoke_pamm'),
-            text: trans('public.revoke_account_text'),
-            suffix: '? ' + trans('public.confirmation_text_suffix'),
-            actionType: 'revoke',
-            cancelButton: trans('public.cancel'),
-            acceptButton: trans('public.revoke_confirm'),
-            action: () => {
-                form.post(route('account.revoke_account'));
-            }
-        },
         crypto: {
             group: 'headless-primary',
             header: trans('public.crypto_wallet_required'),
@@ -193,7 +169,7 @@ const requireAccountConfirmation = (accountType) => {
         aria-haspopup="true"
         aria-controls="overlay_tmenu"
     >
-        <IconDots size="16" stroke-width="1.25" color="#667085" />
+        <IconDotsVertical size="16" stroke-width="1.25" color="#374151" />
     </Button>
 
     <Button
@@ -205,11 +181,11 @@ const requireAccountConfirmation = (accountType) => {
         pill
         @click="requireAccountConfirmation('demo')"
     >
-        <IconTrash size="16" stroke-width="1.25" color="#667085" />
+        <IconTrashX size="16" stroke-width="1.25" color="#374151" />
     </Button>
 
     <!-- Menu -->
-    <TieredMenu ref="menu" id="overlay_tmenu" :model="filteredItems" popup>
+    <TieredMenu ref="menu" id="overlay_tmenu" :model="filteredItems" popup >
         <template #item="{ item, props }">
             <div
                 class="flex items-center gap-3 self-stretch"

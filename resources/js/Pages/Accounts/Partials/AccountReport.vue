@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
-import Calendar from 'primevue/calendar';
+import Datepicker from 'primevue/datepicker';
 import Select from "primevue/select";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -78,6 +78,8 @@ watch(selectedDate, (newDateRange) => {
         } else {
             getAccountReport([], selectedOption.value);
         }
+    } else if (newDateRange === null) {
+        getAccountReport([], selectedOption.value);
     } else {
         console.warn('Invalid date range format:', newDateRange);
     }
@@ -121,124 +123,127 @@ function copyToClipboard(text) {
 </script>
 
 <template>
-    <DataTable
-        :value="transactions"
-        paginator
-        removableSort
-        selectionMode="single"
-        :rows="10"
-        :rowsPerPageOptions="[10, 20, 50, 100]"
-        tableStyle="md:min-width: 50rem"
-        paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        @row-click="(event) => openDialog(event.data)"
-        :loading="loading"
-    >
-        <template #header>
-            <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-3">
-                <div class="relative w-full">
-                    <Calendar
-                        v-model="selectedDate"
-                        selectionMode="range"
-                        dateFormat="yy/mm/dd"
-                        showIcon
-                        iconDisplay="input"
-                        :placeholder="$t('public.date_placeholder')"
+    <div class="pt-6">
+        <DataTable
+            :value="transactions"
+            paginator
+            removableSort
+            selectionMode="single"
+            :rows="10"
+            :rowsPerPageOptions="[10, 20, 50, 100]"
+            tableStyle="md:min-width: 50rem"
+            paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            @row-click="(event) => openDialog(event.data)"
+            :loading="loading"
+        >
+            <template #header>
+                <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-3 mb-8">
+                    <div class="relative w-full">
+                        <Datepicker
+                            v-model="selectedDate"
+                            selectionMode="range"
+                            dateFormat="yy/mm/dd"
+                            showIcon
+                            iconDisplay="input"
+                            :placeholder="$t('public.date_placeholder')"
+                            class="w-full font-normal"
+                        />
+                        <div
+                            v-if="selectedDate && selectedDate.length > 0"
+                            class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
+                            @click="clearDate"
+                        >
+                            <IconX size="20" />
+                        </div>
+                    </div>
+                    <Select
+                        v-model="selectedOption"
+                        :options="transferOptions"
+                        optionLabel="name"
+                        optionValue="value"
+                        :placeholder="$t('public.transaction_type_option_placeholder')"
                         class="w-full font-normal"
+                        scroll-height="236px"
                     />
+                </div>
+            </template>
+            <template #empty><Empty :message="$t('public.no_record_message')"/></template>
+            <template #loading>
+                <div class="flex flex-col gap-2 items-center justify-center">
+                    <Loader />
+                    <span class="text-sm text-gray-700">{{ $t('public.loading_caption') }}</span>
+                </div>
+            </template>
+            <Column
+                field="created_at"
+                sortable
+                :header="$t('public.date')"
+                class="hidden md:table-cell"
+            >
+                <template #body="slotProps">
+                    {{ formatDateTime(slotProps.data.created_at) }}
+                </template>
+            </Column>
+            <Column
+                :header="$t('public.description')"
+                class="hidden md:table-cell"
+            >
+                <template #body="slotProps">
+                    <div v-if="['transfer_to_account', 'account_to_account'].includes(slotProps.data.transaction_type)">
+                        <div v-if="account.meta_login === slotProps.data.to_meta_login">
+                            {{ $t('public.from') }} {{ slotProps.data.from_meta_login }}
+                        </div>
+                        <div v-else>
+                            {{ $t('public.to') }} {{ slotProps.data.to_meta_login }}
+                        </div>
+                    </div>
+                    <div v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</div>
+                </template>
+            </Column>
+            <Column
+                field="transaction_amount"
+                sortable
+                :header="$t('public.amount') + ' ($)'"
+                class="hidden md:table-cell"
+            >
+                <template #body="slotProps">
                     <div
-                        v-if="selectedDate && selectedDate.length > 0"
-                        class="absolute top-2/4 -mt-2.5 right-4 text-gray-400 select-none cursor-pointer bg-white"
-                        @click="clearDate"
-                    >
-                        <IconX size="20" />
-                    </div>
-                </div>
-                <Select
-                    v-model="selectedOption"
-                    :options="transferOptions"
-                    optionLabel="name"
-                    optionValue="value"
-                    :placeholder="$t('public.transaction_type_option_placeholder')"
-                    class="w-full font-normal"
-                    scroll-height="236px"
-                />
-            </div>
-        </template>
-        <template #empty><Empty :message="$t('public.no_record_message')"/></template>
-        <template #loading>
-            <div class="flex flex-col gap-2 items-center justify-center">
-                <Loader />
-                <span class="text-sm text-gray-700">{{ $t('public.loading_caption') }}</span>
-            </div>
-        </template>
-        <Column
-            field="created_at"
-            sortable
-            :header="$t('public.date')"
-            class="hidden md:table-cell"
-        >
-            <template #body="slotProps">
-                {{ formatDateTime(slotProps.data.created_at) }}
-            </template>
-        </Column>
-        <Column
-            :header="$t('public.description')"
-            class="hidden md:table-cell"
-        >
-            <template #body="slotProps">
-                <div v-if="['transfer_to_account', 'account_to_account'].includes(slotProps.data.transaction_type)">
-                    <div v-if="account.meta_login === slotProps.data.to_meta_login">
-                        {{ $t('public.from') }} {{ slotProps.data.from_meta_login }}
-                    </div>
-                    <div v-else>
-                        {{ $t('public.to') }} {{ slotProps.data.to_meta_login }}
-                    </div>
-                </div>
-                <div v-else>{{ $t(`public.${slotProps.data.transaction_type}`) }}</div>
-            </template>
-        </Column>
-        <Column
-            field="transaction_amount"
-            sortable
-            :header="$t('public.amount') + ' ($)'"
-            class="hidden md:table-cell"
-        >
-            <template #body="slotProps">
-                <div
-                    :class="{
-                            'text-success-500': slotProps.data.to_meta_login,
-                            'text-error-500': slotProps.data.from_meta_login,
-                        }"
-                >
-                    {{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : 0) }}
-                </div>
-            </template>
-        </Column>
-        <Column class="md:hidden">
-            <template #body="slotProps">
-                <div class="flex items-center justify-between">
-                    <div class="flex flex-col items-start gap-1 flex-grow">
-                        <span class="overflow-hidden text-gray-950 text-ellipsis text-sm font-semibold">
-                            {{ slotProps.data.transaction_type }}
-                        </span>
-                        <span class="text-gray-500 text-xs">
-                            {{ formatDateTime(slotProps.data.created_at) }}
-                        </span>
-                    </div>
-                    <div
-                        class="overflow-hidden text-right text-ellipsis font-semibold"
                         :class="{
-                            'text-success-500': slotProps.data.to_meta_login,
-                            'text-error-500': slotProps.data.from_meta_login,
-                        }"
+                                'text-success-500': slotProps.data.to_meta_login,
+                                'text-error-500': slotProps.data.from_meta_login,
+                            }"
                     >
                         {{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : 0) }}
                     </div>
-                </div>
-            </template>
-        </Column>
-    </DataTable>
+                </template>
+            </Column>
+            <Column class="md:hidden">
+                <template #body="slotProps">
+                    <div class="flex items-center justify-between">
+                        <div class="flex flex-col items-start gap-1 flex-grow">
+                            <span class="overflow-hidden text-gray-950 text-ellipsis text-sm font-semibold">
+                                {{ slotProps.data.transaction_type }}
+                            </span>
+                            <span class="text-gray-500 text-xs">
+                                {{ formatDateTime(slotProps.data.created_at) }}
+                            </span>
+                        </div>
+                        <div
+                            class="overflow-hidden text-right text-ellipsis font-semibold"
+                            :class="{
+                                'text-success-500': slotProps.data.to_meta_login,
+                                'text-error-500': slotProps.data.from_meta_login,
+                            }"
+                        >
+                            {{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : 0) }}
+                        </div>
+                    </div>
+                </template>
+            </Column>
+        </DataTable>
+    </div>
+
 
     <Dialog
         v-model:visible="visible"
@@ -284,7 +289,7 @@ function copyToClipboard(text) {
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.status') }}</span>
-                <StatusBadge :value="data.status">{{ $t('public.' + data.status) }}</StatusBadge>
+                <StatusBadge :variant="data.status">{{ $t('public.' + data.status) }}</StatusBadge>
             </div>
         </div>
         <div v-if="['deposit', 'withdrawal'].includes(data.transaction_type)" class="flex flex-col items-center py-4 gap-3 self-stretch border-b border-gray-200">

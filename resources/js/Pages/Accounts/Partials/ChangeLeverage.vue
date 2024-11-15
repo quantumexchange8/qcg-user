@@ -4,6 +4,7 @@ import {useForm} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue"
 import InputError from "@/Components/InputError.vue";
 import Select from "primevue/select";
+import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 import {ref, watch} from "vue";
 
 const props = defineProps({
@@ -49,8 +50,8 @@ const closeDialog = () => {
 <template>
     <form>
         <div class="flex flex-col items-center gap-8 self-stretch md:gap-10">
-            <div class="flex flex-col items-center gap-5 self-stretch">
-                <div class="flex flex-col justify-center items-center py-4 px-8 gap-2 self-stretch bg-gray-200">
+            <div class="flex flex-col py-6 w-full gap-8">
+                <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
                     <span class="w-full text-gray-500 text-center text-xs font-medium">#{{ account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
                     <span class="w-full text-gray-950 text-center text-xl font-semibold">$ {{ account.balance }}</span>
                 </div>
@@ -71,6 +72,12 @@ const closeDialog = () => {
                     />
                     <InputError :message="form.errors.leverage" />
                 </div>
+            </div>
+        </div>
+        <div class="self-stretch">
+            <div class="text-gray-500 text-xs">{{ $t('public.acknowledgement') }}
+                <TermsAndCondition
+                />.
             </div>
         </div>
         <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-7">

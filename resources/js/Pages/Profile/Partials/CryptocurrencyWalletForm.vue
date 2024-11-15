@@ -1,40 +1,85 @@
 <script setup>
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import Button from "@/Components/Button.vue"
-import { useForm, usePage } from '@inertiajs/vue3';
-import InputText from 'primevue/inputtext';
-import Dropdown from 'primevue/dropdown';
-import {ref, watch} from "vue";
+import InputError from "@/Components/InputError.vue";
+import InputText from "primevue/inputtext";
+import {computed, ref, watch} from "vue";
+import {useForm, usePage} from "@inertiajs/vue3";
+import Button from "@/Components/Button.vue";
 
-defineProps({
-    mustVerifyEmail: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
-});
-
-const user = usePage().props.auth.user;
+const user = ref(usePage().props.auth.user);
+const paymentAccounts = ref(usePage().props.auth.payment_account);
 
 const form = useForm({
-    name: user.name,
-    email: user.email,
+    id: new Array(3).fill(''),
+    user_id: '',
+    wallet_name: new Array(3).fill(''),
+    token_address: new Array(3).fill(''),
 });
 
-const resetForm = () => {
-    form.reset();
-}
+const displayAccounts = computed(() => {
+    if (paymentAccounts.value.length === 0) {
+        return new Array(3).fill({ wallet_name: '', token_address: '' });
+    }
+    return paymentAccounts.value.concat(new Array(3 - paymentAccounts.value.length).fill({ wallet_name: '', token_address: '' }));
+});
+
+watch(
+    () => paymentAccounts.value,
+    (newAccounts) => {
+        if (paymentAccounts.value.length > 0) {
+            const updatedAccounts = newAccounts.concat(new Array(3 - newAccounts.length).fill({ wallet_name: '', token_address: '' }));
+            form.wallet_name = updatedAccounts.map((account, index) => account.payment_account_name || form.wallet_name[index] || '');
+            form.token_address = updatedAccounts.map((account, index) => account.account_no || form.token_address[index] || '');
+        }
+    },
+    { immediate: true }
+);
 
 const submitForm = () => {
-    form.post(route('profile.update'), {
-        onSuccess: () => {
-            visible.value = false;
-            form.reset();
-        },
+    form.id = displayAccounts.value.map((account, index) =>
+        account && account.id ? account.id : form.id[index]
+    );
+    form.wallet_name = displayAccounts.value.map((account, index) =>
+        account && account.wallet_name ? account.wallet_name : form.wallet_name[index]
+    );
+    form.token_address = displayAccounts.value.map((account, index) =>
+        account && account.token_address ? account.token_address : form.token_address[index]
+    );
+
+    form.user_id = user.value.id;
+
+    form.post(route('profile.updateCryptoWalletInfo'), {
+        preserveScroll: true,
     });
-}
+};
+
+const dirtyFields = ref({
+    wallet_name: new Array(3).fill(false),
+    token_address: new Array(3).fill(false),
+});
+
+const handleInputChange = (field, index) => {
+    dirtyFields.value[field][index] = true;
+};
+
+const resetForm = () => {
+    dirtyFields.value.wallet_name.forEach((isDirty, index) => {
+        if (isDirty) {
+            form.wallet_name[index] = '';
+        }
+    });
+
+    dirtyFields.value.token_address.forEach((isDirty, index) => {
+        if (isDirty) {
+            form.token_address[index] = '';
+        }
+    });
+
+    // Reset dirty fields tracking
+    dirtyFields.value = {
+        wallet_name: new Array(3).fill(false),
+        token_address: new Array(3).fill(false),
+    };
+};
 </script>
 
 <template>
@@ -46,85 +91,46 @@ const submitForm = () => {
             </div>
 
             <div class="flex flex-col gap-5 items-center self-stretch w-full">
-                <div class="flex flex-col gap-1 w-full">
-                    <InputLabel for="wallet1">
-                        {{ $t('public.wallet') }} #1
-                    </InputLabel>
-                    <InputText
-                        id="name"
-                        type="text"
-                        class="block w-full"
-                        v-model="form.name"
-                        :placeholder="$t('public.wallet_name')"
-                        :invalid="!!form.errors.name"
-                        autocomplete="name"
-                        disabled
-                    />
-                    <InputText
-                        id="name"
-                        type="text"
-                        class="block w-full"
-                        v-model="form.name"
-                        :placeholder="$t('public.token_address')"
-                        :invalid="!!form.errors.name"
-                        autocomplete="name"
-                        disabled
-                    />
-                    <InputError :message="form.errors.name" />
-                </div>
-
-                <div class="flex flex-col gap-1 w-full">
-                    <InputLabel for="wallet2">
-                        {{ $t('public.wallet') }} #2
-                    </InputLabel>
-                    <InputText
-                        id="name"
-                        type="text"
-                        class="block w-full"
-                        v-model="form.name"
-                        :placeholder="$t('public.wallet_name')"
-                        :invalid="!!form.errors.name"
-                        autocomplete="name"
-                        disabled
-                    />
-                    <InputText
-                        id="name"
-                        type="text"
-                        class="block w-full"
-                        v-model="form.name"
-                        :placeholder="$t('public.token_address')"
-                        :invalid="!!form.errors.name"
-                        autocomplete="name"
-                        disabled
-                    />
-                    <InputError :message="form.errors.name" />
-                </div>
-
-                <div class="flex flex-col gap-1 w-full">
-                    <InputLabel for="wallet3">
-                        {{ $t('public.wallet') }} #3
-                    </InputLabel>
-                    <InputText
-                        id="name"
-                        type="text"
-                        class="block w-full"
-                        v-model="form.name"
-                        :placeholder="$t('public.wallet_name')"
-                        :invalid="!!form.errors.name"
-                        autocomplete="name"
-                        disabled
-                    />
-                    <InputText
-                        id="name"
-                        type="text"
-                        class="block w-full"
-                        v-model="form.name"
-                        :placeholder="$t('public.token_address')"
-                        :invalid="!!form.errors.name"
-                        autocomplete="name"
-                        disabled
-                    />
-                    <InputError :message="form.errors.name" />
+                <div
+                    v-for="(account, index) in displayAccounts"
+                    class="flex flex-col gap-1 w-full"
+                >
+                    <label
+                        :for="`wallet_name_${index+1}`"
+                        class="block min-w-[72px] text-sm font-semibold"
+                        :class="{
+                            'text-gray-700': !form.errors[`wallet_name.${index}`],
+                            'text-error-500': form.errors[`wallet_name.${index}`]
+                        }"
+                    >
+                        {{ $t('public.wallet') }} #{{ index + 1 }}
+                    </label>
+                    <div class="flex flex-col gap-1 w-full">
+                        <InputText
+                            :id="`wallet_name_${index+1}`"
+                            type="text"
+                            class="block w-full"
+                            :aria-label="`wallet_name_${index+1}`"
+                            v-model="form.wallet_name[index]"
+                            :placeholder="$t('public.wallet_name')"
+                            :invalid="!!form.errors[`wallet_name.${index}`]"
+                            @input="handleInputChange('wallet_name', index)"
+                        />
+                        <InputError :message="form.errors[`wallet_name.${index}`]" />
+                    </div>
+                    <div class="flex flex-col gap-1 w-full">
+                        <InputText
+                            :id="`token_address_${index+1}`"
+                            type="text"
+                            class="block w-full"
+                            :aria-label="`token_address_${index+1}`"
+                            v-model="form.token_address[index]"
+                            :placeholder="$t('public.token_address')"
+                            :invalid="!!form.errors[`token_address.${index}`]"
+                            @input="handleInputChange('token_address', index)"
+                        />
+                        <InputError :message="form.errors[`token_address.${index}`]" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -135,16 +141,16 @@ const submitForm = () => {
                 type="button"
                 variant="gray-tonal"
                 
+                :disabled="form.processing"
                 @click="resetForm"
-                disabled
             >
                 {{ $t('public.cancel') }}
             </Button>
             <Button
                 variant="primary-flat"
                 
+                :disabled="form.processing"
                 @click="submitForm"
-                disabled
             >
                 {{ $t('public.save_changes') }}
             </Button>

@@ -15,12 +15,15 @@ import Dialog from 'primevue/dialog';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import InputText from 'primevue/inputtext';
+import InputNumber from 'primevue/inputnumber';
 import IconField from 'primevue/iconfield';
 import Select from "primevue/select";
 import {IconCircleCheckFilled, IconInfoCircle, IconX} from '@tabler/icons-vue';
 import { trans, wTrans } from "laravel-vue-i18n";
 import TermsAndCondition from "@/Components/TermsAndCondition.vue";
+import { transactionFormat } from "@/Composables/index.js";
 
+const { formatAmount, formatDate } = transactionFormat();
 const props = defineProps({
     terms: Object
 })
@@ -36,7 +39,7 @@ const liveAccountForm = useForm({
 
 const demoAccountForm = useForm({
     user_id: user.id,
-    amount: '',
+    amount: 0.00,
     leverage: '',
 });
 
@@ -150,21 +153,34 @@ const noticeVisible = ref(true);
         <div class="flex flex-col gap-20 md:gap-[100px]">
             <div class="flex flex-col items-start gap-5 self-stretch">
                 <!-- banner -->
-                <div class="h-[260px] pl-5 pt-5 pr-3 pb-[26px] self-stretch rounded-lg bg-white shadow-card md:h-60 bg-[url('/img/background-account-banner.svg')] bg-no-repeat bg-right-bottom bg-contain
-                    md:pl-8 md:pt-[30px] md:pb-[30px] md:pr-[246px]
-                    xl:pt-11 xl:pb-11 xl:pr-[343px]"
+                <div class="relative h-[260px] pt-5 px-5 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-60 
+                    bg-no-repeat bg-right-bottom bg-contain overflow-hidden
+                    md:pl-10 md:pt-[30px] md:pb-[58px] md:pr-[310px]
+                    lg:pt-10 lg:pb-[68px] xl:pr-[469px] z-0"
                     >
+                    <div class="absolute inset-0 -z-10">
+                        <img src="/assets/account-vector-l-xl.svg" alt="" class="absolute bottom-0 left-0 object-contain hidden xl:block"/>
+                        <img src="/assets/account-vector-l-md.svg" alt="" class="absolute bottom-0 left-0 object-contain hidden md:block xl:hidden"/>
+                        <img src="/assets/account-vector-l-sm.svg" alt="" class="absolute bottom-0 left-0 object-contain md:hidden"/>
+
+                        <img src="/assets/account-vector-r-xl.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden xl:block"/>
+                        <img src="/assets/account-vector-r-md.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden md:block xl:hidden"/>
+                        <img src="/assets/account-vector-r-sm.svg" alt="" class="absolute bottom-0 object-contain right-0 md:hidden"/>
+
+                        <img src="/assets/account-bg-xl.svg" alt="" class="absolute top-0 right-0 object-contain hidden xl:block"/>
+                        <img src="/assets/account-bg-md.svg" alt="" class="absolute top-0 right-0 object-contain hidden md:block xl:hidden"/>
+                    </div>
                     <!-- Content -->
-                    <div class="flex flex-col items-center gap-5 md:w-[450px] md:gap-8 md:items-start lg:w-[454px] xl:w-[643px]">
+                    <div class="flex flex-col items-center gap-5 md:w-[380px] md:items-start xl:w-[480px]">
                         <div class="flex flex-col justify-center items-start gap-2 self-stretch">
-                            <span class="self-stretch text-gray-950 font-bold md:text-lg">{{ $t('public.open_acc_header') }}</span>
-                            <span class="self-stretch text-gray-700 text-xs md:text-sm">{{ $t('public.open_acc_caption') }}</span>
+                            <span class="self-stretch text-gray-950 font-bold text-md md:text-lg">{{ $t('public.open_acc_header') }}</span>
+                            <span class="self-stretch text-gray-700 text-sm">{{ $t('public.open_acc_caption') }}</span>
                         </div>
-                        <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center md:gap-5">
+                        <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center">
                             <Button
                                 type="button"
                                 variant="primary-flat"
-                                class="w-[142px] md:w-full"
+                                class="w-[140px] md:w-full"
                                 :size="buttonSize"
                                 @click="openDialog('live', liveAccountForm)"
                                 :disabled="!accountOptions.length"
@@ -174,7 +190,7 @@ const noticeVisible = ref(true);
                             <Button
                                 type="button"
                                 variant="primary-outlined"
-                                class="w-[142px] md:w-full"
+                                class="w-[140px] md:w-full"
                                 :size="buttonSize"
                                 @click="openDialog('demo', demoAccountForm)"
                             >
@@ -241,10 +257,10 @@ const noticeVisible = ref(true);
     </AuthenticatedLayout>
 
     <Dialog v-model:visible="showLiveAccountDialog" modal :header="$t('public.open_live_account')" class="dialog-xs sm:dialog-sm">
-        <div class="flex flex-col items-center gap-8 self-stretch sm:gap-10">
+        <div class="flex flex-col items-center gap-6 py-4 md:py-6 self-stretch md:gap-8">
             <div class="flex flex-col items-center gap-5 self-stretch">
                 <div class="flex flex-col items-start gap-2 self-stretch">
-                    <InputLabel for="accountType" :value="$t('public.account_type_placeholder')" />
+                    <InputLabel for="accountType" :value="$t('public.select_account')" />
                     <div class="flex flex-col items-start gap-3 self-stretch">
                         <div
                             v-for="(account, index) in accountOptions"
@@ -259,22 +275,14 @@ const noticeVisible = ref(true);
                         >
                             <div class="flex items-center gap-3 self-stretch">
                                 <span
-                                    class="flex-grow text-sm font-semibold transition-colors duration-300 group-hover:text-primary-700"
-                                    :class="{
-                                        'text-primary-700': selectedAccountType === account.account_group,
-                                        'text-gray-950': selectedAccountType !== account.account_group
-                                    }"
+                                    class="flex-grow text-sm font-semibold transition-colors duration-300 group-hover:text-primary-700 text-gray-950"
                                 >
                                     {{ $t(`public.${account.slug}`) }}
                                 </span>
-                                <IconCircleCheckFilled v-if="selectedAccountType === account.account_group" size="20" stroke-width="1.25" color="#2970FF" />
+                                <IconCircleCheckFilled v-if="selectedAccountType === account.account_group" size="20" stroke-width="1.25" color="#2E7D32" />
                             </div>
                             <span
-                                class="self-stretch text-xs transition-colors duration-300 group-hover:text-primary-500"
-                                :class="{
-                                    'text-primary-500': selectedAccountType === account.account_group,
-                                    'text-gray-500': selectedAccountType !== account.account_group
-                                }"
+                                class="self-stretch text-xs transition-colors duration-300 group-hover:text-primary-500 text-gray-500"
                             >
                                 {{ account.descriptions }}
                             </span>
@@ -282,7 +290,7 @@ const noticeVisible = ref(true);
                     </div>
                 </div>
                 <div class="flex flex-col items-start gap-1 self-stretch">
-                    <InputLabel for="leverage" :value="$t('public.leverages')" />
+                    <InputLabel for="leverage" :value="$t('public.leverage')" />
                     <Select
                         v-model="liveAccountForm.leverage"
                         :options="leverages"
@@ -297,42 +305,45 @@ const noticeVisible = ref(true);
                         <span :class="{
                             'text-gray-400': !accountOptions.find(account => account.account_group === selectedAccountType) || accountOptions.find(account => account.account_group === selectedAccountType)?.leverage !== 0
                         }">
-                            {{ leverages.find(option => option.value === slotProps.value)?.name || slotProps.value || $t('public.leverages_placeholder') }}
+                            {{ leverages.find(option => option.value === slotProps.value)?.name || slotProps.value || $t('public.select_leverage') }}
                         </span>
                     </template>
                     </Select>
                 </div>
             </div>
             <div class="self-stretch">
-                <div class="text-gray-500 text-xs">{{ $t('public.agreement_text') }}
+                <div class="text-gray-500 text-xs">{{ $t('public.acknowledgement') }}
                     <TermsAndCondition
-                        :termsLabel="$t('public.trading_account_agreement')"
-                        :terms="terms"
                     />.
                 </div>
             </div>
         </div>
-        <div class="flex justify-end items-center pt-5 gap-4 self-stretch md:pt-7">
-            <Button variant="primary-flat" type="button" :class="{ 'opacity-25': liveAccountForm.processing }" :disabled="liveAccountForm.processing" @click.prevent="openLiveAccount">{{ $t('public.open_live_account') }}</Button>
+        <div class="flex justify-end items-center pt-6 gap-4 self-stretch w-full">
+            <Button variant="gray-outlined" type="button" class="justify-center w-full" @click="closeDialog('live')">
+                {{$t('public.cancel')}}
+            </Button>
+            <Button variant="primary-flat" type="button" class="justify-center w-full" :class="{ 'opacity-25': liveAccountForm.processing }" :disabled="liveAccountForm.processing" @click.prevent="openLiveAccount">{{ $t('public.open') }}</Button>
         </div>
     </Dialog>
 
     <Dialog v-model:visible="showDemoAccountDialog" modal :header="$t('public.open_demo_account')" class="dialog-xs sm:dialog-sm">
-        <div class="flex flex-col items-center gap-8 self-stretch sm:gap-10">
+        <div class="flex flex-col items-center gap-6 py-4 md:py-6 self-stretch md:gap-8">
             <div class="flex flex-col items-center gap-5 self-stretch">
                 <div class="flex flex-col items-start gap-2 self-stretch">
-                    <InputLabel for="amount" :value="$t('public.amount')" />
-                    <IconField iconPosition="left" class="w-full">
-                        <div class="text-gray-950 text-sm">$</div>
-                        <InputText
+                    <InputLabel for="amount" :value="$t('public.balance_amount')" />
+                    
+                        <!-- <div class="text-gray-950 text-sm">$</div> -->
+                        <InputNumber
                             id="amount"
-                            type="number"
+                            inputId="currency-us"
+                            prefix="$ "
                             class="block w-full"
+                            :minFractionDigits="2"
                             v-model="demoAccountForm.amount"
-                            :placeholder="$t('public.amount_placeholder')"
+                            :placeholder="'$ ' + formatAmount(0)"
                             :invalid="!!demoAccountForm.errors.amount"
                         />
-                    </IconField>
+                    
                     <InputError :message="demoAccountForm.errors.amount" />
                 </div>
                 <div class="flex flex-col items-start gap-1 self-stretch">
@@ -350,23 +361,24 @@ const noticeVisible = ref(true);
                         <span :class="{
                             'text-gray-400': !!accountOptions.find(account => account.account_group === selectedAccountType)?.leverage
                         }">
-                            {{ leverages.find(option => option.value === slotProps.value)?.name || slotProps.value || $t('public.leverages_placeholder') }}
+                            {{ leverages.find(option => option.value === slotProps.value)?.name || slotProps.value || $t('public.select_leverage') }}
                         </span>
                     </template>
                     </Select>
                 </div>
             </div>
             <div class="self-stretch">
-                <div class="text-gray-500 text-xs">{{ $t('public.agreement_text') }}
+                <div class="text-gray-500 text-xs">{{ $t('public.acknowledgement') }}
                     <TermsAndCondition
-                        :termsLabel="$t('public.trading_account_agreement')"
-                        :terms="terms"
                     />.
                 </div>
             </div>
         </div>
-        <div class="flex justify-end items-center pt-5 gap-4 self-stretch md:pt-7">
-            <Button variant="primary-flat" type="button" :class="{ 'opacity-25': demoAccountForm.processing }" :disabled="demoAccountForm.processing" @click.prevent="openDemoAccount">{{ $t('public.open_demo_account') }}</Button>
+        <div class="flex justify-end items-center pt-6 gap-4 self-stretch ">
+            <Button variant="gray-outlined" type="button" class="justify-center w-full" @click="closeDialog('demo')">
+                {{$t('public.cancel')}}
+            </Button>
+            <Button variant="primary-flat" type="button" class="justify-center w-full" :class="{ 'opacity-25': demoAccountForm.processing }" :disabled="demoAccountForm.processing" @click.prevent="openDemoAccount">{{ $t('public.open') }}</Button>
         </div>
     </Dialog>
 </template>

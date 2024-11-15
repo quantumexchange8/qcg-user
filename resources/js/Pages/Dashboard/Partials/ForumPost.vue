@@ -89,22 +89,17 @@ watchEffect(() => {
 
         <div
             v-else-if="loading"
-            class="py-4 flex flex-col gap-5 items-center self-stretch"
+            class="py-6 flex flex-col gap-5 items-center self-stretch"
         >
             <div class="flex justify-between items-start self-stretch">
-                <div class="flex items-center gap-3 w-full">
-                    <div class="w-7 h-7 shrink-0 grow-0 rounded-full overflow-hidden">
-                        <DefaultProfilePhoto />
-                    </div>
-                    <div class="flex flex-col items-start text-sm">
-                        <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
-                    </div>
+                <div class="flex flex-col items-start text-sm">
+                    <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
                 </div>
                 <Skeleton width="2rem" height="0.6rem" class="my-1" borderRadius="2rem"></Skeleton>
             </div>
 
             <!-- content -->
-            <div class="flex flex-col gap-5 items-start self-stretch pl-10">
+            <div class="flex flex-col gap-5 items-start self-stretch">
                 <Skeleton width="10rem" height="4rem"></Skeleton>
                 <div class="flex flex-col gap-3 items-start self-stretch text-sm text-gray-950">
                     <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
@@ -117,25 +112,15 @@ watchEffect(() => {
             <div
                 v-for="post in posts"
                 :key="post.id"
-                class="border-b border-gray-200 last:border-transparent py-4 flex flex-col gap-5 items-center self-stretch"
+                class="border-b border-gray-200 last:border-transparent py-6 flex flex-col gap-5 items-center self-stretch"
             >
                 <div class="flex justify-between items-start self-stretch">
-                    <div class="flex items-center gap-3 w-full">
-                        <div class="w-7 h-7 shrink-0 grow-0 rounded-full overflow-hidden">
-                            <div v-if="post.display_avatar">
-                                <img :src="post.display_avatar" alt="Profile Photo" />
-                            </div>
-                            <div v-else>
-                                <DefaultProfilePhoto />
-                            </div>
-                        </div>
-                        <span class="text-sm text-gray-950 font-bold">{{ post.display_name }}</span>
-                    </div>
+                    <span class="text-sm text-gray-950 font-bold">{{ post.display_name }}</span>
                     <span class="text-gray-700 text-xs text-right min-w-28">{{ formatPostDate(post.created_at) }}</span>
                 </div>
 
                 <!-- content -->
-                <div class="flex flex-col gap-5 items-start self-stretch pl-10">
+                <div class="flex flex-col gap-5 items-start self-stretch">
                     <Image
                         v-if="post.post_attachment"
                         :src="post.post_attachment"

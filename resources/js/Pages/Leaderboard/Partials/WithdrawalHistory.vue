@@ -3,7 +3,7 @@ import Dialog from "primevue/dialog";
 import Button from "@/Components/Button.vue";
 // import Tooltip from "@/Components/Tooltip.vue";
 import { ref, watch } from "vue";
-import { IconCircleXFilled, IconClock, IconDownload } from "@tabler/icons-vue";
+import { IconX, IconClock, IconDownload } from "@tabler/icons-vue";
 import { transactionFormat } from "@/Composables/index.js";
 import DatePicker from 'primevue/datepicker';
 import DataTable from "primevue/datatable";
@@ -71,15 +71,17 @@ watch(selectedDate, (newDateRange) => {
         } else if (startDate || endDate) {
             getResults([startDate || endDate, endDate || startDate]);
         } else {
-            getResults();
+            getResults([]);
         }
+    } else if (newDateRange === null) {
+        getResults([]);
     } else {
         console.warn('Invalid date range format:', newDateRange);
     }
 })
 
 const clearDate = () => {
-    selectedDate.value = [minDate.value, maxDate.value];
+    selectedDate.value = null;
 };
 
 const exportCSV = () => {
@@ -152,7 +154,7 @@ const openDialog = (rowData) => {
                                     class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
                                     @click="clearDate"
                                 >
-                                    <IconCircleXFilled size="20" />
+                                    <IconX size="20" />
                                 </div>
                             </div>
 

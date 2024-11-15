@@ -134,33 +134,33 @@ class AccountController extends Controller
         $user = Auth::user();
         $accountType = $request->input('accountType');
 
-        $conn = (new CTraderService)->connectionStatus();
-        if ($conn['code'] != 0) {
-            return back()
-                ->with('toast', [
-                    'title' => 'Connection Error',
-                    'type' => 'error'
-                ]);
-        }
+        // $conn = (new CTraderService)->connectionStatus();
+        // if ($conn['code'] != 0) {
+        //     return back()
+        //         ->with('toast', [
+        //             'title' => 'Connection Error',
+        //             'type' => 'error'
+        //         ]);
+        // }
 
-        $trading_accounts = $user->tradingAccounts()
-            ->whereHas('account_type', function($q) use ($accountType) {
-                $q->where('category', $accountType);
-            })
-            ->get();
+        // $trading_accounts = $user->tradingAccounts()
+        //     ->whereHas('account_type', function($q) use ($accountType) {
+        //         $q->where('category', $accountType);
+        //     })
+        //     ->get();
 
-        try {
-            foreach ($trading_accounts as $trading_account) {
-                (new CTraderService)->getUserInfo($trading_account->meta_login);
-            }
-        } catch (\Throwable $e) {
-            Log::error($e->getMessage());
-        }
+        // try {
+        //     foreach ($trading_accounts as $trading_account) {
+        //         (new CTraderService)->getUserInfo($trading_account->meta_login);
+        //     }
+        // } catch (\Throwable $e) {
+        //     Log::error($e->getMessage());
+        // }
 
-        $liveAccounts = TradingAccount::with('account_type')
+        $liveAccounts = TradingAccount::with('accountType')
             ->where('user_id', $user->id)
             ->when($accountType, function ($query) use ($accountType) {
-                return $query->whereHas('account_type', function ($query) use ($accountType) {
+                return $query->whereHas('accountType', function ($query) use ($accountType) {
                     $query->where('category', $accountType);
                 });
             })
@@ -174,9 +174,9 @@ class AccountController extends Controller
                     'credit' => $account->credit,
                     'leverage' => $account->margin_leverage,
                     'equity' => $account->equity,
-                    'account_type' => $account->account_type->slug,
-                    'account_type_leverage' => $account->account_type->leverage,
-                    'account_type_color' => $account->account_type->color,
+                    'account_type' => $account->accountType->slug,
+                    'account_type_leverage' => $account->accountType->leverage,
+                    'account_type_color' => $account->accountType->color,
                 ];
             });
 

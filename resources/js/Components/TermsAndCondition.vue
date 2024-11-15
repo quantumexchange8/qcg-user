@@ -9,14 +9,15 @@ const agreementVisible = ref(false)
 
 <template>
     <Button
-        class="text-xs font-medium text-primary-500 hover:text-primary-600 focus:text-primary-600 !p-0"
+        variant="primary-text"
+        class="text-xs !p-0"
         @click="agreementVisible = true"
         type="button"
     >
     {{ $t('public.trading_account_agreement') }}
     </Button>
 
-    <Dialog v-model:visible="agreementVisible" modal :header="$t('public.trading_account_agreement')" class="dialog-lg">
+    <Dialog v-model:visible="agreementVisible" modal :header="$t('public.trading_account_agreement')" class="dialog-xs md:dialog-lg">
         <div class="flex flex-col pt-6 gap-8 text-sm">
             <span>{{ $t('public.trading_account_agreement_caption') }}</span>
             <div class="flex flex-col gap-5">

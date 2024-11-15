@@ -1,7 +1,7 @@
 <script setup>
 import Button from "@/Components/Button.vue";
 // import { SwitchHorizontal01Icon } from "@/Components/Icons/outline";
-import { IconInfoOctagonFilled } from '@tabler/icons-vue';
+import { IconInfoOctagonFilled, IconInfoCircle } from '@tabler/icons-vue';
 import {computed, ref} from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
@@ -107,47 +107,41 @@ const submitForm = (formType) => {
         type="button"
         variant="gray-outlined"
         size="sm"
-        pill
-        iconOnly
+        class="w-full"
         @click="openDialog('transfer')"
         :disabled="account.status === 'pending'"
     >
         <!-- <SwitchHorizontal01Icon class="w-4 text-gray-950" /> -->
-         Transfwer
+        {{ $t('public.transfer') }}
     </Button>
 
-    <Dialog v-model:visible="showDepositDialog" :header="$t('public.deposit')" modal class="dialog-xs sm:dialog-sm">
-        <div class="flex flex-col items-center gap-8 self-stretch">
-            <div class="flex flex-col justify-center items-center py-4 px-8 gap-2 self-stretch bg-gray-200">
-                <span class="text-gray-500 text-center text-xs font-medium">#{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
-                <span class="text-gray-950 text-center text-xl font-semibold">$ {{ props.account.balance }}</span>
+    <Dialog v-model:visible="showDepositDialog" modal :header="$t('public.deposit')" class="dialog-xs sm:dialog-sm">
+        <div class="flex flex-col py-6 gap-8">
+            <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
+                <span class="text-xs text-center text-gray-500">{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
+                <span class="text-lg text-center font-bold text-gray-950">$ {{ props.account.balance }}</span>
             </div>
-            <div class="flex flex-col items-center self-stretch">
-                <div class="h-2 self-stretch bg-info-500"></div>
-                <div class="flex justify-center items-start py-3 gap-3 self-stretch">
-                    <div class="text-info-500">
-                        <IconInfoOctagonFilled size="20" stroke-width="1.25" />
-                    </div>
-                    <div class="flex flex-col items-start gap-1 flex-grow">
-                        <span class="self-stretch text-gray-950 text-sm font-semibold">{{ $t('public.deposit_info_header') }}</span>
-                        <span class="self-stretch text-gray-500 text-xs">
-                            {{ $t('public.deposit_info_message') }}
-                        </span>
-                    </div>
+            <div class="flex flex-row gap-3 items-start">
+                <div><IconInfoCircle size="24" color="#030712" stroke-width="2"/></div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-sm font-semibold text-gray-950">{{ $t('public.deposit_information') }}</span>
+                    <span class="text-sm text-gray-700">{{ $t('public.deposit_information_caption') }}</span>
                 </div>
             </div>
         </div>
-        <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-7">
-            <Button type="button" variant="primary-flat" @click.prevent="submitForm('deposit')">{{ $t('public.deposit_now') }}</Button>
+        <div class="pt-6 w-full">
+            <Button variant="primary-flat" type="button" class="justify-center w-full" @click.prevent="submitForm('deposit')">
+                {{$t('public.deposit_now')}}
+            </Button>
         </div>
     </Dialog>
 
     <Dialog v-model:visible="showTransferDialog" :header="$t('public.transfer')" modal class="dialog-xs sm:dialog-sm">
         <form @submit.prevent="submitForm('transfer')">
-            <div class="flex flex-col items-center gap-5 self-stretch">
-                <div class="flex flex-col justify-center items-center py-4 px-8 gap-2 self-stretch bg-gray-200">
-                    <span class="text-gray-500 text-center text-xs font-medium">#{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
-                    <span class="text-gray-950 text-center text-xl font-semibold">$ {{ props.account.balance }}</span>
+            <div class="flex flex-col py-6 gap-8">
+                <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
+                    <span class="text-gray-500 text-center text-xs">#{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
+                    <span class="text-gray-950 text-center text-lg font-semibold">$ {{ props.account.balance }}</span>
                 </div>
                 <div class="flex flex-col items-start gap-1 self-stretch">
                     <InputLabel for="to_meta_login" :value="$t('public.transfer_to')" />
@@ -155,7 +149,7 @@ const submitForm = (formType) => {
                         v-model="selectedAccount"
                         :options="filteredTransferOptions"
                         optionLabel="name"
-                        :placeholder="$t('public.transfer_to_placeholder')"
+                        :placeholder="$t('public.select')"
                         class="w-full"
                         scroll-height="236px"
                         :disabled="!filteredTransferOptions.length"
@@ -172,7 +166,7 @@ const submitForm = (formType) => {
                             inputId="currency-us"
                             prefix="$ "
                             class="w-full"
-                            inputClass="py-3 px-4"
+                            inputClass="py-2 px-4"
                             :min="0"
                             :step="100"
                             :minFractionDigits="2"
@@ -198,14 +192,14 @@ const submitForm = (formType) => {
                 <Button
                     type="button"
                     variant="gray-tonal"
-                    class="w-full sm:w-[120px]"
+                    class="w-full"
                     @click.prevent="closeDialog('transfer')"
                 >
                     {{ $t('public.cancel') }}
                 </Button>
                 <Button
                     variant="primary-flat"
-                    class="w-full sm:w-[120px]"
+                    class="w-full"
                     @click.prevent="submitForm('transfer')"
                     :disabled="depositForm.processing || transferForm.processing"
                 >
