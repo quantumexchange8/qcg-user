@@ -340,4 +340,5 @@ return [
     "toast_update_profile_success" => "You’ve successfully updated your account details!",
     "toast_update_profile_photo_success" => "You’ve successfully updated your profile!",
     "toast_reset_password_success" => "Password has been reset.",
+    'minimum_amount' => 'Minimum Amount',
 ];
