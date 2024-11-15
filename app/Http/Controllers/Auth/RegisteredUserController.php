@@ -18,8 +18,8 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Mail;
-use App\Http\Requests\RegisterRequest;
-use App\Notifications\OtpNotification;
+//use App\Http\Requests\RegisterRequest;
+//use App\Notifications\OtpNotification;
 use App\Models\Wallet;
 use App\Services\CTraderService;
 
@@ -77,7 +77,7 @@ class RegisteredUserController extends Controller
         $validator = Validator::make($request->all(), $rules);
         $validator->setAttributeNames($attributes);
 
-        
+
         $validator->validate();
         // } elseif ($request->form_step == 2) {
         //     // Validation rules for step 2
@@ -115,9 +115,9 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $conn = (new CTraderService)->connectionStatus();
-        
+
         if ($conn['code'] != 0) {
-            return collect([
+            return back()->with([
                 'toast' => [
                     'title' => 'Connection Error',
                     'type' => 'error'
