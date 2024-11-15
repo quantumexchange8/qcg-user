@@ -80,12 +80,12 @@ const toggleFullAmount = () => {
 
 const submitForm = (formType) => {
     if (formType === 'deposit') {
-        depositForm.post(route('account.deposit_to_account'), {
+        depositForm.post(route('accounts.deposit_to_account'), {
             onSuccess: () => closeDialog('deposit'),
         });
     } else if (formType === 'transfer') {
         transferForm.to_meta_login = selectedAccount.value.name;
-        transferForm.post(route('account.internal_transfer'), {
+        transferForm.post(route('accounts.internal_transfer'), {
             onSuccess: () => closeDialog('transfer'),
         });
     }

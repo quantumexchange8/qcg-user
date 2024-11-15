@@ -279,7 +279,7 @@ class AccountController extends Controller
         $vCode = md5($selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
 
         $params = [
-            'userName' => $user->name,
+            'userName' => $user->first_name,
             'userEmail' => $user->email,
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
