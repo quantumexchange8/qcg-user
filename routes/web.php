@@ -29,8 +29,10 @@ Route::get('/', function () {
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
+Route::post('deposit_callback', [AccountController::class, 'depositCallback'])->name('depositCallback');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
     /**
      * ==============================
      *          Dashboard

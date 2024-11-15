@@ -270,7 +270,7 @@ class AccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-        if ($domain === 'user.mosanes.com') {
+        if ($domain === 'qcg-live.com') {
             $selectedPayout = $payoutSetting['live'];
         } else {
             $selectedPayout = $payoutSetting['staging'];
@@ -577,7 +577,7 @@ class AccountController extends Controller
                 ->where('transaction_number', $result['transaction_number'])
                 ->first();
 
-            $result['date'] = $transaction->approval_date;
+            $result['date'] = $transaction->approved_at;
 
             return redirect()->route('dashboard')->with('notification', [
                 'details' => $transaction,
@@ -610,7 +610,7 @@ class AccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-        if ($domain === 'user.mosanes.com') {
+        if ($domain === 'qcg-live.com') {
             $selectedPayout = $payoutSetting['live'];
         } else {
             $selectedPayout = $payoutSetting['staging'];
@@ -651,6 +651,9 @@ class AccountController extends Controller
                     $ticket = $trade->getTicket();
                     $transaction->ticket = $ticket;
                     $transaction->save();
+
+                    Notification::route('mail', 'payment@currenttech.pro')
+                        ->notify(new DepositApprovalNotification($payment));
 
                     return response()->json(['success' => true, 'message' => 'Deposit Success']);
 

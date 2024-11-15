@@ -22,7 +22,7 @@ const props = defineProps({
 const activeStep = ref(1);
 
 const countryList = ref(props.countries); 
-const selectedCountry = ref({name_en: 'Malaysia', phone_code: '+60'});
+const selectedCountry = ref();
 const showPassword = ref(false);
 const showPassword2 = ref(false);
 
@@ -70,7 +70,7 @@ const validate = (activateCallback) => {
 
 <template>
     <GuestLayout :title="$t('public.sign_up')">
-        <form >
+        <form class="w-full">
             <Stepper v-model:value="activeStep" linear>
                 <StepList>
                     <Step :value="1">{{$t('public.basic_details')}}</Step>
@@ -128,15 +128,15 @@ const validate = (activateCallback) => {
                                         for="phone"
                                         :value="$t('public.phone_number')"
                                     />
-                                    <div class="flex gap-3">
-                                        <Select filter :filterFields="['name_en', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name_en" :placeholder="$t('public.select_country')" class="w-full md:w-56"
+                                    <div class="flex gap-2 items-center self-stretch">
+                                        <Select filter :filterFields="['name_en', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name_en" :placeholder="$t('public.phone_code')" class="w-[100px]"
                                         :invalid="form.errors.phone_code">
                                             <template #value="slotProps" >
                                                 <div v-if="slotProps.value" class="flex items-center">
                                                     <div class="text-black">{{ slotProps.value.phone_code }}
                                                     </div>
                                                 </div>
-                                                <span v-else>{{ $t('public.select_country') }}</span>
+                                                <span v-else>{{ $t('public.phone_code') }}</span>
                                             </template>
                                             <template #option="slotProps">
                                                 <div class="flex items-center">

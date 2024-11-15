@@ -26,24 +26,53 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.first_name,
     email: user.email,
-    country: '',
-    phone_code: '',
+    dial_code: '',
     phone: user.phone,
+    phone_number: '',
 });
 
+watch(countryList, () => {
+    selectedCountry.value = countryList.value.find(country => country.phone_code === user.dial_code);
+});
+
+const dirtyFields = ref({
+    dial_code: false,
+    phone: false,
+});
+
+const handleInputChange = (field) => {
+    dirtyFields.value[field] = true;
+    console.log(field);
+};
+
 const resetForm = () => {
-    form.reset();
-}
+    // Only reset fields that are marked as dirty
+    if (dirtyFields.value.dial_code) {
+        selectedCountry.value = countryList.value.find(country => country.phone_code === user.dial_code) || null;
+        form.dial_code = user.dial_code || '';
+    }
+
+    if (dirtyFields.value.phone) {
+        form.phone = user.phone || '';
+    }
+
+    // Reset dirty fields tracking
+    dirtyFields.value = {
+        dial_code: false,
+        phone: false,
+    };
+};
 
 const submitForm = () => {
-    if(selectedCountry.value){
-        form.country = selectedCountry.value.name_en;
-        form.phone_code = selectedCountry.value.phone_code;
+    form.dial_code = selectedCountry.value;
+
+    if (selectedCountry.value) {
+        form.phone_number = selectedCountry.value.phone_code + form.phone;
     }
 
     form.post(route('profile.update'), {
         onSuccess: () => {
-            // visible.value = false;
+            visible.value = false;
             form.reset();
         },
     });
@@ -98,14 +127,23 @@ const submitForm = () => {
                         {{ $t('public.phone_number') }}
                     </InputLabel>
                     <div class="flex gap-3">
-                        <Select filter :filterFields="['name_en', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name_en" :placeholder="$t('public.select_country')" class="w-full md:w-56"
-                        :invalid="form.errors.phone_code">
+                        <Select 
+                            filter 
+                            :filterFields="['name_en', 'phone_code']" 
+                            v-model="selectedCountry" 
+                            :options="countryList" 
+                            optionLabel="name_en" 
+                            :placeholder="$t('public.phone_code')" 
+                            class="w-[100px] xl:w-[180px]"
+                            @change="handleInputChange('dial_code')"
+                            :disabled="!countries"
+                            :invalid="form.errors.phone_code"
+                        >
                             <template #value="slotProps" >
                                 <div v-if="slotProps.value" class="flex items-center">
-                                    <div class="text-black">{{ slotProps.value.phone_code }}
-                                    </div>
+                                    <div class="text-black">{{ slotProps.value.phone_code }}</div>
                                 </div>
-                                <span v-else>{{ $t('public.select_country') }}</span>
+                                <span v-else>{{ $t('public.phone_code') }}</span>
                             </template>
                             <template #option="slotProps">
                                 <div class="flex items-center">

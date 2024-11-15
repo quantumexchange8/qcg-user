@@ -37,39 +37,23 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $user = Auth::user();
+        $user = $request->user();
 
-        // if ($user->isDirty('email')) {
-        //     $user->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
 
-        //     return redirect()->back()->with('toast', [
-        //         'title' => 'Invalid Action',
-        //         'type' => 'warning'
-        //     ]);
-        // }
-
-        $phone_code = $request->phone_code;
-        $phone = $request->phone;
-
-        // Remove leading '+' from dial code if present
-        $phone_code = ltrim($phone_code, '+');
-
-        // Remove leading '+' from phone number if present
-        $phone = ltrim($phone, '+');
-
-        // Check if phone number already starts with dial code
-        if (!str_starts_with($phone, $phone_code)) {
-            // Concatenate dial code and phone number
-            $phone = '+' . $phone_code . $phone;
-        } else {
-            // If phone number already starts with dial code, use the phone number directly
-            $phone = '+' . $phone;
+            return redirect()->back()->with('toast', [
+                'title' => 'Invalid Action',
+                'type' => 'warning'
+            ]);
         }
 
+        $dial_code = $request->dial_code;
+
         $user->update([
-            // 'name' => $request->name,
-            // 'email' => $request->email,
-            'phone' => $phone,
+            'dial_code' => $dial_code['phone_code'],
+            'phone' => $request->phone,
+            'phone_number' => $request->phone_number,
         ]);
 
         return redirect()->back()->with('toast', [
