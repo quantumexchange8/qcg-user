@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use AleeDhillon\MetaFive\Entities\Trade;
+use App\Models\TradingUser;
 use App\Models\User as UserModel;
 use App\Services\Data\CreateTradingAccount;
 use App\Services\Data\CreateTradingUser;
@@ -135,6 +136,22 @@ class CTraderService
     {
         $data = $this->getUser($meta_login);
         if ($data) {
+            (new UpdateTradingUser)->execute($meta_login, $data);
+            (new UpdateTradingAccount)->execute($meta_login, $data);
+        }
+    }
+
+    public function updateLeverage($meta_login, $leverage)
+    {
+        $tradingUser =  TradingUser::firstWhere('meta_login', $meta_login);
+        $response = Http::acceptJson()->put($this->baseURL . "/v2/webserv/traders/{$meta_login}?token={$this->token}", [
+            'login' => $meta_login,
+            'groupName' => $tradingUser->meta_group,
+            'leverageInCents' => $leverage * 100,
+        ]);
+        Log::debug($response->status());
+        if ($response->status() == 204) {
+            $data = $this->getUser($meta_login);
             (new UpdateTradingUser)->execute($meta_login, $data);
             (new UpdateTradingAccount)->execute($meta_login, $data);
         }

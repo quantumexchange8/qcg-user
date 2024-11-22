@@ -57,14 +57,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        $last_rebate_applied = Transaction::where('transaction_type', 'apply_rebate')
-            ->where('status', 'successful')
-            ->latest()
-            ->first();
-
         return response()->json([
             'rebateEarn' => $user->rebate_amount,
-            'lastAppliedOn' => $last_rebate_applied ? $last_rebate_applied->created_at : null,
         ]);
     }
 
@@ -73,7 +67,7 @@ class DashboardController extends Controller
         $users = User::all();
 
         foreach ($users as $user) {
-            $dataToHash = md5($user->name . $user->email . $user->id_number);
+            $dataToHash = md5($user->first_name . $user->email . $user->id_number);
 
             if ($dataToHash === $hashedToken) {
 
@@ -82,7 +76,7 @@ class DashboardController extends Controller
 
                 Activity::create([
                     'log_name' => 'access_portal',
-                    'description' => $admin_name . ' with ID: ' . $admin_id . ' has access user ' . $user->name . ' with ID: ' . $user->id ,
+                    'description' => $admin_name . ' with ID: ' . $admin_id . ' has access user ' . $user->first_name . ' with ID: ' . $user->id ,
                     'subject_type' => User::class,
                     'subject_id' => $user->id,
                     'causer_type' => User::class,
@@ -104,13 +98,12 @@ class DashboardController extends Controller
     public function getPosts(Request $request)
     {
         $posts = ForumPost::with([
-            'user:id,name',
+            'user:id,first_name',
             'media'
         ])
             ->latest()
             ->get()
             ->map(function ($post) {
-                $post->display_avatar = $post->getFirstMediaUrl('display_avatar');
                 $post->post_attachment = $post->getFirstMediaUrl('post_attachment');
                 return $post;
             });
@@ -123,10 +116,8 @@ class DashboardController extends Controller
         Gate::authorize('postForum', ForumPost::class);
 
         $validator = Validator::make($request->all(), [
-            'display_avatar' => ['required'],
             'display_name' => ['required'],
         ])->setAttributeNames([
-            'display_avatar' => trans('public.display_avatar'),
             'display_name' => trans('public.display_name'),
         ]);
         $validator->validate();
@@ -144,11 +135,6 @@ class DashboardController extends Controller
                 'subject' => $request->subject,
                 'message' => $request->message,
             ]);
-
-            if ($request->display_avatar) {
-                $path = public_path($request->display_avatar);
-                $post->copyMedia($path)->toMediaCollection('display_avatar');
-            }
 
             if ($request->attachment) {
                 $post->addMedia($request->attachment)->toMediaCollection('post_attachment');

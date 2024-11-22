@@ -6,12 +6,12 @@ import ToastList from "@/Components/ToastList.vue";
 import {transactionFormat} from "@/Composables/index.js";
 import {ref} from "vue";
 import Modal from "@/Components/Modal.vue";
-import {faCopy} from "@fortawesome/free-solid-svg-icons";
-import {library} from "@fortawesome/fontawesome-svg-core";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+// import {faCopy} from "@fortawesome/free-solid-svg-icons";
+// import {library} from "@fortawesome/fontawesome-svg-core";
+// import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import toast from "@/Composables/toast.js";
 import Badge from "@/Components/Badge.vue";
-library.add(faCopy);
+// library.add(faCopy);
 
 const { formatDate, formatAmount, getStatusClass } = transactionFormat();
 const receiptModal = ref(false);
@@ -92,12 +92,12 @@ const closeModal = () => {
                 <div class="inline-flex items-center justify-center md:justify-start text-black dark:text-white">
                     <div ref="inputToCopy" class="break-all ">{{ payment.TxID }}</div>
                     <button type="button" class="text-gray-500 hover:text-dark-eval-4 font-medium rounded-full w-8 h-8 text-sm">
-                        <font-awesome-icon
+                        <!-- <font-awesome-icon
                             icon="fa-solid fa-copy"
                             class="flex-shrink-0 w-4 h-4 cursor-pointer"
                             aria-hidden="true"
                             @click.stop.prevent="copyAddress"
-                        />
+                        /> -->
                     </button>
                 </div>
 

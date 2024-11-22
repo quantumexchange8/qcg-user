@@ -167,7 +167,7 @@ const filteredDataOverviews = computed(() => {
                     <div class="flex flex-col items-center gap-3 self-stretch md:gap-5 md:flex-1">
                         <div
                             v-if="userDetail"
-                            class="grid grid-rows-2 grid-flow-col gap-y-2 gap-x-5 items-center self-stretch"
+                            class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
                             <div class="text-gray-500 text-md">
                                 {{ $t('public.id') }}
@@ -185,7 +185,7 @@ const filteredDataOverviews = computed(() => {
                         <!-- loading right top -->
                         <div
                             v-else
-                            class="grid grid-rows-2 grid-flow-col gap-y-2 gap-x-5 items-center self-stretch"
+                            class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
                             <div class="text-gray-500 text-md">
                                 {{ $t('public.id') }}
@@ -199,12 +199,12 @@ const filteredDataOverviews = computed(() => {
 
                         <div
                             v-if="userDetail"
-                            class="grid grid-rows-2 grid-flow-col gap-y-2 gap-x-5 items-center self-stretch"
+                            class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
                             <div class="text-gray-500 text-md">
                                 {{ $t('public.role') }}
                             </div>
-                            <div class="truncate flex items-start">
+                            <div class="flex items-start">
                                 <StatusBadge :variant="userDetail.role">
                                     {{ $t(`public.${userDetail.role}`) }}
                                 </StatusBadge>
@@ -219,7 +219,7 @@ const filteredDataOverviews = computed(() => {
                         <!-- loading right bottom -->
                         <div
                             v-else
-                            class="grid grid-rows-2 grid-flow-col gap-y-2 gap-x-5 items-center self-stretch"
+                            class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
                             <div class="text-gray-500 text-md">
                                 {{ $t('public.role') }}
@@ -240,7 +240,8 @@ const filteredDataOverviews = computed(() => {
                     <div
                         v-for="(item, index) in filteredDataOverviews"
                         :key="index"
-                        class="flex flex-col rounded-lg bg-white shadow-card justify-center items-center gap-4 px-3 py-7 w-full col-span-1"
+                        class="flex flex-col rounded-lg bg-white shadow-card justify-center items-center gap-4 px-3 py-7 w-full"
+                        :class="[(index % 2 === 0 && index === filteredDataOverviews.length - 1) ? 'col-span-full' : 'col-span-1']"
                     >
                         <component :is="item.icon" class="grow-0 shrink-0" />
                         <div class="flex flex-col items-center gap-1 self-stretch">

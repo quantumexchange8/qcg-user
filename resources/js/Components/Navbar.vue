@@ -84,7 +84,7 @@ const downloadQrCode = () => {
 <template>
     <nav
         aria-label="secondary"
-        class="sticky top-0 z-10 py-2 px-3 md:px-5 bg-white flex items-center gap-3"
+        class="sticky top-0 z-20 py-2 px-3 md:px-5 bg-white flex items-center gap-3"
     >
         <div
             class="inline-flex justify-center items-center rounded-full hover:bg-gray-100 w-12 h-12 shrink-0 grow-0 hover:select-none hover:cursor-pointer"

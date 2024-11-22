@@ -9,7 +9,8 @@ import {
     IconCash,
     IconTool,
     IconReportMoney,
-    IconTrashX
+    IconTrashX,
+    IconQuestionMark
 } from '@tabler/icons-vue';
 import toast from '@/Composables/toast';
 import AccountReport from '@/Pages/Accounts/Partials/AccountReport.vue';
@@ -99,57 +100,55 @@ const form = useForm({
 
 const confirm = useConfirm();
 const requireAccountConfirmation = (accountType) => {
+    const accountNo = props.account.meta_login;
     const messages = {
         live: {
-            group: 'headless-error',
+            group: 'headless',
+            color: 'error',
+            icon: h(IconTrashX),
             header: trans('public.delete_account'),
-            text: trans('public.delete_account_text'),
-            dynamicText: props.account.meta_login,
-            suffix: '? ' + trans('public.confirmation_text_suffix'),
-            actionType: 'delete',
+            message: trans('public.delete_account_message', { accountNo }),
             cancelButton: trans('public.cancel'),
-            acceptButton: trans('public.delete_confirm'),
+            acceptButton: trans('public.delete'),
             action: () => {
-                form.delete(route('account.delete_account'));
-            }
+                form.delete(route('accounts.delete_account'));
+            },
         },
         demo: {
-            group: 'headless-error',
+            group: 'headless',
+            color: 'error',
+            icon: h(IconTrashX),
             header: trans('public.delete_demo_account'),
-            text: trans('public.delete_demo_account_text') + '?',
-            suffix: trans('public.confirmation_text_suffix'),
-            actionType: 'delete',
+            message: trans('public.delete_demo_account_message'),
             cancelButton: trans('public.cancel'),
-            acceptButton: trans('public.delete_confirm'),
+            acceptButton: trans('public.delete'),
             action: () => {
                 form.type = 'demo';
-                form.delete(route('account.delete_account'));
-            }
+                form.delete(route('accounts.delete_account'));
+            },
         },
         crypto: {
-            group: 'headless-primary',
-            header: trans('public.crypto_wallet_required'),
-            text: trans('public.crypto_wallet_required_text'),
-            actionType: 'crypto',
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconQuestionMark),
+            header: trans('public.missing_cryptocurrency_wallet'),
+            message: trans('public.missing_cryptocurrency_message'),
             cancelButton: trans('public.later'),
-            acceptButton: trans('public.add_Wallet'),
+            acceptButton: trans('public.add_wallet'),
             action: () => {
                 window.location.href = route('profile');
             }
         }
     };
 
-    const { group, header, text, dynamicText, suffix, actionType, cancelButton, acceptButton, action } = messages[accountType];
+    const { group, color, icon, header, message, cancelButton, acceptButton, action } = messages[accountType];
 
     confirm.require({
         group,
+        color,
+        icon,
         header,
-        actionType,
-        message: {
-            text,
-            dynamicText,
-            suffix
-        },
+        message,
         cancelButton,
         acceptButton,
         accept: action

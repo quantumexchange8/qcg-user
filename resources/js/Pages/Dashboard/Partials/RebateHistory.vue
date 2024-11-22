@@ -2,21 +2,19 @@
 import Dialog from "primevue/dialog";
 import Button from "@/Components/Button.vue";
 // import Tooltip from "@/Components/Tooltip.vue";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { IconCircleXFilled, IconReport, IconDownload } from "@tabler/icons-vue";
 import { transactionFormat } from "@/Composables/index.js";
 import DatePicker from 'primevue/datepicker';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import ColumnGroup from 'primevue/columngroup';
-import Row from 'primevue/row';
 import debounce from "lodash/debounce.js";
 import Select from 'primevue/select';
 import dayjs from 'dayjs'
 import Loader from "@/Components/Loader.vue";
 import Empty from "@/Components/Empty.vue";
 import { trans, wTrans } from "laravel-vue-i18n";
-
+import StatusBadge from '@/Components/StatusBadge.vue';
 
 const visible = ref(false);
 const visible2 = ref(false);
@@ -117,13 +115,34 @@ const exportCSV = () => {
     });
 };
 
+// const getStatusColor = (status) => {
+//   switch(status.toLowerCase()) {
+//     case 'successful':
+//       return '#22C55E'; // Green
+//     case 'processing':
+//       return '#0EA5E9'; // Blue
+//     case 'failed':
+//       return '#DC2626'; // Red
+//     case 'rejected':
+//       return '#DC2626'; // Red
+//     default:
+//       return 'transparent'; // Default or undefined status
+//   }
+// };
+
+const getAmountTextColor = (transactionType) => {
+    if (['rebate_payout', 'rebate_in'].includes(transactionType)) {
+        return 'text-success-600'; 
+    } else {
+        return 'text-error-600'; 
+    }
+};
+
 // dialog
 const data = ref({});
 const openDialog = (rowData) => {
-    console.log(rowData);
     visible2.value = true;
     data.value = rowData;
-    console.log(data);
 };
 
 </script>
@@ -215,26 +234,42 @@ const openDialog = (rowData) => {
                     </Column>
                     <Column field="description" :header="$t('public.description')" style="width: 25%" class="hidden md:table-cell">
                         <template #body="slotProps">
-                            {{ $t(`public.${slotProps.data.transaction_type}`) }}
+                            <template v-if="slotProps.data.transaction_type === 'transfer_to_account'">
+                                {{ $t('public.to') }} {{ slotProps.data.to_meta_login }}
+                            </template>
+                            <template v-else>
+                                {{ $t(`public.${slotProps.data.transaction_type}`) }}
+                            </template>
                         </template>
                     </Column>
                     <Column field="amount" :header="`${$t('public.amount')}&nbsp;($)`" sortable style="width: 25%" class="hidden md:table-cell">
                         <template #body="slotProps">
-                            {{ formatAmount(slotProps.data.amount) }}
+                            <span :class="getAmountTextColor(slotProps.data.transaction_type)">
+                                {{ formatAmount(slotProps.data.amount) }}
+                            </span>
                         </template>
                     </Column>
+                    <!-- <Column field="status" :header="$t('public.status')" style="width: 20%" class="hidden md:table-cell">
+                        <template #body="slotProps">
+                            <div class="flex py-1.5 items-center flex-1">
+                                <StatusBadge :variant="slotProps.data.status">
+                                    {{ $t(`public.${slotProps.data.status}`) }}
+                                </StatusBadge>
+                            </div>
+                        </template>
+                    </Column> -->
                     <Column class="md:hidden">
                         <template #body="slotProps">
                             <div class="flex items-center justify-between">
                                 <div class="flex flex-col items-start">
                                     <div class="text-sm font-semibold">
-                                        {{ $t(`public.${slotProps.data.description}`) }}
+                                        {{ $t(`public.${slotProps.data.transaction_type}`) }}
                                     </div>
                                     <div class="text-gray-500 text-xs">
                                         {{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}
                                     </div>
                                 </div>
-                                <div class="overflow-hidden text-right text-ellipsis font-semibold">
+                                <div class="overflow-hidden text-right text-ellipsis font-semibold" :class="getAmountTextColor(slotProps.data.transaction_type)">
                                     $&nbsp;{{ formatAmount(slotProps.data.amount) }}
                                 </div>
                             </div>
@@ -252,43 +287,50 @@ const openDialog = (rowData) => {
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.date') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ dayjs(data.created_at).format('YYYY/MM/DD') }}</span>
                 </div>
-                <div v-if="data.description === 'withdrawal' || data.description === 'transfer'" class="w-full flex flex-col items-start gap-1 md:flex-row">
+                <div v-if="data.transaction_type === 'withdrawal' || data.transaction_type === 'transfer'" class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.transaction_id') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.transaction_number }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.description') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ $t(`public.${data.transaction_type}`) }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">
+                        <template v-if="data.transaction_type === 'transfer_to_account'">
+                            {{ $t('public.to') }} {{ data.to_meta_login }}
+                        </template>
+                        <template v-else>
+                            {{ $t(`public.${data.transaction_type}`) }}
+                        </template>
+                    </span>
                 </div>
-                <div v-if="data.description === 'rebate_payout'" class="w-full flex flex-col items-start gap-1 md:flex-row">
+                <div v-if="data.transaction_type === 'rebate_payout'" class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.account_type') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ $t(`public.${data.account_type}`) }}</span>
                 </div>
-                <div v-if="data.description === 'rebate_payout'" class="w-full flex flex-col items-start gap-1 md:flex-row">
+                <div v-if="data.transaction_type === 'rebate_payout'" class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm" >{{ $t('public.total_volume') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ `$&nbsp;${formatAmount(data.total_volume)} Ł` }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm" >{{ $t('public.amount') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ `$&nbsp;${formatAmount(data.amount)}` }}</span>
+                    <span class="w-full truncate text-sm font-medium" :class="getAmountTextColor(data.transaction_type)">{{ `$&nbsp;${formatAmount(data.amount)}` }}</span>
                 </div>
             </div>
             <!-- v-if for the 2 div below -->
-            <div v-if="data.description === 'withdrawal'" class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
+            <div v-if="data.transaction_type === 'withdrawal'" class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.wallet_name') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.payment_account_name }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.wallet_name }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.receiving_address') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.account_no }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.to_wallet_address }}</span>
                 </div>
             </div>
 
-            <div v-if="data.description === 'withdrawal' || data.description === 'rebate_adjustment'" class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
+            <div v-if="data.transaction_type === 'withdrawal' || data.transaction_type === 'rebate_in' || data.transaction_type === 'rebate_out'" class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.remarks') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.comment }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.remarks }}</span>
                 </div>
             </div>
         </div>

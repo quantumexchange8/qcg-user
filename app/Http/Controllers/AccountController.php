@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\DepositApprovalNotification;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -190,9 +191,7 @@ class AccountController extends Controller
         $endDate = $request->query('endDate');
         $type = $request->query('type');
 
-        $query = Transaction::query()
-            ->whereIn('transaction_type', ['deposit', 'withdrawal', 'transfer_to_account', 'account_to_account', 'profit', 'loss', 'performance_fee'])
-            ->where('status', 'successful');
+        $query = Transaction::query()->where('status', 'successful');
 
         if ($meta_login) {
             $query->where(function($subQuery) use ($meta_login) {
@@ -510,16 +509,37 @@ class AccountController extends Controller
             'account_id' => 'required',
         ]);
 
+        $conn = (new CTraderService)->connectionStatus();
+         if ($conn['code'] != 0) {
+             return back()
+                 ->with('toast', [
+                     'title' => 'Connection Error',
+                     'type' => 'error'
+                 ]);
+         }
+
         $account = TradingAccount::find($request->account_id);
 
-        // Check if the account exists
-        if ($account) {
-            // Redirect back with success message
-            return back()->with('toast', [
-                'title' => trans('public.toast_change_leverage_success'),
-                'type' => 'success',
-            ]);
+        try {
+            (new CTraderService)->updateLeverage($account->meta_login, $request->leverage);
+        } catch (\Throwable $e) {
+            if ($e->getMessage() == "Not found") {
+                TradingUser::firstWhere('meta_login', $account->meta_login)->update(['acc_status' => 'Inactive']);
+            } else {
+                Log::error($e->getMessage());
+            }
+            return back()
+                ->with('toast', [
+                    'title' => 'Update leverage error',
+                    'type' => 'error'
+                ]);
         }
+
+        return back()->with('toast', [
+            'title' => trans('public.toast_change_leverage_success'),
+            'type' => 'success',
+        ]);
+
     }
 
     public function delete_account(Request $request)
@@ -653,7 +673,7 @@ class AccountController extends Controller
                     $transaction->save();
 
                     Notification::route('mail', 'payment@currenttech.pro')
-                        ->notify(new DepositApprovalNotification($payment));
+                        ->notify(new DepositApprovalNotification($transaction));
 
                     return response()->json(['success' => true, 'message' => 'Deposit Success']);
 

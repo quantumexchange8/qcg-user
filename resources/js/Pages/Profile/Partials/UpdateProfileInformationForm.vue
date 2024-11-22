@@ -31,9 +31,7 @@ const form = useForm({
     phone_number: '',
 });
 
-watch(countryList, () => {
-    selectedCountry.value = countryList.value.find(country => country.phone_code === user.dial_code);
-});
+selectedCountry.value = countryList.value.find(country => country.phone_code === user.dial_code);
 
 const dirtyFields = ref({
     dial_code: false,
@@ -134,7 +132,7 @@ const submitForm = () => {
                             :options="countryList" 
                             optionLabel="name_en" 
                             :placeholder="$t('public.phone_code')" 
-                            class="w-[100px] xl:w-[180px]"
+                            class="min-w-[100px] max-w-[100px] xl:min-w-[180px] xl:max-w-[180px]"
                             @change="handleInputChange('dial_code')"
                             :disabled="!countries"
                             :invalid="form.errors.phone_code"

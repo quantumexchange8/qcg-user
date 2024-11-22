@@ -9,13 +9,11 @@ import Vue3Autocounter from 'vue3-autocounter';
 import { IconCash } from "@tabler/icons-vue";
 
 const rebateEarn = ref();
-const lastAppliedOn = ref();
 
 const getRebateEarnData = async () => {
     try {
         const response = await axios.get('/dashboard/getRebateEarnData');
         rebateEarn.value = Number(response.data.rebateEarn);
-        lastAppliedOn.value = response.data.lastAppliedOn;
     } catch (error) {
         console.error('Error fetching live accounts:', error);
     }

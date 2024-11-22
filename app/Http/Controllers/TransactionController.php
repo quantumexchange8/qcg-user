@@ -72,23 +72,27 @@ class TransactionController extends Controller
         }
     
         $transactions = $query
+            ->latest()
             ->get()
             ->map(function ($transaction) {
-                $description = $transaction->transaction_type;
-                $asset = $transaction->to_meta_login ? $transaction->to_meta_login : 'Unknown';
-
                 return [
-                    'id' => $transaction->id,
-                    'created_at' => $transaction->created_at,
+                    'category' => $transaction->category,
+                    'transaction_type' => $transaction->transaction_type,
+                    'from_meta_login' => $transaction->from_meta_login,
+                    'to_meta_login' => $transaction->to_meta_login,
                     'transaction_number' => $transaction->transaction_number,
-                    'description' => $description,
-                    'asset' => $asset,
-                    'amount' => $transaction->amount,
-                    'status' => $transaction->status,
-                    'to_wallet_address' => $transaction->to_wallet_address,
+                    'payment_account_id' => $transaction->payment_account_id,
                     'from_wallet_address' => $transaction->from_wallet_address,
+                    'to_wallet_address' => $transaction->to_wallet_address,
                     'txn_hash' => $transaction->txn_hash,
-                    'remarks' => $transaction->comment,
+                    'amount' => $transaction->amount,
+                    'transaction_charges' => $transaction->transaction_charges,
+                    'transaction_amount' => $transaction->transaction_amount,
+                    'status' => $transaction->status,
+                    'comment' => $transaction->comment,
+                    'remarks' => $transaction->remarks,
+                    'created_at' => $transaction->created_at,
+                    'wallet_name' => $transaction->payment_account->payment_account_name ?? '-'
                 ];
             });
 
@@ -265,9 +269,9 @@ class TransactionController extends Controller
         $endDate = $request->query('endDate');
         $description = $request->query('description');
 
-        $query = Transaction::where(['category' => 'rebate_wallet', 'user_id' => Auth::id()]);
+        $query = Transaction::where(['category' => 'rebate_wallet', 'user_id' => Auth::id()])->where('status', 'successful');
 
-        if ($description) {
+        if ($description && $description !== 'all') {
             if ($description == 'rebate_payout'){
                 $query->where('transaction_type', 'rebate_payout');
             }
@@ -275,7 +279,7 @@ class TransactionController extends Controller
                 $query->where('transaction_type', 'apply_rebate');
             }
             elseif ($description == 'transfer'){
-                $query->where('transaction_type', 'transfer');
+                $query->where('transaction_type', 'transfer_to_account');
             }
             elseif ($description == 'withdrawal'){
                 $query->where('transaction_type', 'withdrawal');

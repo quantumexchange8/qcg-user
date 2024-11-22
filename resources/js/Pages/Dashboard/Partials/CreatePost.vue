@@ -3,7 +3,8 @@ import Button from "@/Components/Button.vue";
 import {
     IconEdit,
     IconX,
-    IconCheck
+    IconCheck,
+    IconUpload
 } from "@tabler/icons-vue";
 import Dialog from "primevue/dialog";
 import {ref} from "vue";
@@ -21,7 +22,6 @@ const props = defineProps({
 const visible = ref(false);
 
 const form = useForm({
-    display_avatar: '',
     display_name: props.authorName,
     subject: '',
     message: '',
@@ -53,14 +53,6 @@ const removeAttachment = () => {
     form.attachment = '';
 };
 
-const isHovered = ref(null);
-const selectedAvatar = ref(null);
-
-const selectAvatar = (index) => {
-    selectedAvatar.value = index;
-    form.display_avatar = `/img/avatars/display_avatar_${index}.png`
-};
-
 const submitForm = () => {
     form.post(route('dashboard.createPost'), {
         onSuccess: () => {
@@ -68,6 +60,11 @@ const submitForm = () => {
             form.reset();
         }
     })
+}
+
+const closeDialog = () => {
+    visible.value = false;
+    form.reset();
 }
 </script>
 
@@ -86,50 +83,12 @@ const submitForm = () => {
     <Dialog
         v-model:visible="visible"
         modal
-        :header="$t('public.new_post')"
+        :header="$t('public.create_post')"
         class="dialog-xs md:dialog-md"
     >
         <form @submit.prevent="submitForm()">
-            <div class="flex flex-col gap-8 items-center self-stretch">
+            <div class="flex flex-col py-6 gap-8 items-center self-stretch">
                 <div class="flex flex-col gap-5 items-center self-stretch">
-                    <div class="flex flex-col items-start gap-1 self-stretch">
-                        <InputLabel
-                            for="display_avatar"
-                            :value="$t('public.display_avatar')"
-                            :invalid="!!form.errors.display_avatar"
-                        />
-                        <div class="flex gap-3 overflow-x-auto items-center self-stretch">
-                            <div
-                                v-for="index in 6"
-                                :key="index"
-                                class="relative"
-                                @mouseenter="isHovered = index"
-                                @mouseleave="isHovered = null"
-                                @click="selectAvatar(index)"
-                            >
-                                <Avatar
-                                    :image="`/img/avatars/display_avatar_${index}.png`"
-                                    size="large"
-                                    shape="circle"
-                                />
-                                <!-- Hover layer -->
-                                <div
-                                    v-if="isHovered === index"
-                                    class="absolute inset-0 w-12 h-12 rounded-full bg-gray-900/40 cursor-pointer"
-                                ></div>
-
-                                <div
-                                    v-if="selectedAvatar === index"
-                                    class="absolute inset-0 w-12 h-12 rounded-full flex items-center justify-center bg-gray-900/40"
-                                >
-                                    <IconCheck size="28" color="white" stroke-width="1.25" />
-                                </div>
-                            </div>
-                        </div>
-                        <InputError :message="form.errors.display_avatar" />
-                        <span class="text-gray-500 text-xs">{{ $t('public.display_avatar_caption') }}</span>
-                    </div>
-
                     <div class="flex flex-col items-start gap-1 self-stretch">
                         <InputLabel
                             for="display_name"
@@ -184,7 +143,7 @@ const submitForm = () => {
                 <div class="flex flex-col gap-3 items-start self-stretch">
                     <span class="text-sm text-gray-950 font-bold">{{ $t('public.attachment') }}</span>
                     <div class="flex flex-col gap-3 items-start self-stretch">
-                        <span class="text-xs text-gray-500">{{ $t('public.kyc_caption') }}</span>
+                        <span class="text-xs text-gray-500">{{ $t('public.attachment_caption') }}</span>
                         <div class="flex flex-col gap-3">
                             <input
                                 ref="attachmentInput"
@@ -196,10 +155,11 @@ const submitForm = () => {
                             />
                             <Button
                                 type="button"
-                                variant="primary-tonal"
+                                variant="primary-flat"
                                 @click="$refs.attachmentInput.click()"
                             >
-                                {{ $t('public.browse') }}
+                                <IconUpload size="20" stroke-width="1.25" stroke-linejoin="round"/>
+                                {{ $t('public.choose') }}
                             </Button>
                             <InputError :message="form.errors.kyc_verification" />
                         </div>
@@ -227,10 +187,20 @@ const submitForm = () => {
                 </div>
             </div>
 
-            <div class="pt-5 flex flex-col items-end self-stretch">
+            <div class="pt-6 flex justify-end items-center gap-4 self-stretch">
+                <Button
+                    variant="gray-outlined"
+                    size="base"
+                    class="w-full"
+                    @click.prevent="closeDialog()"
+                    :disabled="form.processing"
+                >
+                    {{ $t('public.cancel') }}
+                </Button>
                 <Button
                     variant="primary-flat"
                     size="base"
+                    class="w-full"
                     :disabled="form.processing"
                 >
                     {{ $t('public.create') }}

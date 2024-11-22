@@ -30,16 +30,16 @@ const maxDate = ref(today);
 // Reactive variable for selected date range
 const selectedDate = ref([minDate.value, maxDate.value]);
 
-const getResults = async (selectedDate = []) => {
+const getResults = async (selectedDate = null) => {
     loading.value = true;
 
     try {
         let response;
-        const [startDate, endDate] = selectedDate;
         let url = `/report/getRebateDetails`;
 
         // Append date range to the URL if it's not null
-        if (startDate && endDate) {
+        if (selectedDate) {
+            const [startDate, endDate] = selectedDate;
             url += `?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}`;
         }
 
@@ -74,12 +74,12 @@ watch(selectedDate, (newDateRange) => {
             getResults([startDate || endDate, endDate || startDate]);
             emit('update-date', [startDate || endDate, endDate || startDate]);
         } else if (!(startDate && endDate)) {
-            getResults([]);
-            emit('update-date', []);
+            getResults(null);
+            emit('update-date', null);
         }
     } else if (newDateRange === null) {
-        getResults([]);
-        emit('update-date', []); 
+        getResults(null);
+        emit('update-date', null); 
     }
     else {
         console.warn('Invalid date range format:', newDateRange);

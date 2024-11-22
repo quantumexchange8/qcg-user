@@ -88,7 +88,7 @@ watchEffect(() => {
                 <div class="flex flex-col gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
                     <div class="bg-white rounded-lg h-[120px] md:h-40 shadow-card relative overflow-hidden p-3 md:px-6 md:py-8 items-center w-full">
-                        <div class="flex flex-col gap-2 items-start justify-center w-full h-24 md:max-w-[500px] max-w-[170px]">
+                        <div class="flex flex-col gap-2 items-start justify-center w-full h-24 md:max-w-[500px] max-w-[170px] " :class="{'xl:max-w-[277px]': user.role === 'agent'}">
                             <span class="md:text-xl text-sm text-gray-950 font-bold">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
                             <span class="md:text-sm text-xs text-gray-700">{{ $t('public.welcome_back_caption') }}</span>
                         </div>

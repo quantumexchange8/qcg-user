@@ -172,10 +172,10 @@ watch(
             } else if (startDate || endDate) {
                 getResults(searchValue, typeValue, statusValue, [startDate || endDate, endDate || startDate]);
             } else {
-                getResults(searchValue, typeValue, statusValue, []);
+                getResults(searchValue, typeValue, statusValue, null);
             }
         } else if (dateRange === null) {
-            getResults([]);
+            getResults(searchValue, typeValue, statusValue, null);
         } else {
             console.warn('Invalid date range format:', dateRange);
         }
@@ -393,14 +393,24 @@ const openDialog = (rowData) => {
                         <Column field="description" sortable :header="$t('public.description')" class="hidden md:table-cell w-auto">
                             <template #body="slotProps">
                                 <div class="text-gray-950 text-sm">
-                                    {{ $t(`public.${slotProps.data.description}`) }}
+                                    {{ $t(`public.${slotProps.data.transaction_type}`) }}
                                 </div>
                             </template>
                         </Column>
                         <Column field="asset" :header="$t('public.asset')" class="hidden md:table-cell w-auto">
                             <template #body="slotProps">
-                                <div class="text-gray-950 text-sm">
-                                    {{ slotProps.data.asset }}
+                                <div v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
+                                    {{ $t(`public.${slotProps.data.category}`) }}
+                                </div>
+                                <div v-else-if="slotProps.data.transaction_type === 'deposit'">
+                                    {{ slotProps.data.to_meta_login }}
+                                </div>
+                                <div v-else-if="slotProps.data.transaction_type === 'withdrawal'">
+                                    {{ slotProps.data.from_meta_login }}
+                                </div>
+                                <div v-else>
+                                    <!-- Optional: Handle unexpected transaction types -->
+                                    {{ $t('public.unknown') }}
                                 </div>
                             </template>
                         </Column>
@@ -424,18 +434,32 @@ const openDialog = (rowData) => {
                             <template #body="slotProps">
                                 <div class="flex items-center justify-between">
                                     <div class="flex flex-col items-start">
-                                        <div class="text-sm font-semibold">
-                                            {{ $t(`public.${slotProps.data.description}`) }}
+                                        <div class="text-md font-semibold">
+                                            {{ $t(`public.${slotProps.data.transaction_type}`) }}
                                         </div>
-                                        <div class="text-gray-500 text-xs">
-                                            {{ `${dayjs(slotProps.data.created_at).format('YYYY/MM/DD')}&nbsp;|&nbsp;${slotProps.data.asset}&nbsp;` }}
+                                        <div class="flex gap-1 items-center text-gray-500 text-xs">
+                                            <div>{{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}</div>
+                                            <div>|</div>
+                                            <div v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
+                                                {{ $t(`public.${slotProps.data.category}`) }}
+                                            </div>
+                                            <div v-else-if="slotProps.data.transaction_type === 'deposit'">
+                                                {{ slotProps.data.to_meta_login }}
+                                            </div>
+                                            <div v-else-if="slotProps.data.transaction_type === 'withdrawal'">
+                                                {{ slotProps.data.from_meta_login }}
+                                            </div>
+                                            <div v-else>
+                                                <!-- Optional: Handle unexpected transaction types -->
+                                                {{ $t('public.unknown') }}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-start">
-                                        <div class="text-sm font-semibold">
+                                    <div class="flex flex-col items-end">
+                                        <div class="text-md font-semibold text-right">
                                             $&nbsp;{{ formatAmount(slotProps.data.amount) }}
                                         </div>
-                                        <div class="px-2 py-1 text-sm inline-block rounded-sm" :style="{ color: getStatusColor(slotProps.data.status) }">
+                                        <div class="text-xs text-right" :style="{ color: getStatusColor(slotProps.data.status) }">
                                             {{ $t(`public.${slotProps.data.status}`) }}
                                         </div>
                                     </div>
@@ -462,11 +486,26 @@ const openDialog = (rowData) => {
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.asset') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.asset }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">
+                        <!-- {{ data.from_meta_login }} {{ data.to_meta_login }} {{ $t(`public.${slotProps.data.category}`) }} -->
+                        <div v-if="data.category === 'rebate_wallet' || data.category === 'cash_wallet'">
+                            {{ $t(`public.${data.category}`) }}
+                        </div>
+                        <div v-else-if="data.transaction_type === 'deposit'">
+                            {{ data.to_meta_login }}
+                        </div>
+                        <div v-else-if="data.transaction_type === 'withdrawal'">
+                            {{ data.from_meta_login }}
+                        </div>
+                        <div v-else>
+                            <!-- Optional: Handle unexpected transaction types -->
+                            {{ $t('public.unknown') }}
+                        </div>
+                    </span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.description') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ $t(`public.${data.description}`) }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ $t(`public.${data.transaction_type}`) }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm" >{{ $t('public.amount') }}</span>
@@ -482,10 +521,10 @@ const openDialog = (rowData) => {
                 </div>
             </div>
 
-            <div v-if="data.description==='Deposit'" class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
+            <div v-if="data.transaction_type==='deposit'" class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.sent_address') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.to_wallet_address }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.from_wallet_address }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.txid') }}</span>
@@ -496,18 +535,18 @@ const openDialog = (rowData) => {
             <div v-else class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.wallet_name') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.payment_account_name }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.wallet_name }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.receiving_address') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.account_no }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.to_wallet_address }}</span>
                 </div>
             </div>
 
             <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.remarks') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.remarks }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.remarks ? data.remarks : '-' }}</span>
                 </div>
             </div>
         </div>

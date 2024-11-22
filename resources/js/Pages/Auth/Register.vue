@@ -128,8 +128,8 @@ const validate = (activateCallback) => {
                                         for="phone"
                                         :value="$t('public.phone_number')"
                                     />
-                                    <div class="flex gap-2 items-center self-stretch">
-                                        <Select filter :filterFields="['name_en', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name_en" :placeholder="$t('public.phone_code')" class="w-[100px]"
+                                    <div class="flex gap-2 items-center">
+                                        <Select filter :filterFields="['name_en', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name_en" :placeholder="$t('public.phone_code')" class="min-w-[100px] max-w-[100px]"
                                         :invalid="form.errors.phone_code">
                                             <template #value="slotProps" >
                                                 <div v-if="slotProps.value" class="flex items-center">

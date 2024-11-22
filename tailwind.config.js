@@ -177,6 +177,7 @@ export default {
                 color: theme('colors.primary-hover'),
               }
             },
+            maxWidth: '100ch',
           }
         }
       }),

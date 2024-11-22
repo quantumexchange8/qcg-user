@@ -71,10 +71,10 @@ watch(selectedDate, (newDateRange) => {
         } else if (startDate || endDate) {
             getResults([startDate || endDate, endDate || startDate]);
         } else {
-            getResults([]);
+            getResults(null);
         }
     } else if (newDateRange === null) {
-        getResults([]);
+        getResults(null);
     } else {
         console.warn('Invalid date range format:', newDateRange);
     }

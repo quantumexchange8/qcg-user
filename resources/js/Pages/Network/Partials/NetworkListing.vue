@@ -1,23 +1,18 @@
 <script setup>
 import {computed, onMounted, ref, watch, watchEffect} from "vue";
 import InputText from 'primevue/inputtext';
-import RadioButton from 'primevue/radiobutton';
 import Button from '@/Components/Button.vue';
 import {usePage} from '@inertiajs/vue3';
-import OverlayPanel from 'primevue/overlaypanel';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import {FilterMatchMode} from "@primevue/core/api";
 import Loader from "@/Components/Loader.vue";
-import Dropdown from "primevue/dropdown";
 import {
     IconSearch,
     IconCircleXFilled,
     IconFilterOff,
     IconDownload,
 } from '@tabler/icons-vue';
-import Badge from '@/Components/Badge.vue';
 import { trans, wTrans } from "laravel-vue-i18n";
 import {transactionFormat} from "@/Composables/index.js";
 import StatusBadge from "@/Components/StatusBadge.vue";
@@ -78,28 +73,23 @@ const rowClicked = (id_number) => {
 }
 
 // overlay panel
-const op = ref();
 const uplines = ref()
 const maxLevel = ref(0)
 const levels = ref([])
 const upline_id = ref(null)
 const level = ref(null)
 const filterCount = ref(0);
-const lvl = trans('public.level');
+const lvl = computed(() => trans('public.level'));
 const roles = [
     { name: wTrans('public.member'), value: 'member' },
     { name: wTrans('public.agent'), value: 'agent' }
 ];
 
-const toggle = (event) => {
-    op.value.toggle(event);
-}
-
 const createLevelOptions = () => {
     for (let index = 1; index <= maxLevel.value; index++) {
         levels.value.push({
             value: index,
-            name: `${lvl} ${index}`
+            name: `${lvl.value} ${index}`
         })
     }
 }
@@ -149,7 +139,7 @@ watchEffect(() => {
     <div class="py-5 px-3 md:p-6 flex flex-col items-center justify-center self-stretch gap-5 md:gap-6 bg-white shadow-card rounded-lg">
         <div class="flex flex-col items-center self-stretch gap-3 md:gap-6">
             <div class="flex flex-col gap-3 items-center self-stretch md:flex-row md:gap-0 md:justify-between">
-                <span class="text-gray-950 font-semibold self-center">{{ $t('public.all_downlines') }}</span>
+                <span class="text-gray-950 font-semibold self-start md:self-center">{{ $t('public.all_downlines') }}</span>
                 <div class="flex flex-col gap-3 items-center self-stretch md:flex-row md:gap-5">
                     <div class="relative w-full md:w-60">
                         <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-500">
@@ -248,7 +238,7 @@ watchEffect(() => {
                     <span class="text-sm text-gray-700">{{ $t('public.loading_users_caption') }}</span>
                 </div>
             </template>
-            <Column field="level" sortable headerClass="hidden md:table-cell" class="w-1/5 md:w-auto">
+            <Column field="level" sortable style="width:10%" class="hidden md:table-cell">
                 <template #header>
                     <span>{{ $t('public.level') }}</span>
                 </template>
@@ -257,19 +247,19 @@ watchEffect(() => {
                     {{ slotProps.data.level }}
                 </template>
             </Column>
-            <Column field="name" sortable :header="$t('public.name')" headerClass="hidden md:table-cell" class="w-auto">
+            <Column field="name" sortable :header="$t('public.name')"  class="md:w-auto">
                 <template #body="slotProps">
                     <div class="flex flex-col items-start">
-                        <div class="w-20 font-medium xl:w-36">
+                        <div class="w-auto truncate font-medium">
                             {{ slotProps.data.name }}
                         </div>
-                        <div class="w-20 text-gray-500 text-xs xl:w-36">
+                        <div class="w-auto truncate text-gray-500 text-xs">
                             {{ slotProps.data.email }}
                         </div>
                     </div>
                 </template>
             </Column>
-            <Column field="joined_date" sortable style="width: 15%" class="hidden md:table-cell">
+            <Column field="joined_date" sortable style="width:20%" class="hidden md:table-cell">
                 <template #header>
                     <span>{{ $t('public.joined_date') }}</span>
                 </template>
@@ -277,7 +267,7 @@ watchEffect(() => {
                     {{ formatDate(slotProps.data.joined_date) }}
                 </template>
             </Column>
-            <Column field="role" headerClass="hidden md:table-cell">
+            <Column field="role"  class="w-1/3 md:w-auto">
                 <template #header>
                     <span>{{ $t('public.role') }}</span>
                 </template>
@@ -289,7 +279,7 @@ watchEffect(() => {
                     </div>
                 </template>
             </Column>
-            <Column field="upline" sortable :header="$t('public.upline')" class="hidden md:table-cell w-auto">
+            <Column field="upline" sortable :header="$t('public.upline')" style="width:25%" class="hidden md:table-cell">
                 <template #body="slotProps">
                     <div class="flex flex-col items-start">
                         <div class="w-20 font-medium xl:w-36">

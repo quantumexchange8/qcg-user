@@ -12,9 +12,13 @@ use Inertia\Inertia;
 
 class NetworkController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Network/Network');
+        $tab_index = 0;
+        if($request->tab == 'listing') {
+            $tab_index = 1;
+        }
+        return Inertia::render('Network/Network', ['tab' => $tab_index]);
     }
 
     public function getDownlineData(Request $request)

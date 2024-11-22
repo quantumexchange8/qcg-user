@@ -15,11 +15,11 @@ const dateRange = ref([]);
 
 // Function to fetch rebate summary data
 const getResults = async (dateRange) => {
-    const [startDate, endDate] = dateRange;
     let url = `/report/getRebateBreakdown`;
 
     // Append date range to the URL if it's not null
-    if (startDate && endDate) {
+    if (dateRange) {
+        const [startDate, endDate] = dateRange;
         url += `?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}`;
     }
 
@@ -40,7 +40,7 @@ const getResults = async (dateRange) => {
 watch(dateRange, (newDateRange) => {
     if (newDateRange === null || newDateRange === undefined) {
         // Handle null or undefined newDateRange
-        getResults([]);
+        getResults(null);
     } else {
         getResults(newDateRange);
     }

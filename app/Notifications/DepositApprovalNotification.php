@@ -7,15 +7,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DepositRequestNotification extends Notification implements ShouldQueue
+class DepositApprovalNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected $payment;
+    protected $transaction;
     protected $user;
 
-    public function __construct($payment, $user) {
-        $this->payment = $payment;
+    public function __construct($transaction, $user) {
+        $this->transaction = $transaction;
         $this->user = $user;
     }
 
@@ -26,16 +26,17 @@ class DepositRequestNotification extends Notification implements ShouldQueue
 
     public function toMail($notifiable): MailMessage
     {
-        $token = md5($this->user->email . $this->payment->payment_id);
+        // NOTE: NEED to change to transaction table usage, this is still based on payment table (outdated)
+        $token = md5($this->user->email . $this->transaction->transaction_number);
         return (new MailMessage)
-            ->subject('Deposit Approval - ' . $this->payment->payment_id)
-            ->greeting('Deposit Approval- ' . $this->payment->payment_id)
+            ->subject('Deposit Approval - ' . $this->transaction->transaction_number)
+            ->greeting('Deposit Approval- ' . $this->transaction->transaction_number)
             ->line('From: TTPay') // need to confirm
             ->line('Email: ' . $this->user->email)
             ->line('Name: ' . $this->user->first_name)
-            ->line('Account No: ' . $this->payment->to)
-            ->line('Deposit Amount: ' . $this->payment->amount)
-            ->line('TxID: ' . $this->payment->TxID)
+            ->line('Account No: ' . $this->transaction->to)
+            ->line('Deposit Amount: ' . $this->transaction->amount)
+            ->line('TxHash: ' . $this->transaction->txn_hash)
             ->line('Click the button to proceed with approval')
             ->action('Approval', route('approval', [
                 'token' => $token,

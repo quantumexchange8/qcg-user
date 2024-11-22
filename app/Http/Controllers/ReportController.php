@@ -35,9 +35,6 @@ class ReportController extends Controller
             // Both startDate and endDate are provided
             $query->whereDate('execute_at', '>=', $startDate)
                 ->whereDate('execute_at', '<=', $endDate);
-        } else {
-            // Both startDate and endDate are null, apply default start date
-            $query->whereDate('execute_at', '>=', '2024-01-01');
         }
 
         // Fetch rebate summary data
@@ -100,12 +97,12 @@ class ReportController extends Controller
         if ($startDate && $endDate) {
             $query->whereDate('execute_at', '>=', $startDate)
                   ->whereDate('execute_at', '<=', $endDate);
-        } else {
-            $query->whereDate('execute_at', '>=', '2024-01-01');
         }
 
         // Fetch rebate listing data
-        $data = $query->get()->map(function ($item) {
+        $data = $query->latest()
+            ->get()
+            ->map(function ($item) {
             return [
                 'user_id' => $item->user_id,
                 'name' => $item->user->first_name,
@@ -213,12 +210,10 @@ class ReportController extends Controller
         if ($startDate && $endDate) {
             $query->whereDate('created_at', '>=', $startDate)
                   ->whereDate('created_at', '<=', $endDate);
-        } else {
-            // Handle cases where startDate or endDate are not provided
-            $query->whereDate('created_at', '<=', '2024-01-01'); // Default start date
         }
 
-        $transactions = $query->get()
+        $transactions = $query->latest()
+            ->get()
             ->map(function ($transaction) {
                 $metaLogin = $transaction->to_meta_login ?: $transaction->from_meta_login;
 

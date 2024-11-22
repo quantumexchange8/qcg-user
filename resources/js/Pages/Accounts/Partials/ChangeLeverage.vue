@@ -35,7 +35,7 @@ const form = useForm({
 })
 
 const submitForm = () => {
-    form.post(route('accounts.withdrawal_from_account'), {
+    form.post(route('accounts.change_leverage'), {
         onSuccess: () => {
             closeDialog();
         }

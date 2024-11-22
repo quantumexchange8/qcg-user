@@ -52,6 +52,7 @@ const getAccountReport = async (filterDate = null, selectedOption = null) => {
         }
 
         const response = await axios.get(url);
+        
         transactions.value = response.data;
     } catch (error) {
         console.error('Error fetching account report:', error);
@@ -60,12 +61,13 @@ const getAccountReport = async (filterDate = null, selectedOption = null) => {
     }
 };
 
-getAccountReport();
-
 const today = dayjs();
 const ninetyDaysAgo = today.subtract(90, 'day');
 
 selectedDate.value = [ninetyDaysAgo.toDate(), today.toDate()];
+
+getAccountReport(selectedDate.value, selectedOption.value);
+
 
 watch(selectedDate, (newDateRange) => {
     if (Array.isArray(newDateRange)) {
@@ -76,10 +78,10 @@ watch(selectedDate, (newDateRange) => {
         } else if (startDate || endDate) {
             getAccountReport([startDate || endDate, endDate || startDate], selectedOption.value);
         } else {
-            getAccountReport([], selectedOption.value);
+            getAccountReport(null, selectedOption.value);
         }
     } else if (newDateRange === null) {
-        getAccountReport([], selectedOption.value);
+        getAccountReport(null, selectedOption.value);
     } else {
         console.warn('Invalid date range format:', newDateRange);
     }
@@ -182,7 +184,7 @@ function copyToClipboard(text) {
                 class="hidden md:table-cell"
             >
                 <template #body="slotProps">
-                    {{ formatDateTime(slotProps.data.created_at) }}
+                    {{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}
                 </template>
             </Column>
             <Column
@@ -223,10 +225,10 @@ function copyToClipboard(text) {
                     <div class="flex items-center justify-between">
                         <div class="flex flex-col items-start gap-1 flex-grow">
                             <span class="overflow-hidden text-gray-950 text-ellipsis text-sm font-semibold">
-                                {{ slotProps.data.transaction_type }}
+                                {{ $t(`public.${slotProps.data.transaction_type}`) }}
                             </span>
                             <span class="text-gray-500 text-xs">
-                                {{ formatDateTime(slotProps.data.created_at) }}
+                                {{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}
                             </span>
                         </div>
                         <div

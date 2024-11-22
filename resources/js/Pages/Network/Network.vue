@@ -10,6 +10,10 @@ import { wTrans } from "laravel-vue-i18n";
 import NetworkTree from "./Partials/NetworkTree.vue";
 import NetworkListing from "./Partials/NetworkListing.vue";
 
+const props = defineProps({
+    tab: Number,
+})
+
 const tabs = ref([
     {   
         title: wTrans('public.sidebar.network'),
@@ -24,7 +28,7 @@ const tabs = ref([
 ]);
 
 const selectedType = ref('network');
-const activeIndex = ref(tabs.value.findIndex(tab => tab.type === selectedType.value));
+const activeIndex = ref(props.tab);
 
 function updateType(event) {
     const selectedTab = tabs.value[event.index];

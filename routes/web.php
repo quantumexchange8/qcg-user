@@ -1,6 +1,7 @@
 <?php
 
 use Inertia\Inertia;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
@@ -26,9 +27,32 @@ Route::get('/', function () {
     return redirect(route('login'));
 });
 
+Route::get('approval/{token}', function ($token) {
+    $transactions = Transaction::with('user:id,first_name,email')
+        ->where('transaction_type', 'deposit')
+        ->latest()
+        ->get();
+
+    foreach ($transactions as $transaction) {
+        $hashed_token = md5($transaction->user->email . $transaction->transaction_number);
+
+        if ($token == $hashed_token) {
+            return Inertia::render('DepositApproval', [
+                'transaction' => $transaction,
+                // 'receipt' => $transaction->getFirstMediaUrl('payment_receipt')
+            ]);
+        }
+    }
+
+    // Handle case when no payment matches the token
+    return '';
+})->name('approval');
+
+
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/admin_login/{hashedToken}', [DashboardController::class, 'admin_login']);
 Route::post('deposit_callback', [AccountController::class, 'depositCallback'])->name('depositCallback');
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -145,7 +145,7 @@ watchEffect(() => {
                             v-for="profile in incentiveProfiles"
                             class="w-full flex flex-col items-center p-4 gap-3 self-stretch rounded border border-gray-100 bg-white shadow-card md:p-6 md:gap-6"
                         >
-                            <div class="w-full flex px-4 py-2 items-center self-stretch bg-primary-900">
+                            <div class="w-full flex px-4 py-2 items-center text-white self-stretch bg-primary-900">
                                 {{ $t('public.incentive_threshold') }}
                             </div>
 

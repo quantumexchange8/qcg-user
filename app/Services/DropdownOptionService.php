@@ -109,7 +109,7 @@ class DropdownOptionService
                     ->get()
                     ->map(function ($leverage) {
                         return [
-                            'name' => $leverage->display,
+                            'name' => $leverage->leverage,
                             'value' => $leverage->value,
                         ];
                     });

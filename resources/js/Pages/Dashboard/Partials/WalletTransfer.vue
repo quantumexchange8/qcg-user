@@ -35,9 +35,14 @@ const form = useForm({
 })
 
 watch(transferOptions, (newAccount) => {
-    transferAmount.value = newAccount[0].value
-    form.meta_login = newAccount[0].name
-})
+    if (Array.isArray(newAccount) && newAccount.length > 0) {
+        transferAmount.value = newAccount[0].value;
+        form.meta_login = newAccount[0].name;
+    } else {
+        transferAmount.value = 0; 
+        form.meta_login = '';
+    }
+});
 
 const toggleFullAmount = () => {
     if (form.amount) {
@@ -84,7 +89,8 @@ const closeDialog = () => {
                         :disabled="!transferOptions.length"
                     />
                     <InputError :message="form.errors.meta_login" />
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ transferOptions.length ? formatAmount(transferAmount, 0) : $t('public.loading_caption')}}</span>
+                    <span v-if="transferOptions.length" class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ transferOptions.length ? formatAmount(transferAmount, 0) : $t('public.loading_caption')}}</span>
+                    <span v-else class="self-stretch text-gray-500 text-xs">{{ $t('public.no_account_transfer') }}</span>
                 </div>
 
                 <div class="flex flex-col items-start gap-1 self-stretch">
