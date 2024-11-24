@@ -1,4 +1,5 @@
 <script setup>
+import { IconAlertCircleFilled } from '@tabler/icons-vue';
 import {ref, onMounted, watchEffect} from "vue";
 import StatusBadge from '@/Components/StatusBadge.vue';
 import Action from "@/Pages/Accounts/Partials/Action.vue";
@@ -78,6 +79,7 @@ watchEffect(() => {
             :key="account.id"
             class="flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-3 flex-grow md:pr-6 rounded-2xl border-l-8 bg-white shadow-toast w-full"
             :style="{'borderColor': `#${account.account_type_color}`}"
+            :class="{'opacity-50': !account.is_active}"
         >
             <div class="flex items-center gap-5 self-stretch">
                 <div class="flex items-center content-center gap-y-2 gap-x-4 flex-grow">
@@ -91,6 +93,7 @@ watchEffect(() => {
                     >
                         {{ $t(`public.${account.account_type}`) }}
                     </div>
+                    <IconAlertCircleFilled :size="20" stroke-width="1.25" class="text-error-500" v-if="!account.is_active" v-tooltip.top="$t('public.account_inactive_warning')" />
                 </div>
                 <Action :account="account" :type="accountType" />
             </div>
@@ -113,7 +116,7 @@ watchEffect(() => {
                 </div>
             </div>
             <div class="flex justify-end items-center gap-3 self-stretch">
-                <ActionButton :account="account" />
+                <ActionButton :account="account"/>
             </div>
         </div>
     </div>

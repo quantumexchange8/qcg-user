@@ -10,11 +10,13 @@ import InputText from 'primevue/inputtext';
 import Dialog from 'primevue/dialog';
 import Select from "primevue/select";
 import IconField from 'primevue/iconfield';
+import Checkbox from 'primevue/checkbox';
 import axios from 'axios';
 import InputNumber from "primevue/inputnumber";
 
 const props = defineProps({
     account: Object,
+    disabled: Boolean,
 });
 
 const showDepositDialog = ref(false);
@@ -62,6 +64,8 @@ const closeDialog = (dialogName) => {
 
 const depositForm = useForm({
     meta_login: props.account.meta_login,
+    checkbox1: false,
+    checkbox2: false, 
 });
 
 const transferForm = useForm({
@@ -90,6 +94,8 @@ const submitForm = (formType) => {
         });
     }
 }
+
+const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox2);
 </script>
 
 <template>
@@ -99,7 +105,7 @@ const submitForm = (formType) => {
         size="sm"
         class="w-full"
         @click="openDialog('deposit')"
-        :disabled="account.status === 'pending'"
+        :disabled="account.status === 'pending' || !account.is_active"
     >
         {{ $t('public.deposit') }}
     </Button>
@@ -109,7 +115,7 @@ const submitForm = (formType) => {
         size="sm"
         class="w-full"
         @click="openDialog('transfer')"
-        :disabled="account.status === 'pending'"
+        :disabled="account.status === 'pending' || !account.is_active"
     >
         <!-- <SwitchHorizontal01Icon class="w-4 text-gray-950" /> -->
         {{ $t('public.transfer') }}
@@ -129,8 +135,18 @@ const submitForm = (formType) => {
                 </div>
             </div>
         </div>
+        <div class="flex flex-col gap-2">
+            <label class="flex items-center gap-2">
+                <Checkbox binary v-model="depositForm.checkbox1" class="w-5 h-5 flex-shrink-0" />
+                <span class="text-xs text-error-600 font-medium">{{ $t('public.deposit_term_1') }}</span>
+            </label>
+            <label class="flex items-center gap-2">
+                <Checkbox binary v-model="depositForm.checkbox2" class="w-5 h-5 flex-shrink-0" />
+                <span class="text-xs text-error-600 font-medium">{{ $t('public.deposit_term_2') }}</span>
+            </label>
+        </div>
         <div class="pt-6 w-full">
-            <Button variant="primary-flat" type="button" class="justify-center w-full" @click.prevent="submitForm('deposit')">
+            <Button variant="primary-flat" type="button" class="justify-center w-full" :disabled="!isFormValid" @click.prevent="submitForm('deposit')">
                 {{$t('public.deposit_now')}}
             </Button>
         </div>

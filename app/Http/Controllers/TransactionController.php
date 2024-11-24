@@ -92,7 +92,8 @@ class TransactionController extends Controller
                     'comment' => $transaction->comment,
                     'remarks' => $transaction->remarks,
                     'created_at' => $transaction->created_at,
-                    'wallet_name' => $transaction->payment_account->payment_account_name ?? '-'
+                    'wallet_name' => $transaction->payment_account->payment_account_name ?? '-',
+                    'wallet_address' => $transaction->payment_account->account_no ?? '-',
                 ];
             });
 

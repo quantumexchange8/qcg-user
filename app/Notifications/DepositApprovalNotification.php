@@ -34,7 +34,7 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
             ->line('From: TTPay') // need to confirm
             ->line('Email: ' . $this->user->email)
             ->line('Name: ' . $this->user->first_name)
-            ->line('Account No: ' . $this->transaction->to)
+            ->line('Account No: ' . $this->transaction->to_meta_login)
             ->line('Deposit Amount: ' . $this->transaction->amount)
             ->line('TxHash: ' . $this->transaction->txn_hash)
             ->line('Click the button to proceed with approval')

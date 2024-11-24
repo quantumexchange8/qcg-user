@@ -82,6 +82,10 @@ const filteredItems = computed(() => {
             return !(item.label === 'withdrawal' || item.label === 'change_leverage' || item.label === 'delete' || item.separator);
         }
 
+        if (!props.account.is_active) {
+            return item.label === 'account_report';
+        }
+
         if (item.account_type) {
             return item.account_type === props.account.account_type;
         }

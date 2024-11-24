@@ -367,4 +367,11 @@ return [
     'credit_in' => 'Credit In',
     'credit_out' => 'Credit Out',
     'no_account_transfer' => 'No account available for transfer.',
+    'toast_apply_rebate_success' => 'You’ve successfully applied your rebate!',
+    'deposit_term_1' => 'User must complete the transaction within the time limit.',
+    'deposit_term_2' => 'User must NOT save the wallet address for future use.',
+    'account_inactive_warning' => 'Trading accounts with no activity for 90 days will be deleted',
+    'account_no' => 'Account No',
+    'transaction_number' => 'Transaction Number',
+    
 ];

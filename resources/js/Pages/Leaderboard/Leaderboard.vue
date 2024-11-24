@@ -146,7 +146,7 @@ watchEffect(() => {
                             class="w-full flex flex-col items-center p-4 gap-3 self-stretch rounded border border-gray-100 bg-white shadow-card md:p-6 md:gap-6"
                         >
                             <div class="w-full flex px-4 py-2 items-center text-white self-stretch bg-primary-900">
-                                {{ $t('public.incentive_threshold') }}
+                                {{ $t('public.incentive_threshold', { threshold: profile.calculation_threshold }) }}
                             </div>
 
                             <div class="w-full flex flex-wrap justify-between items-center content-center gap-3 self-stretch">
