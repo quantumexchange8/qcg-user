@@ -123,6 +123,13 @@ class AccountController extends Controller
             'leverage' => 'required|integer|min:1',
         ]);
 
+        // Only create ct_user_id if it is null
+        // if ($user->ct_user_id === null) {
+        //     // Create CT ID to link ctrader account
+        //     $ctUser = (new CTraderService)->CreateCTID($user->email);
+        //     $user->ct_user_id = $ctUser['userId'];
+        //     $user->save();
+        // }
 
         return back()->with('toast', [
             'title' => trans("public.toast_open_demo_account_success"),
@@ -574,16 +581,24 @@ class AccountController extends Controller
         $trading_user = TradingUser::where('meta_login', $account->meta_login)
             ->first();
 
-        try {
-            (new CTraderService)->deleteTrader($account->meta_login);
-
-            $account->delete();
-            $trading_user->delete();
-        } catch (\Throwable $e) {
-            Log::error($e->getMessage());
-
+        if ($account->balance == 0) {
+            try {
+                (new CTraderService)->deleteTrader($account->meta_login);
+    
+                $account->delete();
+                $trading_user->delete();
+            } catch (\Throwable $e) {
+                Log::error($e->getMessage());
+    
+                return back()->with('toast', [
+                    'title' => 'CTrader connection error',
+                    'type' => 'error',
+                ]);
+            }
+        }
+        else{
             return back()->with('toast', [
-                'title' => 'CTrader connection error',
+                'title' => trans('public.toast_delete_account_error'),
                 'type' => 'error',
             ]);
         }

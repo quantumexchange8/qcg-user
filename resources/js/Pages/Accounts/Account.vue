@@ -167,8 +167,8 @@ const noticeVisible = ref(true);
                         <img src="/assets/account-vector-r-md.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden md:block xl:hidden"/>
                         <img src="/assets/account-vector-r-sm.svg" alt="" class="absolute bottom-0 object-contain right-0 md:hidden"/>
 
-                        <img src="/assets/account-bg-xl.svg" alt="" class="absolute top-0 right-0 object-contain hidden xl:block"/>
-                        <img src="/assets/account-bg-md.svg" alt="" class="absolute top-0 right-0 object-contain hidden md:block xl:hidden"/>
+                        <img src="/assets/account-bg-xl.png" alt="" class="absolute top-0 right-0 object-contain hidden xl:block"/>
+                        <img src="/assets/account-bg-md.png" alt="" class="absolute top-0 right-0 object-contain hidden md:block xl:hidden"/>
                     </div>
                     <!-- Content -->
                     <div class="flex flex-col items-center gap-5 md:w-[380px] md:items-start xl:w-[480px]">

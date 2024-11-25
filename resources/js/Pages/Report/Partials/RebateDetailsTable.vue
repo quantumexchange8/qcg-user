@@ -258,7 +258,7 @@ const openDialog = (rowData) => {
         <div class="flex flex-col justify-center items-center py-4 gap-3 self-stretch border-b border-gray-200 md:border-none">
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.date') }}</span>
-                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ `${formatDate(selectedDate[0] ?? '2024/01/01')}&nbsp;-&nbsp;${formatDate(selectedDate[1] ?? today)}` }}</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ `${formatDate(selectedDate?.[0] ?? '2024/01/01')}&nbsp;-&nbsp;${formatDate(selectedDate?.[1] ?? today)}` }}</span>
             </div>
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.account') }}</span>
@@ -266,7 +266,7 @@ const openDialog = (rowData) => {
             </div>
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.total_trade_volume') }}</span>
-                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ data.volume }}&nbsp;Ł</span>
+                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ formatAmount(data.volume) }}&nbsp;Ł</span>
             </div>
         </div>
 
@@ -340,11 +340,19 @@ const openDialog = (rowData) => {
 
                 <!-- Summary Columns -->
                 <Column sortable field="execute_at" header="Date" />
-                <Column field="volume" :header="`${$t('public.total_volume')}&nbsp;(Ł)`" class="text-left hidden md:table-cell"/>
-                <Column field="rebate" :header="`${$t('public.total_rebate')}&nbsp;($)`" class="text-left hidden md:table-cell"/>
-                <Column field="rebate" :header="`${$t('public.total_rebate')}&nbsp;($)`"  class="text-right md:hidden">
+                <Column field="volume" :header="`${$t('public.total_volume')}&nbsp;(Ł)`" class="text-left hidden md:table-cell">
                     <template #body="slotProps">
-                        {{ `$&nbsp;${slotProps.data.rebate}` }}
+                        {{ formatAmount(slotProps.data.volume) }}
+                    </template>
+                </Column>
+                <Column field="rebate" :header="`${$t('public.total_rebate')}&nbsp;($)`" class="text-left hidden md:table-cell">
+                    <template #body="slotProps">
+                        {{ formatAmount(slotProps.data.rebate) }}
+                    </template>
+                </Column>
+                <Column field="rebate" header="`${$t('public.total_rebate')}&nbsp;($)`"  class="text-right md:hidden">
+                    <template #body="slotProps">
+                        $&nbsp;{{ formatAmount(slotProps.data.rebate) }}
                     </template>
                 </Column>
 

@@ -373,5 +373,5 @@ return [
     'account_inactive_warning' => 'Trading accounts with no activity for 90 days will be deleted',
     'account_no' => 'Account No',
     'transaction_number' => 'Transaction Number',
-    
+    'toast_delete_account_error' => 'Unable to delete account due to existing balance.'
 ];
