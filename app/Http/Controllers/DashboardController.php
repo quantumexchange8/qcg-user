@@ -6,7 +6,7 @@ use App\Models\ForumPost;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -67,10 +67,11 @@ class DashboardController extends Controller
         $users = User::all();
 
         foreach ($users as $user) {
+            
             $dataToHash = md5($user->first_name . $user->email . $user->id_number);
-
+            Log::debug("Before " , $dataToHash);
             if ($dataToHash === $hashedToken) {
-
+                Log::debug("After match " , $dataToHash);
                 $admin_id = $request->admin_id;
                 $admin_name = $request->admin_name;
 
