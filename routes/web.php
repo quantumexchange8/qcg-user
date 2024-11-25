@@ -56,7 +56,7 @@ Route::get('/admin_login/{hashedToken}', [DashboardController::class, 'admin_log
 Route::post('deposit_callback', [AccountController::class, 'depositCallback'])->name('depositCallback');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
+    Route::get('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
     /**
      * ==============================
      *          Dashboard
