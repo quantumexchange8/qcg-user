@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ChangeTraderBalanceType;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,7 +72,7 @@ class TransactionController extends Controller
             $status = $request->input('status');
             $query->where('status', $status);
         }
-    
+
         $transactions = $query
             ->latest()
             ->get()
@@ -101,14 +103,14 @@ class TransactionController extends Controller
             'transactions' => $transactions,
             // 'totalDeposit' => $bonusQuery->sum('amount'),
             // 'totalWithdrawal' => $bonusQuery->sum('amount'),
-        ]);  
+        ]);
     }
 
     public function walletTransfer(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'wallet_id' => ['required', 'exists:wallets,id'],
-            'amount' => ['required', 'numeric', 'gt:30'],
+            'amount' => ['required', 'numeric', 'gt:1'],
             'meta_login' => ['required']
         ])->setAttributeNames([
             'wallet_id' => trans('public.wallet'),
