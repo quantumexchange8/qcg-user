@@ -62,7 +62,7 @@ const resetForm = () => {
 };
 
 const submitForm = () => {
-    form.dial_code = selectedCountry.value;
+    form.dial_code = selectedCountry.value.phone_code;
 
     if (selectedCountry.value) {
         form.phone_number = selectedCountry.value.phone_code + form.phone;
@@ -70,7 +70,6 @@ const submitForm = () => {
 
     form.post(route('profile.update'), {
         onSuccess: () => {
-            visible.value = false;
             form.reset();
         },
     });
@@ -124,7 +123,45 @@ const submitForm = () => {
                     <InputLabel for="phone">
                         {{ $t('public.phone_number') }}
                     </InputLabel>
-                    <div class="flex gap-3">
+                    <div class="flex gap-2 items-center self-stretch relative">
+                        <Select
+                            v-model="selectedCountry"
+                            :options="countryList"
+                            filter
+                            :filterFields="['name', 'phone_code']"
+                            optionLabel="name"
+                            :placeholder="$t('public.phone_code')"
+                            class="w-[100px]"
+                            scroll-height="236px"
+                            :invalid="!!form.errors.dial_code"
+                            @change="handleInputChange('dial_code')"
+                        >
+                            <template #value="slotProps">
+                                <div v-if="slotProps.value" class="flex items-center">
+                                    <div>{{ slotProps.value.phone_code }}</div>
+                                </div>
+                                <span v-else>
+                                    {{ slotProps.placeholder }}
+                                </span>
+                            </template>
+                            <template #option="slotProps">
+                                <div class="flex items-center w-[262px] md:max-w-[236px]">
+                                    <div>{{ slotProps.option.name_en }} <span class="text-gray-500">{{ slotProps.option.phone_code }}</span></div>
+                                </div>
+                            </template>
+                        </Select>
+
+                        <InputText
+                            id="phone"
+                            type="text"
+                            class="block w-full"
+                            v-model="form.phone"
+                            :placeholder="$t('public.phone_number')"
+                            :invalid="!!form.errors.phone"
+                            @input="handleInputChange('phone')"
+                        />
+                    </div>
+                    <!-- <div class="flex gap-3">
                         <Select 
                             filter 
                             :filterFields="['name_en', 'phone_code']" 
@@ -158,8 +195,8 @@ const submitForm = () => {
                             v-model="form.phone"
                             :invalid="form.errors.phone"
                         />
-                    </div>
-                    <InputError :message="form.errors.phone_code"/>
+                    </div> -->
+                    <!-- <InputError :message="form.errors.phone_code"/> -->
                     <InputError :message="form.errors.phone"/>
                 </div>
             </div>

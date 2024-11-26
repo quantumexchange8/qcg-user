@@ -373,4 +373,7 @@ return [
     'account_inactive_warning' => '90天内无活动的交易账户将被删除',
     'account_no' => '账户号',
     'transaction_number' => '交易编号',
+    'toast_delete_account_error' => '无法删除账户因为存在余额.',
+    'toast_update_rebate_success_message' => "返佣更新已保存!",
+    "toast_transfer_success" => "转帐成功!",
 ];

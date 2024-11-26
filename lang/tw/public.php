@@ -373,4 +373,7 @@ return [
     'account_inactive_warning' => '90天內無活動的交易帳戶將被刪除',
     'account_no' => '帳戶號',
     'transaction_number' => '交易編號',
+    'toast_delete_account_error' => '無法刪除帳戶因為存在餘額.',
+    'toast_update_rebate_success_message' => "返傭更新已儲存!",
+    "toast_transfer_success" => "轉帳成功!",
 ];

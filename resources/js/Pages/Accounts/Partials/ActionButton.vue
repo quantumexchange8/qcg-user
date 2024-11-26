@@ -105,7 +105,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
         size="sm"
         class="w-full"
         @click="openDialog('deposit')"
-        :disabled="account.status === 'pending' || !account.is_active"
+        :disabled="account.status === 'pending' || account.is_active === 'inactive'"
     >
         {{ $t('public.deposit') }}
     </Button>
@@ -115,7 +115,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
         size="sm"
         class="w-full"
         @click="openDialog('transfer')"
-        :disabled="account.status === 'pending' || !account.is_active"
+        :disabled="account.status === 'pending' || account.is_active === 'inactive'"
     >
         <!-- <SwitchHorizontal01Icon class="w-4 text-gray-950" /> -->
         {{ $t('public.transfer') }}

@@ -87,7 +87,7 @@ class TransactionController extends Controller
                     'from_wallet_address' => $transaction->from_wallet_address,
                     'to_wallet_address' => $transaction->to_wallet_address,
                     'txn_hash' => $transaction->txn_hash,
-                    'amount' => $transaction->amount,
+                    'amount' => $transaction->amount ?? 0,
                     'transaction_charges' => $transaction->transaction_charges,
                     'transaction_amount' => $transaction->transaction_amount,
                     'status' => $transaction->status,

@@ -190,7 +190,7 @@ class NetworkController extends Controller
                 'balance' => $trading_account->balance,
                 'credit' => $trading_account->credit,
                 'equity' => $trading_account->equity,
-                'account_type_color' => $trading_account->account_type->color,
+                'account_type_color' => $trading_account->accountType->color,
             ];
         });
 

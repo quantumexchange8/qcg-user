@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Notification;
 use App\Notifications\DepositApprovalNotification;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
@@ -165,15 +166,7 @@ class AccountController extends Controller
             Log::error($e->getMessage());
         }
 
-        $liveAccounts = TradingAccount::with(['trading_user:id,meta_login,last_access',
-                'transactions' => function ($query) {
-                    // Fetch only the latest relevant transaction (deposit or withdrawal in the last 90 days)
-                    $query->where('created_at', '>=', now()->subDays(90))
-                        ->latest()  // Order by latest transaction
-                        ->limit(1);  // Limit to the most recent transaction
-                },
-                'accountType'
-            ])
+        $liveAccounts = TradingAccount::with('account_type')
             ->where('user_id', $user->id)
             ->when($accountType, function ($query) use ($accountType) {
                 return $query->whereHas('accountType', function ($query) use ($accountType) {
@@ -182,15 +175,6 @@ class AccountController extends Controller
             })
             ->get()
             ->map(function ($account) {
-                // Access the latest transaction directly from the eager-loaded transactions
-                $lastTransaction = $account->transactions->first(); // Get the latest transaction
-        
-                // Get the last access date of the trading user
-                $lastAccess = $account->trading_user->last_access;
-        
-                // Determine if the account is active (had a transaction or access in the last 90 days)
-                $isActive = ($lastTransaction && $lastTransaction->created_at >= now()->subDays(90) && $lastTransaction->created_at <= now()) 
-                        || ($lastAccess && $lastAccess >= now()->subDays(90) && $lastAccess <= now());
                 return [
                     'id' => $account->id,
                     'user_id' => $account->user_id,
@@ -202,8 +186,7 @@ class AccountController extends Controller
                     'account_type' => $account->accountType->slug,
                     'account_type_leverage' => $account->accountType->leverage,
                     'account_type_color' => $account->accountType->color,
-                    'last_access' => $lastAccess,
-                    'is_active' => $isActive,
+                    'is_active' => $account->status,
                 ];
             });
 

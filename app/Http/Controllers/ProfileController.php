@@ -51,7 +51,7 @@ class ProfileController extends Controller
         $dial_code = $request->dial_code;
 
         $user->update([
-            'dial_code' => $dial_code['phone_code'],
+            'dial_code' =>  $request->dial_code,
             'phone' => $request->phone,
             'phone_number' => $request->phone_number,
         ]);

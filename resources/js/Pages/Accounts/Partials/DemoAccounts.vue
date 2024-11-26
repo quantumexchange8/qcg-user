@@ -29,7 +29,7 @@ onMounted(fetchLiveAccounts);
   />
 
   <div class="w-full grid grid-cols-1 gap-5 md:grid-cols-2">
-    <div v-for="account in accounts" :key="account.id" class="min-w-[300px] flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-2xl border-l-8 border-info-400 bg-white shadow-toast">
+    <div v-for="account in accounts" :key="account.id" class="min-w-[300px] flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-lg border-l-8 border-info-400 bg-white shadow-toast">
       <div class="flex justify-between items-center gap-5 self-stretch">
         <span class="text-gray-950 font-semibold md:text-lg">#{{ account.meta_login }}</span>
         <Action :account="account" type="demo" />

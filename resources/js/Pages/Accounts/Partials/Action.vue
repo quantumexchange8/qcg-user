@@ -82,7 +82,7 @@ const filteredItems = computed(() => {
             return !(item.label === 'withdrawal' || item.label === 'change_leverage' || item.label === 'delete' || item.separator);
         }
 
-        if (!props.account.is_active) {
+        if (props.account.is_active === 'inactive') {
             return item.label === 'account_report';
         }
 

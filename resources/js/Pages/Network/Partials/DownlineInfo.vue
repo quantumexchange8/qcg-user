@@ -265,12 +265,12 @@ const filteredDataOverviews = computed(() => {
                         <div
                             v-for="(tradingAccount, index) in tradingAccounts"
                             :key="index"
-                            class="min-w-[300px] py-4 pl-6 pr-3 flex flex-col justify-center gap-3 md:gap-5 rounded-2xl border-l-8 bg-white shadow-toast"
+                            class="min-w-[300px] flex flex-col justify-center items-start py-3 pl-4 pr-3 gap-3 flex-grow rounded-lg border-l-8 border-info-400 bg-white shadow-toast"
                             :style="{'borderColor': `#${tradingAccount.account_type_color}`}"
                         >
-                            <div class="flex items-start gap-4">
+                            <div class="flex flex-wrap items-center content-center gap-4 md:h-[28px] self-stretch">
                                 <span class="text-gray-950 font-semibold md:text-lg self-stretch">
-                                    # {{ tradingAccount.meta_login }}
+                                    #{{ tradingAccount.meta_login }}
                                 </span>
                                 <div
                                     class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
@@ -279,35 +279,35 @@ const filteredDataOverviews = computed(() => {
                                         color: `#${tradingAccount.account_type_color}`,
                                     }"
                                 >
-                                    {{ tradingAccount.account_type }}
+                                    {{ $t(`public.${tradingAccount.account_type}`) }}
                                 </div>
                             </div>
 
-                            <div class="flex justify-between content-center gap-2 self-stretch">
-                                <div class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full">
+                            <div class="flex items-center content-center gap-2 self-stretch flex-wrap">
+                                <div class="flex flex-col gap-1 items-start flex-1">
                                     <div class="text-gray-500 text-xs">
-                                        {{ $t('public.balance_shortname') }}:
+                                        {{ $t('public.balance') }}&nbsp;($)
                                     </div>
-                                    <div class="text-gray-950 text-xs font-medium">
+                                    <div class="text-gray-950 text-sm font-medium">
                                         $ {{ formatAmount(tradingAccount.balance) }}
                                     </div>
                                 </div>
-                                <div class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full">
+                                <div class="flex flex-col gap-1 items-start flex-1">
                                     <div class="text-gray-500 text-xs">
-                                        {{ $t('public.equity_shortname') }}:
+                                        {{ $t('public.equity') }}&nbsp;($)
                                     </div>
-                                    <div class="text-gray-950 text-xs font-medium">
+                                    <div class="text-gray-950 text-sm font-medium">
                                         $ {{ formatAmount(tradingAccount.equity) }}
                                     </div>
                                 </div>
                                 <div
                                     v-if="tradingAccount.account_type !== 'Premium Account'"
-                                    class="flex flex-col md:flex-row md:gap-2 justify-start items-center w-full"
+                                    class="flex flex-col gap-1 items-start flex-1"
                                 >
                                     <div class="text-gray-500 text-xs">
-                                        {{ $t('public.credit_shortname') }}:
+                                        {{ $t('public.credit') }}&nbsp;($)
                                     </div>
-                                    <div class="text-gray-950 text-xs font-medium">
+                                    <div class="text-gray-950 text-sm font-medium">
                                         $ {{ formatAmount(tradingAccount.credit) }}
                                     </div>
                                 </div>

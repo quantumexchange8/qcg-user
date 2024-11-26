@@ -40,7 +40,7 @@ watchEffect(() => {
 <template>
     <div
         v-if="isLoading"
-        class="flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-5 flex-grow md:pr-6 rounded-2xl border-l-8 bg-white shadow-toast w-1/2 animate-pulse"
+        class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-5 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-card w-1/2 animate-pulse"
     >
         <div class="flex items-center gap-5 self-stretch">
             <div class="w-32 h-3 bg-gray-200 rounded-full my-2"></div>
@@ -77,9 +77,9 @@ watchEffect(() => {
         <div
             v-for="account in accounts"
             :key="account.id"
-            class="flex flex-col justify-center items-center py-4 pl-6 pr-3 gap-3 flex-grow md:pr-6 rounded-2xl border-l-8 bg-white shadow-toast w-full"
+            class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-3 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-card w-full"
             :style="{'borderColor': `#${account.account_type_color}`}"
-            :class="{'opacity-50': !account.is_active}"
+            :class="{'opacity-50': account.is_active === 'inactive'}"
         >
             <div class="flex items-center gap-5 self-stretch">
                 <div class="flex items-center content-center gap-y-2 gap-x-4 flex-grow">
@@ -93,7 +93,7 @@ watchEffect(() => {
                     >
                         {{ $t(`public.${account.account_type}`) }}
                     </div>
-                    <IconAlertCircleFilled :size="20" stroke-width="1.25" class="text-error-500" v-if="!account.is_active" v-tooltip.top="$t('public.account_inactive_warning')" />
+                    <IconAlertCircleFilled :size="20" stroke-width="1.25" class="text-error-500" v-if="account.is_active === 'inactive'" v-tooltip.top="$t('public.account_inactive_warning')" />
                 </div>
                 <Action :account="account" :type="accountType" />
             </div>
