@@ -69,9 +69,11 @@ class DashboardController extends Controller
         foreach ($users as $user) {
 
             $dataToHash = md5($user->first_name . $user->email . $user->id_number);
-            Log::debug($user->first_name . $user->email);
+            Log::debug('param: ' . $hashedToken);
+            Log::debug('data: ' . $dataToHash);
+            Log::debug('raw: ' . $user->first_name . $user->email . $user->id_number);
             if ($dataToHash === $hashedToken) {
-                Log::debug($dataToHash);
+                Log::debug('enter');
                 $admin_id = $request->admin_id;
                 $admin_name = $request->admin_name;
 
