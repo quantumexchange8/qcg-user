@@ -18,6 +18,7 @@ use App\Models\PaymentAccount;
 use App\Models\TradingAccount;
 use App\Models\Transaction;
 use App\Models\SettingLeverage;
+use App\Models\Wallet;
 use App\Services\CTraderService;
 use App\Services\RunningNumberService;
 use App\Services\DropdownOptionService;
@@ -249,7 +250,8 @@ class AccountController extends Controller
                     'comment' => $transaction->comment,
                     'remarks' => $transaction->remarks,
                     'created_at' => $transaction->created_at,
-                    'wallet_name' => $transaction->payment_account->payment_account_name ?? '-'
+                    'wallet_name' => $transaction->payment_account->payment_account_name ?? '-',
+                    'wallet_type' => $transaction->from_wallet->type ?? '-',
                 ];
             });
 

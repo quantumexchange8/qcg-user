@@ -17,6 +17,7 @@ import StepPanel from 'primevue/steppanel';
 
 const props = defineProps({
     countries: Array,
+    referral_code: String
 })
 
 const activeStep = ref(1);
@@ -41,8 +42,10 @@ const form = useForm({
     country: '',
     phone_code: '',
     phone: '',
+    phone_number: '',
     password: '',
     password_confirmation: '',
+    referral_code: props.referral_code ? props.referral_code : '',
 });
 
 const submit = () => {
@@ -54,8 +57,9 @@ const submit = () => {
 const validate = (activateCallback) => {
     // console.log(selectedCountry.value);
     if(selectedCountry.value){
-        form.country = selectedCountry.value.name_en;
+        form.country = selectedCountry.value.name;
         form.phone_code = selectedCountry.value.phone_code;
+        form.phone_number = selectedCountry.value.phone_code + form.phone;
     }
 
     form.post(route('sign_up.first.step'), {
@@ -129,7 +133,7 @@ const validate = (activateCallback) => {
                                         :value="$t('public.phone_number')"
                                     />
                                     <div class="flex gap-2 items-center">
-                                        <Select filter :filterFields="['name_en', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name_en" :placeholder="$t('public.phone_code')" class="min-w-[100px] max-w-[100px]"
+                                        <Select filter :filterFields="['name', 'phone_code']" v-model="selectedCountry" :options="countryList" optionLabel="name" :placeholder="$t('public.phone_code')" class="min-w-[100px] max-w-[100px]"
                                         :invalid="form.errors.phone_code">
                                             <template #value="slotProps" >
                                                 <div v-if="slotProps.value" class="flex items-center">
@@ -140,7 +144,7 @@ const validate = (activateCallback) => {
                                             </template>
                                             <template #option="slotProps">
                                                 <div class="flex items-center">
-                                                    <div class="text-black">{{ slotProps.option.name_en }} ({{ slotProps.option.phone_code }})</div>
+                                                    <div class="text-black">{{ slotProps.option.name }} ({{ slotProps.option.phone_code }})</div>
                                                 </div>
                                             </template>
                                         </Select>

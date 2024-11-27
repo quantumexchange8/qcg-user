@@ -73,6 +73,20 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
             ->toArray();
     }
 
+    public function assignedTeam($team_id): void
+    {
+        TeamHasUser::updateOrCreate(
+            ['user_id' => $this->id],
+            ['team_id' => $team_id]
+        );
+    }
+
+    // Relations
+    public function teamHasUser(): HasOne
+    {
+        return $this->hasOne(TeamHasUser::class, 'user_id');
+    }
+
     public function directChildren(): HasMany
     {
         return $this->hasMany(User::class, 'upline_id', 'id');

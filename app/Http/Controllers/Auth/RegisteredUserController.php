@@ -18,8 +18,9 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Mail;
-//use App\Http\Requests\RegisterRequest;
-//use App\Notifications\OtpNotification;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Log;
 use App\Models\Wallet;
 use App\Services\CTraderService;
 
@@ -28,11 +29,12 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): Response
+    public function create($referral = null): Response
     {
-        $countries = Country::select('name_en', 'phone_code')->get();
+        $countries = Country::select('name', 'phone_code')->get();
 
         return Inertia::render('Auth/Register', [
+            'referral_code' => $referral,
             'countries' => $countries,
         ]);
     }
@@ -43,7 +45,7 @@ class RegisteredUserController extends Controller
             'first_name' => 'required|string|max:255|unique:' . User::class,
             'email' => 'required|string|email|max:255|unique:' . User::class,
             'phone_code' => 'required',
-            'phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:8|unique:' . User::class,
+            'phone' => 'required|regex:/^[0-9]+$/|min:8|unique:' . User::class,
         ];
 
         $attributes = [
@@ -55,28 +57,10 @@ class RegisteredUserController extends Controller
 
         $phone_code = $request->phone_code;
         $phone = $request->phone;
-
-        // Remove leading '+' from dial code if present
-        $phone_code = ltrim($phone_code, '+');
-
-        // Remove leading '+' from phone number if present
-        $phone = ltrim($phone, '+');
-
-        // Check if phone number already starts with dial code
-        if (!str_starts_with($phone, $phone_code)) {
-            // Concatenate dial code and phone number
-            $phone = '+' . $phone_code . $phone;
-        } else {
-            // If phone number already starts with dial code, use the phone number directly
-            $phone = '+' . $phone;
-        }
-
-        // Merge the modified phone number back into the request
-        $request->merge(['phone' => $phone]);
+        $phone_number = $request->phone_number;
 
         $validator = Validator::make($request->all(), $rules);
         $validator->setAttributeNames($attributes);
-
 
         $validator->validate();
         // } elseif ($request->form_step == 2) {
@@ -162,40 +146,60 @@ class RegisteredUserController extends Controller
         // Validate the request
         $validator->validate();
 
-        $phone_code = $request->phone_code;
-        $phone = $request->phone;
-
-        // Remove leading '+' from dial code if present
-        $phone_code = ltrim($phone_code, '+');
-
-        // Remove leading '+' from phone number if present
-        $phone = ltrim($phone, '+');
-
-        // Check if phone number already starts with dial code
-        if (!str_starts_with($phone, $phone_code)) {
-            // Concatenate dial code and phone number
-            $phone = '+' . $phone_code . $phone;
-        } else {
-            // If phone number already starts with dial code, use the phone number directly
-            $phone = '+' . $phone;
-        }
-
-        $ctUser = (new CTraderService)->CreateCTID($request->email);
+        $default_agent_id = User::where('id_number', 'AID00082')->first()->id;
 
         $userData = [
             'first_name' => $request->first_name,
             'email' => $request->email,
             'country' => $request->country,
-            'phone' => $phone,
+            'dial_code' => $request->phone_code,
+            'phone' => $request->phone,
+            'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
-            'ct_user_id' => $ctUser['userId'],
             'remarks' => 'TW Test Trading Group',
         ];
 
+        $check_referral_code = null;
+        if ($request->referral_code) {
+            $referral_code = $request->input('referral_code');
+            $check_referral_code = User::where('referral_code', $referral_code)->first();
+
+            if ($check_referral_code) {
+                $upline_id = $check_referral_code->id;
+                $hierarchyList = empty($check_referral_code['hierarchyList']) ? "-" . $upline_id . "-" : $check_referral_code['hierarchyList'] . $upline_id . "-";
+
+                $userData['upline_id'] = $upline_id;
+                $userData['hierarchyList'] = $hierarchyList;
+                $userData['role'] = $upline_id == $default_agent_id ? 'agent' : 'member';
+            }
+        } else {
+            $default_upline = User::find(3);
+            $default_upline_id = $default_upline->id;
+            $newHierarchyList = $default_upline->hierarchyList . $default_upline_id . "-";
+
+            $userData['upline_id'] = $default_upline_id;
+            $userData['hierarchyList'] = $newHierarchyList;
+            $userData['role'] = 'member';
+        }
 
         $user = User::create($userData);
 
         $user->setReferralId();
+
+        $id_no = ($user->role == 'agent' ? 'AID' : 'MID') . Str::padLeft($user->id - 2, 5, "0");
+        $user->id_number = $id_no;
+        $user->save();
+
+        if ($check_referral_code && $check_referral_code->groupHasUser) {
+            $user->assignedTeam($check_referral_code->groupHasUser->group_id);
+        }
+
+        // create ct id to link ctrader account
+        if (App::environment('production')) {
+            $ctUser = (new CTraderService)->CreateCTID($user->email);
+            $user->ct_user_id = $ctUser['userId'];
+            $user->save();
+        }
 
         event(new Registered($user));
 

@@ -25,7 +25,7 @@ defineProps({
 const tooltipText = ref('copy')
 const visible = ref(false);
 const qrcodeContainer = ref();
-const registerLink = ref(`${window.location.origin}/register/${usePage().props.auth.user.referral_code}`);
+const registerLink = ref(`${window.location.origin}/sign_up/${usePage().props.auth.user.referral_code}`);
 
 const menu = ref(null);
 const toggle = (event) => {

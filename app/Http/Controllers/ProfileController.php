@@ -23,7 +23,7 @@ class ProfileController extends Controller
      */
     public function index(Request $request): Response
     {
-        $countries = Country::select('name_en', 'phone_code')->get();
+        $countries = Country::select('name', 'phone_code')->get();
 
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,

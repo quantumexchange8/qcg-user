@@ -35,6 +35,8 @@ const form = useForm({
 })
 
 const submitForm = () => {
+    console.log(form.account_id),
+    console.log(form.leverage)
     form.post(route('accounts.change_leverage'), {
         onSuccess: () => {
             closeDialog();

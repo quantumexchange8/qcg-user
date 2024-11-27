@@ -194,7 +194,7 @@ function copyToClipboard(text) {
                 <template #body="slotProps">
                     <div v-if="['transfer_to_account', 'account_to_account'].includes(slotProps.data.transaction_type)">
                         <div v-if="account.meta_login === slotProps.data.to_meta_login">
-                            {{ $t('public.from') }} {{ slotProps.data.from_meta_login }}
+                            {{ $t('public.from') }} {{ slotProps.data.from_meta_login ?? $t(`public.${slotProps.data.wallet_type}`) }}
                         </div>
                         <div v-else>
                             {{ $t('public.to') }} {{ slotProps.data.to_meta_login }}
@@ -250,22 +250,22 @@ function copyToClipboard(text) {
     <Dialog
         v-model:visible="visible"
         modal
-        :header="$t('public.transfer_details')"
+        :header="$t('public.details')"
         class="dialog-xs md:dialog-sm"
     >
         <div
-            class="flex flex-col items-center gap-3 self-stretch"
+            class="flex flex-col items-center gap-3 self-stretch pt-6"
             :class="{
                 'pb-4 border-b border-gray-200': ['deposit', 'withdrawal', 'balance_in', 'balance_out', 'credit_in', 'credit_out', 'rebate_in', 'rebate_out'].includes(data.transaction_type)
             }"
         >
             <div class="flex items-center gap-1 self-stretch">
-                <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.transaction_id') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{ data.transaction_number }}</span>
+                <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.date') }}</span>
+                <span class="flex-grow text-gray-950 text-sm font-medium">{{ formatDateTime(data.created_at) }}</span>
             </div>
             <div class="flex items-center gap-1 self-stretch">
-                <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.transaction_date') }}</span>
-                <span class="flex-grow text-gray-950 text-sm font-medium">{{ formatDateTime(data.created_at) }}</span>
+                <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.transaction_id') }}</span>
+                <span class="flex-grow text-gray-950 text-sm font-medium">{{ data.transaction_number }}</span>
             </div>
             <div class="flex items-center gap-1 self-stretch">
                 <span class="w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.account') }}</span>
@@ -276,7 +276,7 @@ function copyToClipboard(text) {
                 <div class="flex-grow text-gray-950 text-sm font-medium">
                     <div v-if="['transfer_to_account', 'account_to_account'].includes(data.transaction_type)">
                         <div v-if="account.meta_login === data.to_meta_login">
-                            {{ $t('public.from') }} {{ data.from_meta_login }}
+                            {{ $t('public.from') }} {{ data.from_meta_login ?? $t(`public.${data.wallet_type}`) }}
                         </div>
                         <div v-else>
                             {{ $t('public.to') }} {{ data.to_meta_login }}

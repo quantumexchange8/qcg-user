@@ -376,4 +376,5 @@ return [
     'toast_delete_account_error' => 'Unable to delete account due to existing balance.',
     'toast_update_rebate_success_message' => 'You’ve successfully updated the rebate details!',
     "toast_transfer_success" => "Transfer successful!",
+    'at_least_one_field_required' => '',
 ];

@@ -146,7 +146,7 @@ const submitForm = () => {
                             </template>
                             <template #option="slotProps">
                                 <div class="flex items-center w-[262px] md:max-w-[236px]">
-                                    <div>{{ slotProps.option.name_en }} <span class="text-gray-500">{{ slotProps.option.phone_code }}</span></div>
+                                    <div>{{ slotProps.option.name }} <span class="text-gray-500">{{ slotProps.option.phone_code }}</span></div>
                                 </div>
                             </template>
                         </Select>
@@ -164,10 +164,10 @@ const submitForm = () => {
                     <!-- <div class="flex gap-3">
                         <Select 
                             filter 
-                            :filterFields="['name_en', 'phone_code']" 
+                            :filterFields="['name', 'phone_code']" 
                             v-model="selectedCountry" 
                             :options="countryList" 
-                            optionLabel="name_en" 
+                            optionLabel="name" 
                             :placeholder="$t('public.phone_code')" 
                             class="min-w-[100px] max-w-[100px] xl:min-w-[180px] xl:max-w-[180px]"
                             @change="handleInputChange('dial_code')"
@@ -182,7 +182,7 @@ const submitForm = () => {
                             </template>
                             <template #option="slotProps">
                                 <div class="flex items-center">
-                                    <div class="text-black">{{ slotProps.option.name_en }} ({{ slotProps.option.phone_code }})</div>
+                                    <div class="text-black">{{ slotProps.option.name }} ({{ slotProps.option.phone_code }})</div>
                                 </div>
                             </template>
                         </Select>
