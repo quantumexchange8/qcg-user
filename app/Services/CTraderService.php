@@ -145,7 +145,6 @@ class CTraderService
     {
         $tradingUser =  TradingUser::firstWhere('meta_login', $meta_login);
         $response = Http::acceptJson()->patch($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
-            'login' => $meta_login,
             'groupName' => $tradingUser->meta_group,
             'leverageInCents' => $leverage * 100,
         ]);
