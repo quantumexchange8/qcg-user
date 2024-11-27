@@ -532,7 +532,7 @@ class AccountController extends Controller
          }
 
         $account = TradingAccount::find($request->account_id);
-
+        Log::debug($account);
         try {
             (new CTraderService)->updateLeverage($account->meta_login, $request->leverage);
         } catch (\Throwable $e) {
