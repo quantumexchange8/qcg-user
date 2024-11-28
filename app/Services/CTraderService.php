@@ -150,7 +150,7 @@ class CTraderService
         ])->json();
 
         Log::debug('updateUser response1', ['updateResponse' => $response]);
-        if ($response->status() == 204) {
+        if ($response->status() == 200) {
             $data = $this->getUser($meta_login);
             (new UpdateTradingUser)->execute($meta_login, $data);
             (new UpdateTradingAccount)->execute($meta_login, $data);
