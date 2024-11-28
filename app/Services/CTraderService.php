@@ -143,8 +143,13 @@ class CTraderService
 
     public function updateLeverage($meta_login, $leverage)
     {
+        Log::debug('0');
         $tradingUser =  TradingUser::firstWhere('meta_login', $meta_login);
-        Log::debug($meta_login , ' ' , $leverage , ' ', ['tradingUser' => $tradingUser]);
+        Log::debug($meta_login);
+        Log::debug('1');
+        Log::debug($leverage);
+        Log::debug('2');
+        Log::debug($tradingUser);
         
         $response2 = Http::acceptJson()->put($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
             'login' => $meta_login,
