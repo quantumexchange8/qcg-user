@@ -7,12 +7,15 @@ import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import { wTrans } from "laravel-vue-i18n";
+import {usePage} from "@inertiajs/vue3";
 import NetworkTree from "./Partials/NetworkTree.vue";
 import NetworkListing from "./Partials/NetworkListing.vue";
 
 const props = defineProps({
     tab: Number,
 })
+
+const user = usePage().props.auth.user;
 
 const tabs = ref([
     {   
@@ -28,12 +31,13 @@ const tabs = ref([
 ]);
 
 const selectedType = ref('network');
-const activeIndex = ref(props.tab);
+const activeIndex = ref(user.role === 'agent' ? props.tab : 0);
 
 function updateType(event) {
     const selectedTab = tabs.value[event.index];
     selectedType.value = selectedTab.type;
 }
+
 </script>
 
 <template>
@@ -41,7 +45,7 @@ function updateType(event) {
         <Tabs v-model:value="activeIndex" class="w-full gap-5"
         @tab-change="updateType"
         >
-            <TabList>
+            <TabList v-if="user.role === 'agent'">
                 <Tab 
                     v-for="(tab, index) in tabs" 
                     :key="tab.title"

@@ -55,7 +55,7 @@ Route::get('approval/{token}', function ($token) {
 Route::get('/admin_login/{hashedToken}', [DashboardController::class, 'admin_login']);
 Route::post('deposit_callback', [AccountController::class, 'depositCallback'])->name('depositCallback');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:agent|member'])->group(function () {
     Route::get('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
     /**
      * ==============================
@@ -106,10 +106,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [NetworkController::class, 'index'])->name('network');
 
         Route::get('/getDownlineData', [NetworkController::class, 'getDownlineData'])->name('network.getDownlineData');
-        Route::get('/getDownlineListingData', [NetworkController::class, 'getDownlineListingData'])->name('network.getDownlineListingData');
-        Route::get('/getFilterData', [NetworkController::class, 'getFilterData'])->name('network.getFilterData');
-        Route::get('/downline/{id_number}', [NetworkController::class, 'viewDownline'])->name('network.viewDownline');
-        Route::get('/getUserData', [NetworkController::class, 'getUserData'])->name('network.getUserData');
+        
+        Route::middleware('role:agent')->group(function () {
+            Route::get('/getDownlineListingData', [NetworkController::class, 'getDownlineListingData'])->name('network.getDownlineListingData');
+            Route::get('/getFilterData', [NetworkController::class, 'getFilterData'])->name('network.getFilterData');
+            Route::get('/downline/{id_number}', [NetworkController::class, 'viewDownline'])->name('network.viewDownline');
+            Route::get('/getUserData', [NetworkController::class, 'getUserData'])->name('network.getUserData');
+        });
     });
     
     /**
@@ -129,7 +132,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
      *           Report
      * ==============================
      */
-    Route::prefix('report')->group(function () {
+    Route::prefix('report')->middleware('role:agent')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('report');
 
         Route::get('/getGroupTransaction', [ReportController::class, 'getGroupTransaction'])->name('report.getGroupTransaction');
@@ -144,7 +147,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
      *         Rebate Setting
      * ==============================
      */
-    Route::prefix('rebate_setting')->group(function () {
+    Route::prefix('rebate_setting')->middleware('role:agent')->group(function () {
         Route::get('/', [RebateSettingController::class, 'index'])->name('rebate_setting');
 
         Route::get('/getRebateData', [RebateSettingController::class, 'getRebateData'])->name('rebate_setting.getRebateData');
@@ -158,7 +161,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
      *         Leaderboard
      * ==============================
      */
-    Route::prefix('leaderboard')->group(function () {
+    Route::prefix('leaderboard')->middleware('role:agent')->group(function () {
         Route::get('/', [LeaderboardController::class, 'index'])->name('leaderboard');
 
         Route::get('/getTotalIncentiveGraph', [LeaderboardController::class, 'getTotalIncentiveGraph'])->name('leaderboard.getTotalIncentiveGraph');

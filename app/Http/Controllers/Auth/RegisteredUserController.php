@@ -146,7 +146,7 @@ class RegisteredUserController extends Controller
         // Validate the request
         $validator->validate();
 
-        $default_agent_id = User::where('id_number', 'AID00082')->first()->id;
+        // $default_agent_id = User::where('id_number', 'AID00082')->first()->id;
 
         $userData = [
             'first_name' => $request->first_name,
@@ -160,6 +160,7 @@ class RegisteredUserController extends Controller
         ];
 
         $check_referral_code = null;
+        $default_upline = null;
         if ($request->referral_code) {
             $referral_code = $request->input('referral_code');
             $check_referral_code = User::where('referral_code', $referral_code)->first();
@@ -170,12 +171,13 @@ class RegisteredUserController extends Controller
 
                 $userData['upline_id'] = $upline_id;
                 $userData['hierarchyList'] = $hierarchyList;
-                $userData['role'] = $upline_id == $default_agent_id ? 'agent' : 'member';
+                // $userData['role'] = $upline_id == $default_agent_id ? 'agent' : 'member';
+                $userData['role'] = 'member';
             }
         } else {
-            $default_upline = User::find(3);
+            $default_upline = User::find(1992);
             $default_upline_id = $default_upline->id;
-            $newHierarchyList = $default_upline->hierarchyList . $default_upline_id . "-";
+            $newHierarchyList = empty($default_upline->hierarchyList) ? "-" . $default_upline_id . "-" : $default_upline->hierarchyList . $default_upline_id . "-";
 
             $userData['upline_id'] = $default_upline_id;
             $userData['hierarchyList'] = $newHierarchyList;
@@ -186,12 +188,22 @@ class RegisteredUserController extends Controller
 
         $user->setReferralId();
 
-        $id_no = ($user->role == 'agent' ? 'AID' : 'MID') . Str::padLeft($user->id - 2, 5, "0");
+        $id_no = ($user->role == 'agent' ? 'AID' : 'MID') . Str::padLeft($user->id, 5, "0");
         $user->id_number = $id_no;
         $user->save();
 
-        if ($check_referral_code && $check_referral_code->groupHasUser) {
-            $user->assignedTeam($check_referral_code->groupHasUser->group_id);
+        if($user->role == 'agent'){
+            $user->assignRole('agent');
+        }
+        else{
+            $user->assignRole('member');
+        }
+
+        if ($check_referral_code && $check_referral_code->teamHasUser) {
+            $user->assignedTeam($check_referral_code->teamHasUser->team_id);
+        }
+        else if ($default_upline && $default_upline->teamHasUser) {
+            $user->assignedTeam($default_upline->teamHasUser->team_id);
         }
 
         // create ct id to link ctrader account

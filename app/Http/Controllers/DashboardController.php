@@ -30,7 +30,7 @@ class DashboardController extends Controller
     public function getDashboardData()
     {
         $user = Auth::user();
-        $groupIds = $user->getChildrenIds();
+        $groupIds = $user->role === 'agent' ? $user->getChildrenIds() : [];
         $groupIds[] = $user->id;
 
         $rebate_wallet = $user->rebate_wallet;

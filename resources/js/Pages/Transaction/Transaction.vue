@@ -318,7 +318,7 @@ const openDialog = (rowData) => {
                                         showIcon
                                         iconDisplay="input"
                                         :placeholder="$t('public.select_date')"
-                                        class="font-normal w-full md:w-60"
+                                        class="font-normal w-full md:w-52"
                                     />
                                     <div
                                         v-if="selectedDate && selectedDate.length > 0"
@@ -336,7 +336,7 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_type')"
-                                    class="w-full md:w-60 font-normal"
+                                    class="w-full font-normal"
                                     scroll-height="236px"
                                 />
                                 <Select
@@ -347,7 +347,7 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_status')"
-                                    class="w-full md:w-60 font-normal"
+                                    class="w-full font-normal"
                                     scroll-height="236px"
                                 />
                             </div>

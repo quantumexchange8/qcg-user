@@ -18,11 +18,45 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\LocalizationMiddleware::class,
         ]);
 
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'role_and_permission' => \App\Http\Middleware\RoleAndPermissionMiddleware::class,
+        ]);
+
         $middleware->validateCsrfTokens(except: [
             'deposit_return',
             'deposit_callback'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function (\Symfony\Component\HttpFoundation\Response $response) {
+            switch ($response->getStatusCode()) {
+                case 400:
+                    return Inertia::render('Errors/400');
+                case 401:
+                case 419:
+                    return Inertia::render('Errors/401');
+                case 403:
+                    return Inertia::render('Errors/403');
+                case 404:
+                    return Inertia::render('Errors/404');
+                case 408:
+                    return Inertia::render('Errors/408');
+                case 500:
+                    if (app()->environment('production')) {
+                        return Inertia::render('Errors/500');
+                    }
+                    return $response;
+                case 502:
+                    return Inertia::render('Errors/502');
+                case 503:
+                    return Inertia::render('Errors/503');
+                case 504:
+                    return Inertia::render('Errors/504');
+                default:
+                    return $response;
+            }
+        });
     })->create();
