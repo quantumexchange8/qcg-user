@@ -149,15 +149,29 @@ class CTraderService
             'leverageInCents' => $leverage * 100,
         ])->json();
 
-        Log::debug('updateUser response', ['updateResponse' => $response]);
+        Log::debug('updateUser response1', ['updateResponse' => $response]);
         if ($response->status() == 204) {
             $data = $this->getUser($meta_login);
             (new UpdateTradingUser)->execute($meta_login, $data);
             (new UpdateTradingAccount)->execute($meta_login, $data);
         }
         else {
-            Log::error('updateUser error', ['updateResponse' => $response]);
+            $response2 = Http::acceptJson()->put($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
+                'login' => $meta_login,
+                'groupName' => $tradingUser->meta_group,
+                'leverageInCents' => $leverage * 100,
+            ])->json();
+            Log::debug('updateUser response2', ['updateResponse' => $response2]);
+            if ($response2->status() == 204) {
+                $data = $this->getUser($meta_login);
+                (new UpdateTradingUser)->execute($meta_login, $data);
+                (new UpdateTradingAccount)->execute($meta_login, $data);
+            }
+            else {
+                Log::error('updateUser error2', ['updateResponse' => $response2]);
+            }
         }
+
     }
 
     public function deleteTrader($meta_login): void
