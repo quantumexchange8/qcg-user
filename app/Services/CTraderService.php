@@ -143,9 +143,20 @@ class CTraderService
 
     public function updateLeverage($meta_login, $leverage)
     {
+        try {
+            $response = Http::acceptJson()->patch($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
+                'leverageInCents' => $leverage * 100,
+            ])->json();
+
+            Log::debug($response);
+        } catch (\Exception $e) {
+            Log::error('Error in createUser', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return null;
+        }
+
         // dd($meta_login, $leverage);
         // Log::debug('0');
-        $tradingUser =  TradingUser::firstWhere('meta_login', $meta_login);
+//        $tradingUser =  TradingUser::firstWhere('meta_login', $meta_login);
         // Log::debug($meta_login);
         // Log::debug('1');
         // Log::debug($leverage);
@@ -168,9 +179,9 @@ class CTraderService
         //     Log::error('updateUser error2', ['updateResponse' => $response2]);
         // }
 
-        $response = Http::acceptJson()->patch($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
-            'leverageInCents' => $leverage * 100,
-        ])->json();
+//        $response = Http::acceptJson()->patch($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
+//            'leverageInCents' => $leverage * 100,
+//        ])->json();
 
         //     dd($response->status());
 
