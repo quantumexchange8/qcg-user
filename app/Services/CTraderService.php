@@ -147,7 +147,7 @@ class CTraderService
         $response = Http::acceptJson()->patch($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
             'groupName' => $tradingUser->meta_group,
             'leverageInCents' => $leverage * 100,
-        ])->json();;
+        ])->json();
 
         Log::debug('updateUser response', ['updateResponse' => $response]);
         if ($response->status() == 204) {
