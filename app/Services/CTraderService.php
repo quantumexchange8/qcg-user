@@ -144,13 +144,14 @@ class CTraderService
     public function updateLeverage($meta_login, $leverage)
     {
         $tradingUser =  TradingUser::firstWhere('meta_login', $meta_login);
-
+        Log::debug($meta_login , ' ' , $leverage , ' ', ['tradingUser' => $tradingUser]);
+        
         $response2 = Http::acceptJson()->put($this->baseURL . "/v2/webserv/traders/$meta_login?token=$this->token", [
             'login' => $meta_login,
             'groupName' => $tradingUser->meta_group,
             'leverageInCents' => $leverage * 100,
         ])->json();
-        
+
         Log::debug('updateUser response2', ['updateResponse' => $response2]);
         if ($response2->status() == 204) {
             $data = $this->getUser($meta_login);
