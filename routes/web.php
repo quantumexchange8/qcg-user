@@ -167,7 +167,7 @@ Route::middleware(['auth', 'verified', 'role:agent|member'])->group(function () 
         Route::get('/getTotalIncentiveGraph', [LeaderboardController::class, 'getTotalIncentiveGraph'])->name('leaderboard.getTotalIncentiveGraph');
         Route::get('/getIncentiveData', [LeaderboardController::class, 'getIncentiveData'])->name('leaderboard.getIncentiveData');
         Route::get('/getWithdrawalHistory', [LeaderboardController::class, 'getWithdrawalHistory'])->name('leaderboard.getWithdrawalHistory');
-        Route::get('/incentiveWithdrawal', [LeaderboardController::class, 'incentiveWithdrawal'])->name('leaderboard.incentiveWithdrawal');
+        Route::post('/incentiveWithdrawal', [LeaderboardController::class, 'incentiveWithdrawal'])->name('leaderboard.incentiveWithdrawal');
         Route::get('/getAchievements', [LeaderboardController::class, 'getAchievements'])->name('leaderboard.getAchievements');
         Route::get('/getAgents', [LeaderboardController::class, 'getAgents'])->name('leaderboard.getAgents');
         Route::get('/getStatementData', [LeaderboardController::class, 'getStatementData'])->name('leaderboard.getStatementData');

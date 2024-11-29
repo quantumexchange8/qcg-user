@@ -14,7 +14,7 @@ import dayjs from 'dayjs'
 import Loader from "@/Components/Loader.vue";
 import Empty from "@/Components/Empty.vue";
 import { trans, wTrans } from "laravel-vue-i18n";
-
+import StatusBadge from "@/Components/StatusBadge.vue";
 
 const visible = ref(false);
 const visible2 = ref(false);
@@ -91,7 +91,7 @@ const exportCSV = () => {
     const exportFields = [
         { field: 'created_at', header: wTrans('public.date') },
         { field: 'transaction_number', header: wTrans('public.id') },
-        { field: 'incentive_amount', header: `${wTrans('public.amount')} ($)` },
+        { field: 'amount', header: `${wTrans('public.amount')} ($)` },
         { field: 'status', header: wTrans('public.status') },
     ];
 
@@ -100,6 +100,22 @@ const exportCSV = () => {
     });
 };
 
+const getStatusColor = (status) => {
+  switch(status.toLowerCase()) {
+    case 'successful':
+      return '#22C55E'; // Green
+    case 'processing':
+      return '#0EA5E9'; // Blue
+    case 'failed':
+      return '#DC2626'; // Red
+    case 'rejected':
+      return '#DC2626'; // Red
+    default:
+      return 'transparent'; // Default or undefined status
+  }
+};
+
+const data = ref({});
 const openDialog = (rowData) => {
     visible2.value = true;
     data.value = rowData;
@@ -131,6 +147,7 @@ const openDialog = (rowData) => {
                 scrollHeight="400px"
                 tableStyle="md:min-width: 50rem"
                 ref="dt"
+                selectionMode="single"
                 :loading="loading"
                 @row-click="(event) => openDialog(event.data)"
             >
@@ -182,61 +199,54 @@ const openDialog = (rowData) => {
                 </template>
                 <template v-if="withdrawals?.length > 0">
                 <!-- <template> -->
-                    <Column field="created_at" :header="$t('public.date')" sortable style="width: 20%" class="hidden md:table-cell">
+                    <Column field="created_at" :header="$t('public.date')" sortable  class="hidden md:table-cell">
                         <template #body="slotProps">
                             {{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}
                         </template>
                     </Column>
-                    <Column field="transaction_number" :header="$t('public.id')" sortable style="width: 20%" class="hidden md:table-cell">
+                    <Column field="transaction_number" :header="$t('public.id')" sortable  class="hidden md:table-cell">
                         <template #body="slotProps">
                             {{ slotProps.data.transaction_number }}
                         </template>
                     </Column>
-                    <Column field="amount" :header="`${$t('public.amount')}&nbsp;($)`" sortable style="width: 20%" class="hidden md:table-cell">
+                    <Column field="amount" :header="`${$t('public.amount')}&nbsp;($)`" sortable  class="hidden md:table-cell">
                         <template #body="slotProps">
                             {{ formatAmount(slotProps.data.amount) }}
                         </template>
                     </Column>
-                    <Column field="status" :header="$t('public.status')" sortable style="width: 20%" class="hidden md:table-cell">
+                    <Column field="status" :header="$t('public.status')" sortable  class="hidden md:table-cell">
                         <template #body="slotProps">
-                            {{ $t(`public.${slotProps.data.status}`) }}
+                            <StatusBadge :variant="slotProps.data.status">{{ $t(`public.${slotProps.data.status}`) }}</StatusBadge>
                         </template>
                     </Column>
                     <ColumnGroup type="footer">
                         <Row>
-                            <Column class="hidden md:table-cell" :footer="$t('public.total_approved') + ' ($) :'" :colspan="4" footerStyle="text-align:right" />
+                            <Column class="hidden md:table-cell" :footer="$t('public.total_approved') + ' ($) :'" :colspan="3" footerStyle="text-align:right" />
                             <Column class="hidden md:table-cell" :footer="formatAmount(totalWithdrawalAmount ? totalWithdrawalAmount : 0)" />
                         </Row>
                     </ColumnGroup>
-                    <!-- <Column style="width: 50%" class="md:hidden" headerClass="hidden">
+                    <Column class="md:hidden">
                         <template #body="slotProps">
-                            <div class="flex flex-col items-start gap-1 self-stretch">
-                                <span class="self-stretch text-gray-950 font-semibold">{{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}</span>
-                                <div class="flex items-center gap-1 text-gray-700 text-xs">
-                                    <div>
-                                        <span v-if="profile.sales_category !== 'trade_volume'">$&nbsp;</span>{{ formatAmount(slotProps.data.achieved_amount) }}<span v-if="profile.sales_category === 'trade_volume'">&nbsp;Ł</span>
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-col items-start">
+                                    <div class="text-md font-semibold">
+                                        {{ slotProps.data.transaction_number }}
                                     </div>
-                                    <span class="text-gray-500">|</span>
-                                    <div>
-                                        <span v-if="profile.sales_category !== 'trade_volume'">$&nbsp;</span>{{ formatAmount(slotProps.data.target_amount) }}<span v-if="profile.sales_category === 'trade_volume'">&nbsp;Ł</span>
+                                    <div class="flex gap-1 items-center text-gray-500 text-xs">
+                                        <div>{{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <div class="text-md font-semibold text-right">
+                                        $&nbsp;{{ formatAmount(slotProps.data.amount) }}
+                                    </div>
+                                    <div class="text-xs text-right" :style="{ color: getStatusColor(slotProps.data.status) }">
+                                        {{ $t(`public.${slotProps.data.status}`) }}
                                     </div>
                                 </div>
                             </div>
                         </template>
                     </Column>
-                    <Column style="width: 50%" class="md:hidden" headerClass="hidden">
-                        <template #body="slotProps">
-                            <div class="flex flex-col items-end gap-1">
-                                <span class="self-stretch text-gray-950 text-right font-semibold">$&nbsp;{{ formatAmount(slotProps.data.incentive_amount) }}</span>
-                                <div class="flex justify-end items-center gap-1 self-stretch text-xs">
-                                    <span class="text-gray-700">{{ $t('public.rate') }}:</span>
-                                    <div class="text-gray-500 text-right">
-                                        <span v-if="profile.sales_category === 'trade_volume'">$&nbsp;</span>{{ formatAmount(slotProps.data.incentive_rate) }}<span v-if="profile.sales_category !== 'trade_volume'">&nbsp;%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </Column> -->
                 </template>
             </DataTable>
         </div>
@@ -270,18 +280,18 @@ const openDialog = (rowData) => {
             <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.wallet_name') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.payment_account_name }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.wallet_name }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.receiving_address') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.account_no }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.wallet_address }}</span>
                 </div>
             </div>
 
             <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.remarks') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.comment }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.remarks ?? '-' }}</span>
                 </div>
             </div>
         </div>

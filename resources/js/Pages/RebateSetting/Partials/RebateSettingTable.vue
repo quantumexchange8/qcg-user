@@ -13,11 +13,12 @@ import {
     IconCircleXFilled,
     IconAdjustmentsHorizontal,
 } from '@tabler/icons-vue';
-import { wTrans } from "laravel-vue-i18n";
 import InputNumber from "primevue/inputnumber";
 import Empty from "@/Components/Empty.vue";
 import Dialog from "primevue/dialog";
 import InputError from "@/Components/InputError.vue";
+import { wTrans, trans } from "laravel-vue-i18n";
+import toast from '@/Composables/toast';
 
 const props = defineProps({
     accountTypes: Array,
@@ -45,7 +46,6 @@ const getResults = async (type_id) => {
     try {
         const response = await axios.get(`/rebate_setting/getAgents?type_id=${type_id}`);
         agents.value = response.data;
-        console.log(agents.value);
     } catch (error) {
         console.error('Error getting agents:', error);
     } finally {
@@ -106,31 +106,117 @@ const form = useForm({
 const onRowEditSave = (event) => {
     
     let { newData, index } = event;
-    console.log(editingRows);
+    // console.log(editingRows);
     agents.value[index] = newData;
-    console.log('New Data:', newData);
-    form.rebates = agents.value[index].rebate_allocate;
-    form.post(route('rebate_setting.updateRebateAmount'), {
-        preserveState: true,
-        
-        onSuccess: () => {
-            form.reset();
-        },
-        onError: (error) => {
-            form.errors = error;
-            console.error(form.errors);
-        },
+    // console.log('New Data:', newData);
+    const data = agents.value[index].rebate_allocate;
+    
+    // Map the indexes (1, 2, 3, 4, 5) to the corresponding categories
+    const categories = [
+        { key: 1, name: 'forex' },
+        { key: 2, name: 'stocks' },
+        { key: 3, name: 'indices' },
+        { key: 4, name: 'commodities' },
+        { key: 5, name: 'cryptocurrency' }
+    ];
+
+    // Flag to track if the post should proceed
+    let canPost = true;
+
+    categories.forEach((category) => {
+        // Get the value for the category
+        const value = data[category.key];
+
+        // Retrieve the upline and downline values dynamically
+        const uplineMax = data[`upline_${category.name}`];
+        const downlineMin = data[`downline_${category.name}`];
+
+        // Prepare the messages by replacing the :name and :value placeholders
+        const exceedUplineMessage = wTrans('public.rebate_exceed_upline', { name: trans('public.' + category.name), value: uplineMax });
+        const exceedDownlineMessage = wTrans('public.rebate_exceed_downline', { name: trans('public.' + category.name), value: downlineMin });
+
+        // Check if the value exceeds the upline max or falls below the downline min
+        if (value > uplineMax) {
+            // Show a warning message for exceeding the upline
+            toast.add({ 
+                type: 'warning', 
+                title: exceedUplineMessage,
+            });
+            canPost = false; // Set flag to false, prevent form post
+        } else if (value < downlineMin) {
+            // Show a warning message for falling below the downline
+            toast.add({ 
+                type: 'warning', 
+                title: exceedDownlineMessage,
+            });
+            canPost = false; // Set flag to false, prevent form post
+        }
     });
+
+    // Proceed with the form post only if all checks pass
+    if (canPost) {
+        form.rebates = agents.value[index].rebate_allocate;
+        form.post(route('rebate_setting.updateRebateAmount'));
+    }
 };
 
 const submitForm = (submitData) => {
     form.rebates = submitData;
-    form.post(route('rebate_setting.updateRebateAmount'), {
-        onSuccess: () => {
+
+    // Map the indexes (1, 2, 3, 4, 5) to the corresponding categories
+    const categories = [
+        { key: 1, name: 'forex' },
+        { key: 2, name: 'stocks' },
+        { key: 3, name: 'indices' },
+        { key: 4, name: 'commodities' },
+        { key: 5, name: 'cryptocurrency' }
+    ];
+
+    // Flag to track if the post should proceed
+    let canPost = true;
+
+    // Loop over the categories to validate each one
+    categories.forEach((category) => {
+        // Get the value for the category from the submitData
+        const value = submitData[category.key];
+
+        // Retrieve the upline and downline values dynamically from the submitData
+        const uplineMax = submitData[`upline_${category.name}`];
+        const downlineMin = submitData[`downline_${category.name}`];
+
+        // Prepare the messages by replacing the :name and :value placeholders
+        const exceedUplineMessage = wTrans('public.rebate_exceed_upline', { name: trans('public.' + category.name), value: uplineMax });
+        const exceedDownlineMessage = wTrans('public.rebate_exceed_downline', { name: trans('public.' + category.name), value: downlineMin });
+
+        // Check if the value exceeds the upline max or falls below the downline min
+        if (value > uplineMax) {
+            // Show a warning message for exceeding the upline
+            toast.add({ 
+                type: 'warning', 
+                title: exceedUplineMessage,
+            });
             closeDialog();
-            form.reset();
-        },
+            canPost = false; // Set flag to false, prevent form post
+        } else if (value < downlineMin) {
+            // Show a warning message for falling below the downline
+            toast.add({ 
+                type: 'warning', 
+                title: exceedDownlineMessage,
+            });
+            closeDialog();
+            canPost = false; // Set flag to false, prevent form post
+        }
     });
+
+    // Proceed with the form post only if all checks pass
+    if (canPost) {
+        form.post(route('rebate_setting.updateRebateAmount'), {
+            onSuccess: () => {
+                closeDialog();
+                form.reset();
+            },
+        });
+    }
 };
 
 const closeDialog = () => {
@@ -208,8 +294,6 @@ const closeDialog = () => {
                 <template #editor="{ data, field }">
                     <InputNumber
                         v-model="data.rebate_allocate[field]"
-                        :min="data.rebate_allocate.downline_forex ? data.rebate_allocate.downline_forex : 0"
-                        :max="data.rebate_allocate.upline_forex"
                         :minFractionDigits="2"
                         fluid
                         :invalid="!!form.errors[`rebates.${field}`]"
@@ -229,8 +313,6 @@ const closeDialog = () => {
                 <template #editor="{ data, field }">
                     <InputNumber
                         v-model="data.rebate_allocate[field]"
-                        :min="data.rebate_allocate.downline_stocks ? data.rebate_allocate.downline_stocks : 0"
-                        :max="data.rebate_allocate.upline_stocks"
                         :minFractionDigits="2"
                         fluid
                         size="sm"
@@ -248,8 +330,6 @@ const closeDialog = () => {
                 <template #editor="{ data, field }">
                     <InputNumber
                         v-model="data.rebate_allocate[field]"
-                        :min="data.rebate_allocate.downline_indices ? data.rebate_allocate.downline_indices : 0"
-                        :max="data.rebate_allocate.upline_indices"
                         :minFractionDigits="2"
                         fluid
                         size="sm"
@@ -267,8 +347,6 @@ const closeDialog = () => {
                 <template #editor="{ data, field }">
                     <InputNumber
                         v-model="data.rebate_allocate[field]"
-                        :min="data.rebate_allocate.downline_commodities ? data.rebate_allocate.downline_commodities : 0"
-                        :max="data.rebate_allocate.upline_commodities"
                         :minFractionDigits="2"
                         fluid
                         size="sm"
@@ -286,8 +364,6 @@ const closeDialog = () => {
                 <template #editor="{ data, field }">
                     <InputNumber
                         v-model="data.rebate_allocate[field]"
-                        :min="data.rebate_allocate.downline_cryptocurrency ? data.rebate_allocate.downline_cryptocurrency : 0"
-                        :max="data.rebate_allocate.upline_cryptocurrency"
                         :minFractionDigits="2"
                         fluid
                         size="sm"
@@ -372,8 +448,6 @@ const closeDialog = () => {
                         <div class="px-3 w-full">
                             <InputNumber
                                 v-model="productDetails['1']"
-                                :min="productDetails.downline_forex ? productDetails.downline_forex : 0"
-                                :max="productDetails.upline_forex"
                                 :minFractionDigits="2"
                                 fluid
                                 size="sm"
@@ -390,8 +464,6 @@ const closeDialog = () => {
                         <div class="px-3 w-full">
                             <InputNumber
                                 v-model="productDetails['2']"
-                                :min="productDetails.downline_stocks ? productDetails.downline_stocks : 0"
-                                :max="productDetails.upline_stocks"
                                 :minFractionDigits="2"
                                 fluid
                                 size="sm"
@@ -408,8 +480,6 @@ const closeDialog = () => {
                         <div class="px-3 w-full">
                             <InputNumber
                                 v-model="productDetails['3']"
-                                :min="productDetails.downline_indices ? productDetails.downline_indices : 0"
-                                :max="productDetails.upline_indices"
                                 :minFractionDigits="2"
                                 fluid
                                 size="sm"
@@ -426,8 +496,6 @@ const closeDialog = () => {
                         <div class="px-3 w-full">
                             <InputNumber
                                 v-model="productDetails['4']"
-                                :min="productDetails.downline_commodities ? productDetails.downline_commodities : 0"
-                                :max="productDetails.upline_commodities"
                                 :minFractionDigits="2"
                                 fluid
                                 size="sm"
@@ -444,8 +512,6 @@ const closeDialog = () => {
                         <div class="px-3 w-full">
                             <InputNumber
                                 v-model="productDetails['5']"
-                                :min="productDetails.downline_cryptocurrency ? productDetails.downline_cryptocurrency : 0"
-                                :max="productDetails.upline_cryptocurrency"
                                 :minFractionDigits="2"
                                 fluid
                                 size="sm"

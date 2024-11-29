@@ -182,7 +182,7 @@ return [
     'total_incentive_earned' => '总奖励收入',
     'available_incentive' => '可用奖励',
     'my_achievements' => '我的成就',
-    'incentive_threshold' => '达到 {threshold}% 解锁奖励',
+    'incentive_threshold' => '达到 :threshold% 解锁奖励',
     'group' => '群组',
     'gross_deposit' => '总存款',
     'incentive' => '奖励',
@@ -409,4 +409,8 @@ return [
     'gateway_timeout_title' => "连接超时",
     'gateway_timeout_desc' => "服务器响应时间过长。请尝试重新加载页面。",
     'sector' => '区域',
+    'unable_to_withdraw_incentive' => '无法提取奖励！',
+    'toast_withdraw_incentive_error' => '由于当前奖励金额为0, 无法提取奖励。',
+    'rebate_exceed_upline' => "返佣超过上线:name : :value",
+    'rebate_exceed_downline' => "返佣低于下线:name : :value",
 ];

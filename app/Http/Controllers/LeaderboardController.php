@@ -9,6 +9,8 @@ use App\Models\Wallet;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\TradingAccount;
+use App\Models\PaymentAccount;
+use App\Services\RunningNumberService;
 use App\Models\LeaderboardBonus;
 use App\Models\LeaderboardProfile;
 use App\Models\TradeBrokerHistory;
@@ -63,45 +65,56 @@ class LeaderboardController extends Controller
     public function incentiveWithdrawal(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'account_id' => ['required', 'exists:trading_accounts,id'],
+            'wallet_id' => ['required', 'exists:wallets,id'],
             'amount' => ['required', 'numeric', 'gte:1'],
             'wallet_address' => ['required']
         ])->setAttributeNames([
-            'account_id' => trans('public.account'),
+            'wallet_id' => trans('public.wallet'),
             'amount' => trans('public.amount'),
             'wallet_address' => trans('public.receiving_wallet'),
         ]);
         $validator->validate();
 
         $amount = $request->amount;
+        $wallet = Wallet::find($request->wallet_id);
 
-         $amount = $request->input('amount');
-         $paymentWallet = PaymentAccount::where('user_id', Auth::id())
+        if ($amount > 0) {
+            $paymentWallet = PaymentAccount::where('user_id', Auth::id())
              ->where('account_no', $request->wallet_address)
              ->first();
 
-         $transaction = Transaction::create([
-             'user_id' => Auth::id(),
-             'category' => 'trading_account',
-             'transaction_type' => 'withdrawal',
-             'from_wallet_id' => $request->wallet_id,
-             'transaction_number' => RunningNumberService::getID('transaction'),
-             'payment_account_id' => $paymentWallet->id,
-             'to_wallet_address' => $paymentWallet->account_no,
-             'amount' => $amount,
-             'transaction_charges' => 0,
-             'transaction_amount' => $amount,
-             'status' => 'processing',
-         ]);
+            $transaction = Transaction::create([
+                'user_id' => Auth::id(),
+                'category' => 'incentive_wallet',
+                'transaction_type' => 'withdrawal',
+                'from_wallet_id' => $request->wallet_id,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'payment_account_id' => $paymentWallet->id,
+                'to_wallet_address' => $paymentWallet->account_no,
+                'amount' => $amount,
+                'transaction_charges' => 0,
+                'transaction_amount' => $amount,
+                'status' => 'processing',
+                'old_wallet_amount' => $wallet->balance,
+                'new_wallet_amount' => $wallet->balance -= $amount,
+            ]);
 
-        // disable trade
+            $wallet->save();
+            // Set notification data in the session
+            return redirect()->back()->with('notification', [
+                'details' => $transaction,
+                'type' => 'withdrawal',
+                // 'withdrawal_type' => 'rebate' this not put show meta_login put rebate show Rebate put bonus show Bonus
+            ]);
+        } 
+        else {
+            return back()->with('toast', [
+                'title' => trans("public.unable_to_withdraw_incentive"),
+                'message' => trans("public.toast_withdraw_incentive_error"),
+                'type' => 'error',
+            ]);
+        }
 
-        // Set notification data in the session
-        return redirect()->back()->with('notification', [
-            'details' => $transaction,
-            'type' => 'withdrawal',
-            // 'withdrawal_type' => 'rebate' this not put show meta_login put rebate show Rebate put bonus show Bonus
-        ]);
     }
 
 
@@ -109,7 +122,7 @@ class LeaderboardController extends Controller
     {
         $id = Auth::id();
 
-        $query = Transaction::where('user_id', $id)->where('transaction_type', 'withdrawal')->where('category', 'incentive');
+        $query = Transaction::where('user_id', $id)->where('transaction_type', 'withdrawal')->where('category', 'incentive_wallet');
 
         $startDate = $request->query('startDate');
         $endDate = $request->query('endDate');
@@ -129,9 +142,11 @@ class LeaderboardController extends Controller
                     'transaction_number' => $withdrawal->transaction_number,
                     'amount' => $withdrawal->amount,
                     'status' => $withdrawal->status,
-                    'to_wallet_id' => $withdrawal->to_wallet_id,
+                    'from_wallet_id' => $withdrawal->from_wallet_id,
                     'to_wallet_address' => $withdrawal->to_wallet_address,
-                    'remarks' => $withdrawal->comment,
+                    'remarks' => $withdrawal->remarks,
+                    'wallet_name' => $withdrawal->payment_account->payment_account_name ?? '-',
+                    'wallet_address' => $withdrawal->payment_account->account_no ?? '-',
                 ];
             });
 

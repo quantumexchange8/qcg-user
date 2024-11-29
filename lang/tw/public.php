@@ -182,7 +182,7 @@ return [
     'total_incentive_earned' => '總獎勵收入',
     'available_incentive' => '可用獎勵',
     'my_achievements' => '我的成就',
-    'incentive_threshold' => '達到 {threshold}% 解鎖獎勵',
+    'incentive_threshold' => '達到 :threshold% 解鎖獎勵',
     'group' => '群組',
     'gross_deposit' => '總存款',
     'incentive' => '獎勵',
@@ -409,4 +409,8 @@ return [
     'gateway_timeout_title' => "連接超時",
     'gateway_timeout_desc' => "伺服器響應時間過長。請嘗試重新加載頁面。",
     'sector' => '區域',
+    'unable_to_withdraw_incentive' => '無法提取獎勳！',
+    'toast_withdraw_incentive_error' => '由於當前獎勳金額為0, 無法提取獎勳。',
+    'rebate_exceed_upline' => "返傭超過上線:name : :value",
+    'rebate_exceed_downline' => "返傭低於下線:name : :value",
 ];

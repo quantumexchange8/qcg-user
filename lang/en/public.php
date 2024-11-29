@@ -182,7 +182,7 @@ return [
     'total_incentive_earned' => 'Total Incentive Earned',
     'available_incentive' => 'Available Incentive',
     'my_achievements' => 'My Achievements',
-    'incentive_threshold' => 'achieve :threshold% to unlock incentive',
+    'incentive_threshold' => 'Achieve :threshold% to unlock incentive',
     'group' => 'Group',
     'gross_deposit' => 'Gross Deposit',
     'incentive' => 'Incentive',
@@ -409,4 +409,8 @@ return [
     'gateway_timeout_title' => "Connection Timeout",
     'gateway_timeout_desc' => "The server took too long to respond. Try reloading the page.",
     'sector' => 'Sector',
+    'unable_to_withdraw_incentive' => 'Unable to Withdraw Incentive!',
+    'toast_withdraw_incentive_error' => 'Incentive cannot be withdrawn as the current incentive amount is 0.',
+    'rebate_exceed_upline' => "Rebate is more than upline :name : :value",
+    'rebate_exceed_downline' => "Rebate is less than downline :name : :value",
 ];
