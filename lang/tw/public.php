@@ -2,7 +2,7 @@
 return [
     'log_in' => "登入",
     'log_out' => "退出",
-    'login_header' => "登入會員後臺",
+    'login_header' => "登入您的帳戶",
     'login_header_caption' => "歡迎回來! 請輸入您的登入信息.",
     'email' => "郵件",
     'enter_email' => "輸入電子郵件",
@@ -25,7 +25,6 @@ return [
     'password_reset' => "密碼已重設!",
     'password_reset_caption' => "您的密碼已成功重設, 您現在可以使用新密碼登錄.",
     'not_have_account' => "还没有帳戶?",
-    'sign_up' => "註冊",
     'have_account' => "已有帳戶?",
     'continue' => '繼續',
     'basic_details' => '基本細節',

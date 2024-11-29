@@ -25,7 +25,6 @@ return [
     'password_reset' => "Password Reset!",
     'password_reset_caption' => "Your password has been successfully reset. You can now log in with your new password.",
     'not_have_account' => "Don't have an account?",
-    'sign_up' => "Sign Up",
     'have_account' => "Already have an account?",
     'continue' => 'Continue',
     'basic_details' => 'Basic Details',
