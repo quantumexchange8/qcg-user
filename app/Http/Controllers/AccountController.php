@@ -140,7 +140,7 @@ class AccountController extends Controller
         if (App::environment('production')) {
             $mainPassword = Str::random(8);
             $investorPassword = Str::random(8);
-            (new CTraderService)->createDemoUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType->id, null, null, '', $amount);
+            (new CTraderService)->createDemoUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType->id, null, null, '', $request->amount);
         }
 
         return back()->with('toast', [
@@ -392,7 +392,7 @@ class AccountController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'account_id' => ['required', 'exists:trading_accounts,id'],
-            'amount' => ['required', 'numeric', 'gt:30'],
+            'amount' => ['required', 'numeric', 'gte:1'],
             'wallet_address' => ['required']
         ])->setAttributeNames([
             'account_id' => trans('public.account'),

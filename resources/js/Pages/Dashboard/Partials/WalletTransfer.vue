@@ -37,10 +37,18 @@ const form = useForm({
 watch(transferOptions, (newAccount) => {
     if (Array.isArray(newAccount) && newAccount.length > 0) {
         transferAmount.value = newAccount[0].value;
-        form.meta_login = newAccount[0].name;
     } else {
         transferAmount.value = 0; 
-        form.meta_login = '';
+    }
+});
+
+// Watch for changes in transferAmount to update form.meta_login
+watch(transferAmount, (newValue) => {
+    const selectedOption = transferOptions.value.find(option => option.value === newValue);
+    if (selectedOption) {
+        form.meta_login = selectedOption.name; // Update the account name
+    } else {
+        form.meta_login = ''; // Reset if no valid selection
     }
 });
 
@@ -120,7 +128,7 @@ const closeDialog = () => {
                             {{ form.amount ? $t('public.clear') : $t('public.full_amount') }}
                         </div>
                     </div>
-                    <!-- <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(30,0) }}</span> -->
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(1) }}</span>
                     <InputError :message="form.errors.amount" />
                 </div>
             </div>

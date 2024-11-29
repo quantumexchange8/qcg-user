@@ -408,4 +408,5 @@ return [
     'gateway_timeout' => "網關超時",
     'gateway_timeout_title' => "連接超時",
     'gateway_timeout_desc' => "伺服器響應時間過長。請嘗試重新加載頁面。",
+    'sector' => '區域',
 ];

@@ -169,7 +169,6 @@ class ProfileController extends Controller
                     $conditions,
                     [
                         'user_id' => $request->user_id,
-                        'status' => 'active',
                         'payment_account_name' => $wallet_name,
                         'payment_platform' => 'crypto',
                         'payment_platform_name' => 'USDT (TRC20)',

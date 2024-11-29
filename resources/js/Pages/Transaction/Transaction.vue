@@ -147,7 +147,7 @@ const exportXLSX = () => {
         trans('public.date'),
         trans('public.id'),
         trans('public.description'),
-        trans('public.asset'),
+        trans('public.sector'),
         trans('public.amount') + ' ($)',
         trans('public.status'),
     ];
@@ -158,9 +158,9 @@ const exportXLSX = () => {
         ? trans('public.' + obj.category)
         : obj.transaction_type === 'deposit'
             ? obj.to_meta_login
-            : obj.transaction_type === 'withdrawal'
+            : obj.transaction_type === 'withdrawal' && obj.from_meta_login !== null
                 ? obj.from_meta_login
-                : trans('public.unknown'); // Default fallback for other cases
+                : trans('public.wallet'); // Default fallback for other cases
 
 
         return [
@@ -202,7 +202,7 @@ const exportXLSX = () => {
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     transaction_number: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    asset: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    sector: { value: null, matchMode: FilterMatchMode.CONTAINS },
     transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
     transactionType: { value: null, matchMode: FilterMatchMode.EQUALS },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -216,7 +216,7 @@ const clearFilter = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         transaction_number: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        asset: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        sector: { value: null, matchMode: FilterMatchMode.CONTAINS },
         transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
         transactionType: { value: null, matchMode: FilterMatchMode.EQUALS },
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -294,7 +294,7 @@ const openDialog = (rowData) => {
                     :rowsPerPageOptions="[10, 20, 50, 100]"
                     paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                     :currentPageReportTemplate="$t('public.paginator_caption')"
-                    :globalFilterFields="['transaction_number', 'asset', 'transaction_amount']"
+                    :globalFilterFields="['transaction_number', 'sector', 'transaction_amount']"
                     ref="dt"
                     :loading="loading"
                     selectionMode="single"
@@ -393,7 +393,7 @@ const openDialog = (rowData) => {
                                 </div>
                             </template>
                         </Column>
-                        <Column field="asset" :header="$t('public.asset')" class="hidden md:table-cell w-auto">
+                        <Column field="sector" :header="$t('public.sector')" class="hidden md:table-cell w-auto">
                             <template #body="slotProps">
                                 <div v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
                                     {{ $t(`public.${slotProps.data.category}`) }}
@@ -401,12 +401,12 @@ const openDialog = (rowData) => {
                                 <div v-else-if="slotProps.data.transaction_type === 'deposit'">
                                     {{ slotProps.data.to_meta_login }}
                                 </div>
-                                <div v-else-if="slotProps.data.transaction_type === 'withdrawal'">
+                                <div v-else-if="slotProps.data.transaction_type === 'withdrawal' && slotProps.data.from_meta_login !== null">
                                     {{ slotProps.data.from_meta_login }}
                                 </div>
                                 <div v-else>
                                     <!-- Optional: Handle unexpected transaction types -->
-                                    {{ $t('public.unknown') }}
+                                    {{ $t('public.wallet') }}
                                 </div>
                             </template>
                         </Column>
@@ -442,12 +442,12 @@ const openDialog = (rowData) => {
                                             <div v-else-if="slotProps.data.transaction_type === 'deposit'">
                                                 {{ slotProps.data.to_meta_login }}
                                             </div>
-                                            <div v-else-if="slotProps.data.transaction_type === 'withdrawal'">
+                                            <div v-else-if="slotProps.data.transaction_type === 'withdrawal' && slotProps.data.from_meta_login !== null">
                                                 {{ slotProps.data.from_meta_login }}
                                             </div>
                                             <div v-else>
                                                 <!-- Optional: Handle unexpected transaction types -->
-                                                {{ $t('public.unknown') }}
+                                                {{ $t('public.wallet') }}
                                             </div>
                                         </div>
                                     </div>
@@ -481,7 +481,7 @@ const openDialog = (rowData) => {
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.transaction_number }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
-                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.asset') }}</span>
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.sector') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">
                         <!-- {{ data.from_meta_login }} {{ data.to_meta_login }} {{ $t(`public.${slotProps.data.category}`) }} -->
                         <div v-if="data.category === 'rebate_wallet' || data.category === 'cash_wallet'">
@@ -490,12 +490,12 @@ const openDialog = (rowData) => {
                         <div v-else-if="data.transaction_type === 'deposit'">
                             {{ data.to_meta_login }}
                         </div>
-                        <div v-else-if="data.transaction_type === 'withdrawal'">
+                        <div v-else-if="data.transaction_type === 'withdrawal' && data.from_meta_login !== null">
                             {{ data.from_meta_login }}
                         </div>
                         <div v-else>
                             <!-- Optional: Handle unexpected transaction types -->
-                            {{ $t('public.unknown') }}
+                            {{ $t('public.wallet') }}
                         </div>
                     </span>
                 </div>

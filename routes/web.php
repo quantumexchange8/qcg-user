@@ -165,6 +165,7 @@ Route::middleware(['auth', 'verified', 'role:agent|member'])->group(function () 
         Route::get('/', [LeaderboardController::class, 'index'])->name('leaderboard');
 
         Route::get('/getTotalIncentiveGraph', [LeaderboardController::class, 'getTotalIncentiveGraph'])->name('leaderboard.getTotalIncentiveGraph');
+        Route::get('/getIncentiveData', [LeaderboardController::class, 'getIncentiveData'])->name('getIncentiveData');
         Route::get('/getWithdrawalHistory', [LeaderboardController::class, 'getWithdrawalHistory'])->name('leaderboard.getWithdrawalHistory');
         Route::get('/getAchievements', [LeaderboardController::class, 'getAchievements'])->name('leaderboard.getAchievements');
         Route::get('/getAgents', [LeaderboardController::class, 'getAgents'])->name('leaderboard.getAgents');

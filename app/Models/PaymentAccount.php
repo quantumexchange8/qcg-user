@@ -21,7 +21,6 @@ class PaymentAccount extends Model
         'bank_code_type',
         'country_id',
         'currency',
-        'status',
         'remarks',
     ];
 }

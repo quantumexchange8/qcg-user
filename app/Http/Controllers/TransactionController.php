@@ -110,7 +110,7 @@ class TransactionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'wallet_id' => ['required', 'exists:wallets,id'],
-            'amount' => ['required', 'numeric', 'gt:1'],
+            'amount' => ['required', 'numeric', 'gte:1'],
             'meta_login' => ['required']
         ])->setAttributeNames([
             'wallet_id' => trans('public.wallet'),
@@ -181,7 +181,7 @@ class TransactionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'wallet_id' => ['required', 'exists:wallets,id'],
-            'amount' => ['required', 'numeric', 'gt:30'],
+            'amount' => ['required', 'numeric', 'gte:1'],
             'wallet_address' => ['required']
         ])->setAttributeNames([
             'wallet_id' => trans('public.wallet'),

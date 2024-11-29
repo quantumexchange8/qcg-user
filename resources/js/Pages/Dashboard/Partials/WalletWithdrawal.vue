@@ -97,7 +97,7 @@ const closeDialog = () => {
                             {{ form.amount ? $t('public.clear') : $t('public.full_amount') }}
                         </div>
                     </div>
-                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(30) }}</span>
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.minimum_amount') }}: ${{ formatAmount(1) }}</span>
                     <InputError :message="form.errors.amount" />
                 </div>
 

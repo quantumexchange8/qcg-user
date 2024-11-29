@@ -49,6 +49,18 @@ class LeaderboardController extends Controller
         ]); 
     }
 
+    public function getIncentiveData()
+    {
+        $user = Auth::user();
+
+        $incentive_wallet = $user->incentive_wallet;
+
+        return response()->json([
+            'incentiveWallet' => $incentive_wallet,
+        ]);
+    }
+
+
     public function getWithdrawalHistory(Request $request)
     {
         $id = Auth::id();
@@ -100,6 +112,8 @@ class LeaderboardController extends Controller
 
             $today = Carbon::today();
 
+            $useLastPayoutDate = $profile->created_at->eq($profile->last_payout_date);
+
             // Set start and end dates based on calculation period
             if ($profile->calculation_period == 'every_sunday') {
                 // Start of the current week (Monday) and end of the current week (Sunday)
@@ -131,6 +145,10 @@ class LeaderboardController extends Controller
                 // Default to the entire current month if no calculation period is specified
                 $startDate = $today->copy()->startOfMonth();
                 $endDate = $today->copy()->endOfMonth();
+            }
+
+            if ($useLastPayoutDate) {
+                $startDate = $profile->last_payout_date->copy()->startOfDay();
             }
 
             if ($profile->sales_calculation_mode == 'personal_sales') {

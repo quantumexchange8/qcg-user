@@ -408,4 +408,5 @@ return [
     'gateway_timeout' => "gateway timeout",
     'gateway_timeout_title' => "Connection Timeout",
     'gateway_timeout_desc' => "The server took too long to respond. Try reloading the page.",
+    'sector' => 'Sector',
 ];

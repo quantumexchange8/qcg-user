@@ -7,8 +7,21 @@ import {transactionFormat} from "@/Composables/index.js";
 import Label from "@/Components/InputLabel.vue";
 
 const props = defineProps({
-    // tradingAccount: Object,
+    incentiveWallet: Object,
 })
+
+const walletOptions = ref([]);
+const getOptions = async () => {
+    try {
+        const response = await axios.get('/accounts/getOptions');
+        walletOptions.value = response.data.walletOptions;
+    } catch (error) {
+        console.error('Error changing locale:', error);
+    }
+};
+
+getOptions();
+
 
 const { formatAmount } = transactionFormat();
 
@@ -46,14 +59,23 @@ const closeDialog = () => {
                 <div class="flex flex-col gap-5">
                     <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
                         <span class="text-xs text-center text-gray-500">{{ $t('public.available_incentive') }}</span>
-                        <span class="text-lg text-center font-bold text-gray-950">$ {{ formatAmount(props.tradingAccount.balance) }}</span>
+                        <span class="text-lg text-center font-bold text-gray-950">$ {{ formatAmount(props.incentiveWallet.balance) }}</span>
                     </div>
-                    <div class="flex flex-col gap-2">
-                        <Label
-                            for="receiving_wallet"
-                        >{{ $t('public.receiving_wallet') }}</Label>
-                        <Select v-model="selectedWallet" :options="wallets" :placeholder="$t('public.select_wallet')" class="w-full" />
-                        <span>test_address</span>
+                    <div class="flex flex-col items-start gap-1 self-stretch">
+                        <InputLabel for="receiving_wallet" :value="$t('public.receiving_wallet')" />
+                        <Select
+                            v-model="form.wallet_address"
+                            :options="walletOptions"
+                            optionLabel="name"
+                            optionValue="value"
+                            :placeholder="$t('public.receiving_wallet_placeholder')"
+                            class="w-full"
+                            scroll-height="236px"
+                            :invalid="!!form.errors.wallet_address"
+                            :disabled="!walletOptions.length"
+                        />
+                        <InputError :message="form.errors.wallet_address" />
+                        <span class="self-stretch text-gray-500 text-xs">{{ walletOptions.length ? form.wallet_address : $t('public.loading_caption')}}</span>
                     </div>
                 </div>
                 <div class="flex justify-center gap-3 items-center self-stretch">
