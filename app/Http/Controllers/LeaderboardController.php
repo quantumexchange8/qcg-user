@@ -60,6 +60,50 @@ class LeaderboardController extends Controller
         ]);
     }
 
+    public function incentiveWithdrawal(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'account_id' => ['required', 'exists:trading_accounts,id'],
+            'amount' => ['required', 'numeric', 'gte:1'],
+            'wallet_address' => ['required']
+        ])->setAttributeNames([
+            'account_id' => trans('public.account'),
+            'amount' => trans('public.amount'),
+            'wallet_address' => trans('public.receiving_wallet'),
+        ]);
+        $validator->validate();
+
+        $amount = $request->amount;
+
+         $amount = $request->input('amount');
+         $paymentWallet = PaymentAccount::where('user_id', Auth::id())
+             ->where('account_no', $request->wallet_address)
+             ->first();
+
+         $transaction = Transaction::create([
+             'user_id' => Auth::id(),
+             'category' => 'trading_account',
+             'transaction_type' => 'withdrawal',
+             'from_wallet_id' => $request->wallet_id,
+             'transaction_number' => RunningNumberService::getID('transaction'),
+             'payment_account_id' => $paymentWallet->id,
+             'to_wallet_address' => $paymentWallet->account_no,
+             'amount' => $amount,
+             'transaction_charges' => 0,
+             'transaction_amount' => $amount,
+             'status' => 'processing',
+         ]);
+
+        // disable trade
+
+        // Set notification data in the session
+        return redirect()->back()->with('notification', [
+            'details' => $transaction,
+            'type' => 'withdrawal',
+            // 'withdrawal_type' => 'rebate' this not put show meta_login put rebate show Rebate put bonus show Bonus
+        ]);
+    }
+
 
     public function getWithdrawalHistory(Request $request)
     {

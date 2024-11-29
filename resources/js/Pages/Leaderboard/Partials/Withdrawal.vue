@@ -2,9 +2,14 @@
 import Dialog from "primevue/dialog";
 import ConfirmDialog from 'primevue/confirmdialog';
 import Button from "@/Components/Button.vue";
-import { ref } from "vue";
 import {transactionFormat} from "@/Composables/index.js";
-import Label from "@/Components/InputLabel.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import InputNumber from 'primevue/inputnumber';
+import {useForm} from "@inertiajs/vue3";
+import InputError from "@/Components/InputError.vue";
+import Select from "primevue/select";
+import {ref, watch} from "vue";
+import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 
 const props = defineProps({
     incentiveWallet: Object,
@@ -29,8 +34,24 @@ const visible = ref(false);
 const agreementVisible = ref(false)
 const confirmVisible = ref(false)
 
-const wallets = ref();
-const selectedWallet = ref();
+
+const form = useForm({
+    wallet_id: '',
+    amount: 0,
+    wallet_address: '',
+})
+
+watch(walletOptions, (newWallet) => {
+    form.wallet_address = newWallet[0].value
+})
+
+// const submitForm = () => {
+//     form.post(route('leaderboard.incentiveWithdrawal'), {
+//         onSuccess: () => {
+//             closeDialog();
+//         }
+//     });
+// }
 
 const closeDialog = () => {
     visible.value = false;
@@ -52,7 +73,7 @@ const closeDialog = () => {
         v-model:visible="visible"
         modal
         :header="$t('public.incentive_withdrawal')"
-        class="dialog-xs md:dialog-md"
+        class="dialog-xs sm:dialog-sm"
     >
         <form>
             <div class="flex flex-col w-full py-6 gap-8">
@@ -78,146 +99,20 @@ const closeDialog = () => {
                         <span class="self-stretch text-gray-500 text-xs">{{ walletOptions.length ? form.wallet_address : $t('public.loading_caption')}}</span>
                     </div>
                 </div>
-                <div class="flex justify-center gap-3 items-center self-stretch">
-                    <span class="text-xs text-gray-700">
-                        {{ $t('public.acknowledgement') }}
-                        <Button
-                            class="text-xs font-medium text-primary-500 hover:text-primary-600 focus:text-primary-600 !p-0"
-                            @click="agreementVisible = true"
-                            type="button"
-                        >
-                        {{ $t('public.trading_account_agreement') }}
-                        </Button>.
-                    </span>   
+                <div class="self-stretch">
+                    <div class="text-gray-500 text-xs">{{ $t('public.acknowledgement') }}
+                        <TermsAndCondition
+                        />.
+                    </div>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4 pt-6 w-full">
                 <Button variant="gray-outlined" type="button" class="justify-center" @click="closeDialog">
                     {{$t('public.cancel')}}
                 </Button>
-                <Button variant="primary-flat" type="button" class="justify-center" @click="submitForm" :disabled="form.processing">{{$t('public.open')}}</Button>
+                <Button variant="primary-flat" type="button" class="justify-center" @click="submitForm" :disabled="form.processing">{{$t('public.confirm')}}</Button>
             </div>
         </form>
-    </Dialog>
-
-    <!-- <Dialog v-model:visible="visible" modal :header="$t('public.trading_account_agreement')" class="dialog-lg">
-        <div class="flex flex-col pt-6 gap-8 text-sm">
-            <span>{{ $t('public.trading_account_agreement_caption') }}</span>
-            <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_1') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_1') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_2') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_2') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_3') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_3') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_4') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_4') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_5') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_5') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_6') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_6') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_7') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_7') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_8') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_8') }}</span>
-                </div>
-            </div>
-        </div>
-    </Dialog> -->
-
-    <Dialog v-model:visible="agreementVisible" modal :header="$t('public.trading_account_agreement')" class="dialog-lg">
-        <div class="flex flex-col pt-6 gap-8 text-sm">
-            <span>{{ $t('public.trading_account_agreement_caption') }}</span>
-            <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_1') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_1') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_2') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_2') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_3') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_3') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_4') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_4') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_5') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_5') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_6') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_6') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_7') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_7') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_8') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_8') }}</span>
-                </div>
-            </div>
-        </div>
-    </Dialog>
-
-    <Dialog v-model:visible="confirmVisible" modal :header="$t('public.trading_account_agreement')" class="dialog-lg">
-        <div class="flex flex-col pt-6 gap-8 text-sm">
-            <span>{{ $t('public.trading_account_agreement_caption') }}</span>
-            <div class="flex flex-col gap-5">
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_1') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_1') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_2') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_2') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_3') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_3') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_4') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_4') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_5') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_5') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_6') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_6') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_7') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_7') }}</span>
-                </div>
-                <div class="flex flex-col gap-2">
-                    <span class="font-bold text-gray-950">{{ $t('public.trading_account_agreement_8') }}</span>
-                    <span>{{ $t('public.trading_account_agreement_caption_8') }}</span>
-                </div>
-            </div>
-        </div>
     </Dialog>
     
 </template>
