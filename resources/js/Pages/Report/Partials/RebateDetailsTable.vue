@@ -11,6 +11,7 @@ import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
 import {IconSearch, IconCircleXFilled, IconX, IconDownload} from '@tabler/icons-vue';
 import DatePicker from 'primevue/datepicker';
+import { trans, wTrans } from "laravel-vue-i18n";
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -19,6 +20,7 @@ const rebateDetails = ref();
 const dt = ref();
 const loading = ref(false);
 const expandedRows = ref({});
+const filteredValue = ref();
 
 // Get current date
 const today = new Date();
@@ -53,8 +55,55 @@ const getResults = async (selectedDate = null) => {
     }
 };
 
-const exportCSV = () => {
-    dt.value.exportCSV();
+const exportXLSX = () => {
+    // Retrieve the array from the reactive proxy
+    const data = filteredValue.value;
+
+    // Specify the headers
+    const headers = [
+        trans('public.name'),
+        trans('public.account'),
+        trans('public.volume') + ' (Ł)',
+        trans('public.rebate') + ' ($)',
+    ];
+
+    // Map the array data to XLSX rows
+    const rows = data.map(obj => {
+        return [
+            obj.name !== undefined ? obj.name : '',
+            obj.meta_login !== undefined ? obj.meta_login : '',
+            obj.volume !== undefined ? obj.volume : '',
+            obj.rebate !== undefined ? obj.rebate : '',
+        ];
+    });
+
+    // Combine headers and rows into a single data array
+    const sheetData = [headers, ...rows];
+
+    // Create the XLSX content
+    let csvContent = "data:text/xlsx;charset=utf-8,";
+    
+    sheetData.forEach((rowArray) => {
+        const row = rowArray.join("\t"); // Use tabs for column separation
+        csvContent += row + "\r\n"; // Add a new line after each row
+    });
+
+    // Create a temporary link element
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "export.xlsx");
+
+    // Append the link to the document and trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up by removing the link
+    document.body.removeChild(link);
+};
+
+const handleFilter = (e) => {
+    filteredValue.value = e.filteredValue;
 };
 
 const clearDate = () => {
@@ -143,7 +192,7 @@ const openDialog = (rowData) => {
                 </div>
                 <Button
                     variant="primary-outlined"
-                    @click="exportCSV($event)"
+                    @click="filteredValue?.length > 0 ? exportXLSX($event) : null" 
                     class="w-full md:w-auto"
                 >
                     <IconDownload size="20" stroke-width="1.25" />
@@ -165,6 +214,7 @@ const openDialog = (rowData) => {
             :globalFilterFields="['name']"
             ref="dt"
             selectionMode="single"
+            @filter="handleFilter"
             @row-click="(event) => openDialog(event.data)"
             :loading="loading"
             >

@@ -18,10 +18,12 @@ import {transactionFormat} from "@/Composables/index.js";
 import StatusBadge from "@/Components/StatusBadge.vue";
 import Select from "primevue/select";
 import Empty from "@/Components/Empty.vue";
+import dayjs from 'dayjs'
 
 const loading = ref(false);
 const dt = ref();
 const users = ref();
+const filteredValue = ref();
 const { formatDate } = transactionFormat();
 const paginator_caption = wTrans('public.paginator_caption');
 
@@ -55,8 +57,53 @@ const getFilterData = async () => {
 
 getFilterData();
 
-const exportCSV = () => {
-    dt.value.exportCSV();
+const exportXLSX = () => {
+    // Retrieve the array from the reactive proxy
+    const data = filteredValue.value;
+
+    // Specify the headers
+    const headers = [
+        trans('public.level'),
+        trans('public.name'),
+        trans('public.joined_date'),
+        trans('public.role'),
+        trans('public.upline'),
+    ];
+
+    // Map the array data to XLSX rows
+    const rows = data.map(obj => {
+        return [
+            obj.level !== undefined ? obj.level : '',
+            obj.name !== undefined ? obj.name : '',
+            obj.joined_date !== undefined ? dayjs(obj.joined_date).format('YYYY/MM/DD') : '',
+            obj.role !== undefined ? trans(`public.${obj.role}`) : '',
+            obj.upline_name !== undefined ? obj.upline_name : '',
+        ];
+    });
+
+    // Combine headers and rows into a single data array
+    const sheetData = [headers, ...rows];
+
+    // Create the XLSX content
+    let csvContent = "data:text/xlsx;charset=utf-8,";
+    
+    sheetData.forEach((rowArray) => {
+        const row = rowArray.join("\t"); // Use tabs for column separation
+        csvContent += row + "\r\n"; // Add a new line after each row
+    });
+
+    // Create a temporary link element
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "export.xlsx");
+
+    // Append the link to the document and trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up by removing the link
+    document.body.removeChild(link);
 };
 
 const filters = ref({
@@ -78,7 +125,6 @@ const maxLevel = ref(0)
 const levels = ref([])
 const upline_id = ref(null)
 const level = ref(null)
-const filterCount = ref(0);
 const lvl = computed(() => trans('public.level'));
 const roles = [
     { name: wTrans('public.member'), value: 'member' },
@@ -96,18 +142,13 @@ const createLevelOptions = () => {
 
 watch([upline_id, level], ([newUplineId, newLevel]) => {
     if (upline_id.value !== null) {
-        filters.value['upline_id'].value = newUplineId.value
+        filters.value['upline_id'].value = newUplineId
     }
 
     if (level.value !== null) {
-        filters.value['level'].value = newLevel.value
+        filters.value['level'].value = newLevel
     }
 })
-
-watch(filters, () => {
-    // Count active filters
-    filterCount.value = Object.values(filters.value).filter(filter => filter.value !== null).length;
-}, { deep: true });
 
 const clearFilter = () => {
     filters.value = {
@@ -121,6 +162,11 @@ const clearFilter = () => {
 
     upline_id.value = null;
     level.value = null;
+    filteredValue = null;
+};
+
+const handleFilter = (e) => {
+    filteredValue.value = e.filteredValue;
 };
 
 const clearFilterGlobal = () => {
@@ -154,7 +200,7 @@ watchEffect(() => {
                             <IconCircleXFilled size="16" />
                         </div>
                     </div>
-                    <Button variant="primary-outlined" @click="exportCSV" class="w-full md:w-auto">
+                    <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="w-full md:w-auto">
                         <IconDownload size="20" stroke-width="1.25" />
                         {{ $t('public.export') }}
                     </Button>
@@ -171,7 +217,7 @@ watchEffect(() => {
                         optionLabel="name"
                         optionValue="value"
                         :placeholder="$t('public.filter_by_level')"
-                        class="w-full md:w-60 font-normal"
+                        class="w-full xl:w-60 font-normal"
                         scroll-height="236px"
                     />
                     <Select
@@ -182,7 +228,7 @@ watchEffect(() => {
                         optionLabel="name"
                         optionValue="value"
                         :placeholder="$t('public.filter_by_role')"
-                        class="w-full md:w-60 font-normal"
+                        class="w-full xl:w-60 font-normal"
                         scroll-height="236px"
                     />
                     <Select
@@ -193,7 +239,7 @@ watchEffect(() => {
                         optionLabel="name"
                         optionValue="value"
                         :placeholder="$t('public.filter_by_upline')"
-                        class="w-full md:w-60 font-normal"
+                        class="w-full xl:w-60 font-normal"
                         scroll-height="236px"
                     />
                 </div>
@@ -224,6 +270,7 @@ watchEffect(() => {
             :loading="loading"
             table-style="min-width:fit-content"
             selectionMode="single"
+            @filter="handleFilter"
             @row-click="rowClicked($event.data.id_number)"
         >
             <template #empty>

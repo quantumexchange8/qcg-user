@@ -125,13 +125,23 @@ class AccountController extends Controller
             'leverage' => 'required|integer|min:1',
         ]);
 
+        $user = User::find($request->user_id);
+
         // Only create ct_user_id if it is null
-        // if ($user->ct_user_id === null) {
-        //     // Create CT ID to link ctrader account
-        //     $ctUser = (new CTraderService)->CreateCTID($user->email);
-        //     $user->ct_user_id = $ctUser['userId'];
-        //     $user->save();
-        // }
+        if ($user->ct_user_id === null) {
+            // Create CT ID to link ctrader account
+            $ctUser = (new CTraderService)->CreateCTID($user->email);
+            $user->ct_user_id = $ctUser['userId'];
+            $user->save();
+        }
+
+        $accountType = AccountType::where('account_group', 'Demo Account')->first();
+
+        if (App::environment('production')) {
+            $mainPassword = Str::random(8);
+            $investorPassword = Str::random(8);
+            (new CTraderService)->createDemoUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType->id, null, null, '', $amount);
+        }
 
         return back()->with('toast', [
             'title' => trans("public.toast_open_demo_account_success"),

@@ -19,6 +19,7 @@ class CTraderService
     private string $login = "10012";
     private string $password = "Test1234.";
     private string $baseURL = "https://live-quantumcapital.webapi.ctrader.com:8443";
+    private string $demoURL = "https://demo-quantumcapital.webapi.ctrader.com:8443";
     private string $token = "6f0d6f97-3042-4389-9655-9bc321f3fc1e";
     private string $brokerName = "quantumcapitalglobal";
     private string $environmentName = "live";
@@ -62,6 +63,25 @@ class CTraderService
         }
     }
 
+    public function linkDemoAccountTOCTID($meta_login, $password, $userId)
+    {
+        try {
+            $response = Http::acceptJson()->post($this->demoURL . "/cid/ctid/link", [
+                'traderLogin' => $meta_login,
+                'traderPasswordHash' => md5($password),
+                'userId' => $userId,
+                'brokerName' => $this->brokerName,
+                'environmentName' => $this->environmentName,
+                'returnAccountDetails' => false,
+            ]);
+            // Log::debug('linkAccountTOCTID response', ['response' => $response->json()]);
+            return $response->json();
+        } catch (\Exception $e) {
+            Log::error('Error in linkAccountTOCTID', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
     public function createUser(UserModel $user, $mainPassword, $investorPassword, $group, $leverage, $accountType, $leadCampaign = null, $leadSource = null, $remarks = null)
     {
         try {
@@ -84,6 +104,43 @@ class CTraderService
 
             if (isset($accountResponse['login'])) {
                 $response = $this->linkAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
+                // Log::debug('linkAccountTOCTID result', ['response' => $response]);
+
+                (new CreateTradingUser)->execute($user, $accountResponse, $accountType, $remarks);
+                (new CreateTradingAccount)->execute($user, $accountResponse, $accountType);
+                return $accountResponse;
+            } else {
+                Log::error('createUser error', ['accountResponse' => $accountResponse]);
+                return null;
+            }
+        } catch (\Exception $e) {
+            Log::error('Error in createUser', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return null;
+        }
+    }
+
+    public function createDemoUser(UserModel $user, $mainPassword, $investorPassword, $group, $leverage, $accountType, $leadCampaign = null, $leadSource = null, $remarks = null, $balance)
+    {
+        try {
+            $accountResponse = Http::acceptJson()->post($this->demoURL . "/v2/webserv/traders", [
+                'hashedPassword' => md5($mainPassword),
+                'groupName' => $group,
+                'depositCurrency' => 'USD',
+                'name' => $user->first_name,
+                'description' => $remarks,
+                'accessRights' => CTraderAccessRights::FULL_ACCESS,
+                'balance' => $balance * 100,
+                'leverageInCents' => $leverage * 100,
+                'contactDetails' => [
+                    'phone' => $user->phone,
+                ],
+                'accountType' => CTraderAccountType::HEDGED,
+            ])->json();
+
+            // Log::debug('createUser accountResponse', ['accountResponse' => $accountResponse]);
+
+            if (isset($accountResponse['login'])) {
+                $response = $this->linkDemoAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
                 // Log::debug('linkAccountTOCTID result', ['response' => $response]);
 
                 (new CreateTradingUser)->execute($user, $accountResponse, $accountType, $remarks);

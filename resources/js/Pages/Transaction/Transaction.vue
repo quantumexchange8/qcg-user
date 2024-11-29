@@ -8,8 +8,6 @@ import Dialog from "primevue/dialog";
 import DataTable from "primevue/datatable";
 import InputText from "primevue/inputtext";
 import Column from "primevue/column";
-import ColumnGroup from "primevue/columngroup";
-import Row from "primevue/row";
 import Button from '@/Components/Button.vue';
 import Select from "primevue/select";
 import DatePicker from 'primevue/datepicker';
@@ -32,54 +30,6 @@ const visible = ref(false);
 const loading = ref(false);
 const dt = ref(null);
 const transactions = ref();
-// Dummy data for transactions
-// transactions.value = [
-//     {
-//         name: "John Doe",
-//         email: "john@example.com",
-//         created_at: dayjs().subtract(1, 'day').toString(),
-//         transaction_number: "TXN12345",
-//         meta_login: "MetaLogin001",
-//         description: "Deposit",
-//         asset: "8000755",
-//         transaction_amount: 1500.00,
-//         status: "Successful",
-//         deleted_at: dayjs().subtract(1, 'day').toString(),
-//         from_wallet_address: 'test1from',
-//         to_wallet_address: 'test1to',
-//         remarks: 'test1'
-//     },
-//     {
-//         name: "Jane Smith",
-//         email: "jane@example.com",
-//         created_at: dayjs().subtract(3, 'days').toString(),
-//         transaction_number: "TXN67890",
-//         meta_login: "MetaLogin002",
-//         description: "Deposit",
-//         asset: "8002052",
-//         transaction_amount: 2500.50,
-//         status: "Processing",
-//         deleted_at: dayjs().subtract(3, 'days').toString(),
-//         from_wallet_address: 'test2from',
-//         to_wallet_address: 'test2to',
-//         remarks: 'test2'
-//     },
-//     {
-//         name: "Michael Johnson",
-//         email: "michael@example.com",
-//         created_at: dayjs().subtract(7, 'days').toString(),
-//         transaction_number: "TXN11111",
-//         meta_login: "MetaLogin003",
-//         description: "Withdrawal",
-//         asset: "Cash Wallet",
-//         transaction_amount: 3200.75,
-//         status: "Failed",
-//         deleted_at: dayjs().subtract(7, 'days').toString(),
-//         from_wallet_address: 'test3from',
-//         to_wallet_address: 'test3to',
-//         remarks: 'test3'
-//     }
-// ];
 
 // Get current date
 const today = new Date();
@@ -93,7 +43,7 @@ const selectedDate = ref([minDate.value, maxDate.value]);
 const transactionType = ref('');
 const status = ref('');
 const search = ref('');
-const filteredValueCount = ref(0);
+const filteredValue = ref();
 
 // Define the transfer type options
 const transactionTypeOption = [
@@ -182,18 +132,80 @@ watch(
     }, 300)
 );
 
-
 // watchEffect(() => {
 //     if (usePage().props.toast !== null) {
 //         getResults();
 //     }
 // });
 
+const exportXLSX = () => {
+    // Retrieve the array from the reactive proxy
+    const data = filteredValue.value;
+
+    // Specify the headers
+    const headers = [
+        trans('public.date'),
+        trans('public.id'),
+        trans('public.description'),
+        trans('public.asset'),
+        trans('public.amount') + ' ($)',
+        trans('public.status'),
+    ];
+
+    // Map the array data to XLSX rows
+    const rows = data.map(obj => {
+        const fromDisplay = obj.category === 'rebate_wallet' || obj.from === 'cash_wallet'
+        ? trans('public.' + obj.category)
+        : obj.transaction_type === 'deposit'
+            ? obj.to_meta_login
+            : obj.transaction_type === 'withdrawal'
+                ? obj.from_meta_login
+                : trans('public.unknown'); // Default fallback for other cases
+
+
+        return [
+            obj.created_at !== undefined ? dayjs(obj.created_at).format('YYYY/MM/DD') : '',
+            obj.transaction_number !== undefined ? obj.transaction_number : '',
+            obj.transaction_type !== undefined ? trans(`public.${obj.transaction_type}`) : '',
+            fromDisplay,
+            obj.amount !== undefined ? obj.amount : '',
+            obj.status !== undefined ? trans(`public.${obj.status}`) : '',
+        ];
+    });
+
+    // Combine headers and rows into a single data array
+    const sheetData = [headers, ...rows];
+
+    // Create the XLSX content
+    let csvContent = "data:text/xlsx;charset=utf-8,";
+    
+    sheetData.forEach((rowArray) => {
+        const row = rowArray.join("\t"); // Use tabs for column separation
+        csvContent += row + "\r\n"; // Add a new line after each row
+    });
+
+    // Create a temporary link element
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "export.xlsx");
+
+    // Append the link to the document and trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up by removing the link
+    document.body.removeChild(link);
+};
+
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     transaction_number: { value: null, matchMode: FilterMatchMode.CONTAINS },
     asset: { value: null, matchMode: FilterMatchMode.CONTAINS },
     transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
+    transactionType: { value: null, matchMode: FilterMatchMode.EQUALS },
+    status: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
 
 const clearFilterGlobal = () => {
@@ -206,34 +218,18 @@ const clearFilter = () => {
         transaction_number: { value: null, matchMode: FilterMatchMode.CONTAINS },
         asset: { value: null, matchMode: FilterMatchMode.CONTAINS },
         transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
+        transactionType: { value: null, matchMode: FilterMatchMode.EQUALS },
+        status: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
 
     selectedDate.value = null;
     transactionType.value = null;
     status.value = null;
+    filteredValue = null;
 };
 
 const handleFilter = (e) => {
-    filteredValueCount.value = e.filteredValue.length;
-};
-
-const exportCSV = () => {
-    // dt.value.exportCSV();
-    const dtComponent = dt.value;
-
-    // Manually specify the fields to include in the CSV export
-    const exportFields = [
-        { field: 'created_at', header: wTrans('public.date') },
-        { field: 'transaction_number', header: wTrans('public.id') },
-        { field: 'description', header: wTrans('public.description') },
-        { field: 'asset', header: wTrans('public.asset') },
-        { field: 'amount', header: `${wTrans('public.amount')} ($)` },
-        { field: 'status', header: wTrans('public.status') },
-    ];
-
-    dtComponent.exportCSV({
-        exportColumns: exportFields, // Specify columns for export
-    });
+    filteredValue.value = e.filteredValue;
 };
 
 const clearDate = () => {
@@ -283,7 +279,7 @@ const openDialog = (rowData) => {
                                 <IconX size="16" />
                             </div>
                         </div>
-                        <Button variant="primary-outlined" @click="exportCSV" class="w-full md:w-auto">
+                        <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="w-full md:w-auto">
                             <IconDownload size="20" stroke-width="1.25" />
                             {{ $t('public.export') }}
                         </Button>
@@ -292,7 +288,7 @@ const openDialog = (rowData) => {
                 <DataTable
                     v-model:filters="filters"
                     :value="transactions"
-                    :paginator="transactions?.length > 0 && filteredValueCount > 0"
+                    :paginator="transactions?.length > 0"
                     removableSort
                     :rows="10"
                     :rowsPerPageOptions="[10, 20, 50, 100]"
@@ -308,7 +304,7 @@ const openDialog = (rowData) => {
                     <template #header>
                         <div class="flex flex-col justify-between items-center pb-5 gap-3 self-stretch md:flex-row md:pb-6">
                             <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-5">
-                                <div class="relative w-full md:w-60">
+                                <div class="relative w-full md:w-56 xl:w-60">
                                     <DatePicker 
                                         v-model="selectedDate"
                                         selectionMode="range"
@@ -318,7 +314,7 @@ const openDialog = (rowData) => {
                                         showIcon
                                         iconDisplay="input"
                                         :placeholder="$t('public.select_date')"
-                                        class="font-normal w-full md:w-52"
+                                        class="font-normal w-full"
                                     />
                                     <div
                                         v-if="selectedDate && selectedDate.length > 0"
@@ -336,7 +332,7 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_type')"
-                                    class="w-full font-normal"
+                                    class="w-full md:w-auto xl:w-60 font-normal"
                                     scroll-height="236px"
                                 />
                                 <Select
@@ -347,7 +343,7 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_status')"
-                                    class="w-full font-normal"
+                                    class="w-full md:w-auto xl:w-60 font-normal"
                                     scroll-height="236px"
                                 />
                             </div>
@@ -375,7 +371,7 @@ const openDialog = (rowData) => {
                             <span class="text-sm text-gray-700">{{ $t('public.loading_transactions_caption') }}</span>
                         </div>
                     </template>
-                    <template v-if="transactions?.length > 0 && filteredValueCount > 0">
+                    <template v-if="transactions?.length > 0">
                         <Column field="created_at" :header="$t('public.date')" sortable class="hidden md:table-cell w-auto">
                             <template #body="slotProps">
                                 <div class="text-gray-950 text-sm truncate max-w-full">
