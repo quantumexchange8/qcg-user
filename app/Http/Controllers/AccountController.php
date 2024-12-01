@@ -292,7 +292,7 @@ class AccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-        if ($domain === 'qcg-live.com') {
+        if ($domain === 'qcgexchange.com') {
             $selectedPayout = $payoutSetting['live'];
         } else {
             $selectedPayout = $payoutSetting['staging'];
@@ -661,7 +661,7 @@ class AccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-        if ($domain === 'qcg-live.com') {
+        if ($domain === 'qcgexchange.com') {
             $selectedPayout = $payoutSetting['live'];
         } else {
             $selectedPayout = $payoutSetting['staging'];
