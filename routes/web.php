@@ -55,7 +55,7 @@ Route::get('approval/{token}', function ($token) {
 Route::get('/admin_login/{hashedToken}', [DashboardController::class, 'admin_login']);
 Route::post('deposit_callback', [AccountController::class, 'depositCallback'])->name('depositCallback');
 
-Route::middleware(['auth', 'verified', 'role:agent|member'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
     /**
      * ==============================
@@ -106,7 +106,7 @@ Route::middleware(['auth', 'verified', 'role:agent|member'])->group(function () 
         Route::get('/', [NetworkController::class, 'index'])->name('network');
 
         Route::get('/getDownlineData', [NetworkController::class, 'getDownlineData'])->name('network.getDownlineData');
-        
+
         Route::middleware('role:agent')->group(function () {
             Route::get('/getDownlineListingData', [NetworkController::class, 'getDownlineListingData'])->name('network.getDownlineListingData');
             Route::get('/getFilterData', [NetworkController::class, 'getFilterData'])->name('network.getFilterData');
@@ -114,7 +114,7 @@ Route::middleware(['auth', 'verified', 'role:agent|member'])->group(function () 
             Route::get('/getUserData', [NetworkController::class, 'getUserData'])->name('network.getUserData');
         });
     });
-    
+
     /**
      * ==============================
      *           Transaction
@@ -185,7 +185,7 @@ Route::middleware(['auth', 'verified', 'role:agent|member'])->group(function () 
         // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
-    
+
     /**
      * ==============================
      *           Profile
