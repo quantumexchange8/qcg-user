@@ -273,7 +273,7 @@ class AccountController extends Controller
         $request->validate([
             'meta_login' => ['required', 'exists:trading_accounts,meta_login'],
             'checkbox1' => 'accepted',
-            'checkbox2' => 'accepted', 
+            'checkbox2' => 'accepted',
         ]);
 
         $user = Auth::user();
@@ -292,7 +292,7 @@ class AccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-        if ($domain === 'qcgexchange.com') {
+        if ($domain === 'login.qcgexchange.com') {
             $selectedPayout = $payoutSetting['live'];
         } else {
             $selectedPayout = $payoutSetting['staging'];
@@ -579,12 +579,12 @@ class AccountController extends Controller
         if ($account->balance == 0) {
             try {
                 (new CTraderService)->deleteTrader($account->meta_login);
-    
+
                 $account->delete();
                 $trading_user->delete();
             } catch (\Throwable $e) {
                 Log::error($e->getMessage());
-    
+
                 return back()->with('toast', [
                     'title' => 'CTrader connection error',
                     'type' => 'error',
@@ -661,7 +661,7 @@ class AccountController extends Controller
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
 
-        if ($domain === 'qcgexchange.com') {
+        if ($domain === 'login.qcgexchange.com') {
             $selectedPayout = $payoutSetting['live'];
         } else {
             $selectedPayout = $payoutSetting['staging'];
@@ -714,7 +714,7 @@ class AccountController extends Controller
 
         return response()->json(['success' => false, 'message' => 'Deposit Failed']);
     }
-    
+
     // public function createTradingAccount(Request $request)
     // {
     //     $user = Auth::user();
