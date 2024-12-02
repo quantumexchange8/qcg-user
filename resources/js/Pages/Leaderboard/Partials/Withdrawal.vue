@@ -142,11 +142,11 @@ const closeDialog = () => {
         class="dialog-xs sm:dialog-sm"
     >
         <form>
-            <div class="flex flex-col w-full py-6 gap-8">
-                <div class="flex flex-col gap-5">
-                    <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
-                        <span class="text-xs text-center text-gray-500">{{ $t('public.available_incentive') }}</span>
-                        <span class="text-lg text-center font-bold text-gray-950">$ {{ formatAmount(form.amount) }}</span>
+            <div class="flex flex-col w-full items-center gap-8 pt-6 self-stretch md:gap-10">
+                <div class="flex flex-col items-center gap-5 self-stretch">
+                    <div class="flex flex-col ustify-center items-center py-3 px-8 gap-1 self-stretch bg-gray-100">
+                        <span class="w-full text-xs text-center text-gray-500">{{ $t('public.available_incentive') }}</span>
+                        <span class="w-full text-lg text-center font-semibold text-gray-950">$ {{ formatAmount(form.amount) }}</span>
                     </div>
                     <div class="flex flex-col items-start gap-1 self-stretch">
                         <InputLabel for="receiving_wallet" :value="$t('public.receiving_wallet')" />
@@ -176,7 +176,7 @@ const closeDialog = () => {
                 <Button variant="gray-outlined" type="button" class="justify-center" @click="closeDialog">
                     {{$t('public.cancel')}}
                 </Button>
-                <Button variant="primary-flat" type="button" class="justify-center" @click="submitForm" :disabled="form.processing">{{$t('public.confirm')}}</Button>
+                <Button variant="primary-flat" type="button" class="justify-center" @click="submitForm" :disabled="form.processing || !walletOptions.length">{{$t('public.confirm')}}</Button>
             </div>
         </form>
     </Dialog>

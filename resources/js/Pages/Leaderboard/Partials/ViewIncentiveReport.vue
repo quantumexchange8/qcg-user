@@ -33,12 +33,11 @@ const dt = ref();
 const bonuses = ref()
 const totalBonusAmount = ref(0);
 
-// Reactive variable for selected date range
-const selectedDate = ref([]);
-
 // Get current date
 const today = new Date();
+const minDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
 const maxDate = ref(today);
+const selectedDate = ref([minDate.value, maxDate.value]);
 
 const getResults = async (dateRanges = null) => {
     loading.value = true;
@@ -72,15 +71,17 @@ watch(selectedDate, (newDateRange) => {
         } else if (startDate || endDate) {
             getResults([startDate || endDate, endDate || startDate]);
         } else {
-            getResults();
+            getResults(null);
         }
+    } else if (newDateRange === null) {
+        getResults(null);
     } else {
         console.warn('Invalid date range format:', newDateRange);
     }
 })
 
 const clearDate = () => {
-    selectedDate.value = [];
+    selectedDate.value = null;
 };
 
 const exportCSV = () => {

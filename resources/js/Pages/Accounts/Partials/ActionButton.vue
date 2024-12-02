@@ -217,7 +217,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
                     variant="primary-flat"
                     class="w-full"
                     @click.prevent="submitForm('transfer')"
-                    :disabled="depositForm.processing || transferForm.processing"
+                    :disabled="depositForm.processing || transferForm.processing || !filteredTransferOptions.length"
                 >
                     {{ $t('public.confirm') }}
                 </Button>

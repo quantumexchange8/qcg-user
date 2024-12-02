@@ -139,7 +139,7 @@ const closeDialog = () => {
                 variant="primary-flat"
                 class="w-full md:w-[120px]"
                 @click.prevent="submitForm"
-                :disabled="form.processing"
+                :disabled="form.processing || !walletOptions.length"
             >
                 {{ $t('public.confirm') }}
             </Button>
