@@ -227,7 +227,7 @@ return [
     'account_update_success' => '您已成功更新帳戶詳情!',
     'password_reset_success' => '密碼已重置.',
     'cryptocurrency_update_success' => '您已成功更新加密貨幣錢包!',
-    'delete_account_message' => '確定要刪除此帳戶 {accountNo}? 此操作無法撤銷.',
+    'delete_account_message' => '確定要刪除此帳戶 :accountNo? 此操作無法撤銷.',
     'delete_account_success' => '帳戶已刪除!',
     'delete_demo_account_message' => '確定要刪除此模擬帳戶? 此操作無法撤銷.',
     'delete_demo_account_success' => '模擬帳戶已刪除!',

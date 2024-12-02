@@ -227,7 +227,7 @@ return [
     'account_update_success' => '您已成功更新帐户详情!',
     'password_reset_success' => '密码已重置.',
     'cryptocurrency_update_success' => '您已成功更新加密货币钱包!',
-    'delete_account_message' => '确定要删除此帐户 {accountNo}? 此操作无法撤销.',
+    'delete_account_message' => '确定要删除此帐户 :accountNo? 此操作无法撤销.',
     'delete_account_success' => '帐户已删除!',
     'delete_demo_account_message' => '确定要删除此模拟帐户? 此操作无法撤销.',
     'delete_demo_account_success' => '模拟帐户已删除!',
