@@ -147,14 +147,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
      *         Rebate Setting
      * ==============================
      */
-    Route::prefix('rebate_setting')->middleware('role:agent')->group(function () {
-        Route::get('/', [RebateSettingController::class, 'index'])->name('rebate_setting');
-
-        Route::get('/getRebateData', [RebateSettingController::class, 'getRebateData'])->name('rebate_setting.getRebateData');
-        Route::get('/getAgents', [RebateSettingController::class, 'getAgents'])->name('rebate_setting.getAgents');
-
-        Route::post('/updateRebateAmount', [RebateSettingController::class, 'updateRebateAmount'])->name('rebate_setting.updateRebateAmount');
-    });
+//    Route::prefix('rebate_setting')->middleware('role:agent')->group(function () {
+//        Route::get('/', [RebateSettingController::class, 'index'])->name('rebate_setting');
+//
+//        Route::get('/getRebateData', [RebateSettingController::class, 'getRebateData'])->name('rebate_setting.getRebateData');
+//        Route::get('/getAgents', [RebateSettingController::class, 'getAgents'])->name('rebate_setting.getAgents');
+//
+//        Route::post('/updateRebateAmount', [RebateSettingController::class, 'updateRebateAmount'])->name('rebate_setting.updateRebateAmount');
+//    });
 
     /**
      * ==============================

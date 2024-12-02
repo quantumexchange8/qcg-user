@@ -83,16 +83,16 @@ const user = usePage().props.auth.user;
         </SidebarLink>
 
         <!-- Rebate Setting -->
-        <SidebarLink
-            :title="$t('public.sidebar.rebate_setting')"
-            :href="route('rebate_setting')"
-            :active="route().current('rebate_setting')"
-            v-if="user.role === 'agent'"
-        >
-            <template #icon>
-                <IconSettingsDollar :size="20" stroke-width="1.25" />
-            </template>
-        </SidebarLink>
+<!--        <SidebarLink-->
+<!--            :title="$t('public.sidebar.rebate_setting')"-->
+<!--            :href="route('rebate_setting')"-->
+<!--            :active="route().current('rebate_setting')"-->
+<!--            v-if="user.role === 'agent'"-->
+<!--        >-->
+<!--            <template #icon>-->
+<!--                <IconSettingsDollar :size="20" stroke-width="1.25" />-->
+<!--            </template>-->
+<!--        </SidebarLink>-->
 
         <!-- Leaderboard -->
         <SidebarLink
