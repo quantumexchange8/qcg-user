@@ -172,7 +172,10 @@ class GeneralController extends Controller
 
     public function getAccountTypes($returnAsArray = false)
     {
-        $accountTypes = AccountType::all()->map(function($accountType) {
+        $accountTypes = AccountType::whereNot('account_group', 'Demo Account')
+        ->where('status', 'active')
+        ->get()
+        ->map(function($accountType) {
             return [
                 'value' => $accountType->id,
                 'name' => trans('public.' . $accountType->slug), 
