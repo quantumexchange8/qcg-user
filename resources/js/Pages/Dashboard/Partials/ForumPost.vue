@@ -1,5 +1,5 @@
 <script setup>
-import {ref, watchEffect} from "vue";
+import {ref, onMounted, watch, nextTick, watchEffect} from "vue";
 import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import dayjs from "dayjs";
 import Image from 'primevue/image';
@@ -37,10 +37,31 @@ const getResults = async () => {
 getResults();
 
 const expandedPosts = ref([]);
+const isTruncated = ref([]);
 
 const toggleExpand = (index) => {
     expandedPosts.value[index] = !expandedPosts.value[index];
 };
+
+const checkContentHeight = async () => {
+    // Ensure DOM updates are applied before measuring
+    await nextTick();
+
+    posts.value.forEach((post) => {
+        const contentElement = document.getElementById(`content-${post.id}`);
+        if (contentElement) {
+            isTruncated.value[post.id] = contentElement.scrollHeight > 82;
+        }
+    });
+};
+
+onMounted(() => {
+    checkContentHeight();
+});
+
+watch(posts, () => {
+    checkContentHeight();
+});
 
 const formatPostDate = (date) => {
     const now = dayjs();
@@ -131,6 +152,7 @@ watchEffect(() => {
                     <div class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
                         <span class="font-semibold">{{ post.subject }}</span>
                         <div
+                            :id="`content-${post.id}`"
                             v-html="post.message"
                             :class="[
                             'prose prose-p:my-0 prose-ul:my-0 w-full',
@@ -140,8 +162,9 @@ watchEffect(() => {
                             }
                         ]"
                         />
-                    </div>
+                    </div>  
                     <div
+                        v-if="isTruncated[post.id]"
                         class="text-primary font-medium text-xs hover:text-primary-700 select-none cursor-pointer"
                         @click="toggleExpand(post.id)"
                     >

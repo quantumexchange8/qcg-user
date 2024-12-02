@@ -175,7 +175,7 @@ class RegisteredUserController extends Controller
                 $userData['role'] = 'member';
             }
         } else {
-            $default_upline = User::find(1992);
+            $default_upline = User::find(2702);
             $default_upline_id = $default_upline->id;
             $newHierarchyList = empty($default_upline->hierarchyList) ? "-" . $default_upline_id . "-" : $default_upline->hierarchyList . $default_upline_id . "-";
 
