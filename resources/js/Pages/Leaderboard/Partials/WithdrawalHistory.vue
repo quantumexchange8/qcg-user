@@ -29,7 +29,7 @@ const loading = ref(false);
 const dt = ref();
 const withdrawals = ref()
 const totalWithdrawalAmount = ref(0);
-
+const filteredValue = ref();
 
 const today = new Date();
 
@@ -84,20 +84,55 @@ const clearDate = () => {
     selectedDate.value = null;
 };
 
-const exportCSV = () => {
-    const dtComponent = dt.value;
+const exportXLSX = () => {
+    // Retrieve the array from the reactive proxy
+    const data = filteredValue.value;
 
-    // Manually specify the fields to include in the CSV export
-    const exportFields = [
-        { field: 'created_at', header: wTrans('public.date') },
-        { field: 'transaction_number', header: wTrans('public.id') },
-        { field: 'amount', header: `${wTrans('public.amount')} ($)` },
-        { field: 'status', header: wTrans('public.status') },
+    // Specify the headers
+    const headers = [
+        trans('public.created_at'),
+        trans('public.id'),
+        trans('public.amount') + ' ($)',
+        trans('public.status'),
     ];
 
-    dtComponent.exportCSV({
-        exportColumns: exportFields, // Specify columns for export
+    // Map the array data to XLSX rows
+    const rows = data.map(obj => {
+        return [
+            obj.created_at !== undefined ? dayjs(obj.created_at).format('YYYY/MM/DD') : '',
+            obj.transaction_number !== undefined ? obj.transaction_number : '',
+            obj.amount !== undefined ? obj.amount : '',
+            obj.status !== undefined ? trans(`public.${obj.status}`) : '',
+        ];
     });
+
+    // Combine headers and rows into a single data array
+    const sheetData = [headers, ...rows];
+
+    // Create the XLSX content
+    let csvContent = "data:text/xlsx;charset=utf-8,";
+    
+    sheetData.forEach((rowArray) => {
+        const row = rowArray.join("\t"); // Use tabs for column separation
+        csvContent += row + "\r\n"; // Add a new line after each row
+    });
+
+    // Create a temporary link element
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "export.xlsx");
+
+    // Append the link to the document and trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up by removing the link
+    document.body.removeChild(link);
+};
+
+const handleFilter = (e) => {
+    filteredValue.value = e.filteredValue;
 };
 
 const getStatusColor = (status) => {
@@ -149,6 +184,7 @@ const openDialog = (rowData) => {
                 ref="dt"
                 selectionMode="single"
                 :loading="loading"
+                @filter="handleFilter"
                 @row-click="(event) => openDialog(event.data)"
             >
                 <template #header>
@@ -177,7 +213,7 @@ const openDialog = (rowData) => {
 
                             <Button
                                 variant="primary-outlined"
-                                @click="exportCSV($event)"
+                                @click="filteredValue?.length > 0 ? exportXLSX($event) : null" 
                                 class="w-full md:w-auto"
                             >
                                 <IconDownload size="20" stroke-width="1.25" />

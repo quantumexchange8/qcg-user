@@ -405,4 +405,6 @@ return [
     'rebate_exceed_downline' => "返佣低于下线:name : :value",
     'requested_date' => "请求日期",
     'completed_date' => "完成日期",
+    'target' => '目标',
+    'rate' => '百分比',
 ];

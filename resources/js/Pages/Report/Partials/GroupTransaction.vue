@@ -7,7 +7,7 @@ import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import Deposit from '@/Pages/Report/Partials/Deposit.vue';
 import Withdrawal from '@/Pages/Report/Partials/Withdrawal.vue';
-import { usePage } from "@inertiajs/vue3";
+import dayjs from "dayjs";
 import { trans, wTrans } from "laravel-vue-i18n";
 import { transactionFormat } from "@/Composables/index.js";
 import {FilterMatchMode} from "@primevue/core/api";
@@ -23,22 +23,9 @@ const tabs = ref([
     { title: wTrans('withdrawal'), component: h(Withdrawal), type: 'withdrawal' },
 ]);
 
-const dt = ref(null);
+const filteredValue = ref();
 const selectedType = ref('deposit');
 const activeIndex = ref(tabs.value.findIndex(tab => tab.type === selectedType.value));
-
-// Watch for changes in selectedType and update the activeIndex accordingly
-watch(selectedType, (newType) => {
-    const index = tabs.value.findIndex(tab => tab.type === newType);
-    if (index >= 0) {
-        activeIndex.value = index;
-    }
-});
-
-function updateType(event) {
-    const selectedTab = tabs.value[event.index];
-    selectedType.value = selectedTab.type;
-}
 
 // Get current date
 const today = new Date();
@@ -55,11 +42,53 @@ const clearDate = () => {
     selectedDate.value = null;
 };
 
-const exportCSV = () => {
-    if (dt.value) {
-        dt.value.exportCSV();
-    }
+const exportXLSX = () => {
+    // Retrieve the array from the reactive proxy
+    const data = filteredValue.value;
+
+    // Specify the headers
+    const headers = [
+        trans('public.date'),
+        trans('public.name'),
+        trans('public.account'),
+        trans('public.amount') + ' ($)',
+    ];
+
+    // Map the array data to XLSX rows
+    const rows = data.map(obj => {
+        return [
+            obj.created_at !== undefined ? dayjs(obj.created_at).format('YYYY/MM/DD') : '',
+            obj.name !== undefined ? obj.name : '',
+            obj.meta_login !== undefined ? obj.meta_login : '',
+            obj.transaction_amount !== undefined ? obj.transaction_amount : '',
+        ];
+    });
+
+    // Combine headers and rows into a single data array
+    const sheetData = [headers, ...rows];
+
+    // Create the XLSX content
+    let csvContent = "data:text/xlsx;charset=utf-8,";
+    
+    sheetData.forEach((rowArray) => {
+        const row = rowArray.join("\t"); // Use tabs for column separation
+        csvContent += row + "\r\n"; // Add a new line after each row
+    });
+
+    // Create a temporary link element
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "export.xlsx");
+
+    // Append the link to the document and trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up by removing the link
+    document.body.removeChild(link);
 };
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
@@ -69,8 +98,8 @@ const clearFilterGlobal = () => {
     filters.value['global'].value = null;
 }
 
-const handleUpdateDataTable = ({ data }) => {
-    dt.value = data
+const handleFilteredValue = (filteredData) => {
+    filteredValue.value = filteredData
 };
 
 </script>
@@ -78,7 +107,7 @@ const handleUpdateDataTable = ({ data }) => {
     <div class="flex flex-col justify-center items-start py-5 px-3 gap-3 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
         <div class="w-full flex flex-col md:flex-row justify-between items-center self-stretch gap-3 md:gap-0">
             <div class="w-full md:w-auto flex items-center">
-                <Tabs v-model:value="activeIndex" class="w-full" @tab-change="updateType">
+                <Tabs v-model:value="activeIndex" class="w-full">
                     <TabList>
                         <Tab v-for="(tab, index) in tabs" :key="tab.title" :value="index">
                             {{ $t('public.' + tab.title) }}
@@ -102,7 +131,7 @@ const handleUpdateDataTable = ({ data }) => {
                 </div>
                 <Button
                     variant="primary-outlined"
-                    @click="exportCSV($event)"
+                    @click="filteredValue?.length > 0 ? exportXLSX($event) : null" 
                     class="w-full md:w-auto"
                 >
                     <IconDownload size="20" stroke-width="1.25" />
@@ -135,7 +164,7 @@ const handleUpdateDataTable = ({ data }) => {
         <Tabs v-model:value="activeIndex" class="w-full">
             <TabPanels>
                 <TabPanel :key="activeIndex" :value="activeIndex">
-                    <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" :filters="filters" :selectedType="selectedType" :selectedDate="selectedDate" v-if="tabs[activeIndex].component" @updateDataTable="handleUpdateDataTable"/>
+                    <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" :filters="filters" :selectedType="tabs[activeIndex].type" :selectedDate="selectedDate" v-if="tabs[activeIndex].component" @updateFilteredValue="handleFilteredValue"/>
                 </TabPanel>
             </TabPanels>
         </Tabs>

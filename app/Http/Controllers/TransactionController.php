@@ -140,7 +140,7 @@ class TransactionController extends Controller
             $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Rebate to account", ChangeTraderBalanceType::DEPOSIT);
         } catch (\Throwable $e) {
             if ($e->getMessage() == "Not found") {
-                TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
+                TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
             } else {
                 Log::error($e->getMessage());
             }

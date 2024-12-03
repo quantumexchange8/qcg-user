@@ -405,4 +405,6 @@ return [
     'rebate_exceed_downline' => "Rebate is less than downline :name : :value",
     'requested_date' => "Requested Date",
     'completed_date' => "Completed Date",
+    'target' => 'Target',
+    'rate' => 'Rate',
 ];

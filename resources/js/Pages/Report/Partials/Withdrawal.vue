@@ -1,20 +1,13 @@
 <script setup>
-import InputText from 'primevue/inputtext';
-import Button from '@/Components/Button.vue';
 import { ref, onMounted, watch, watchEffect, computed } from "vue";
-import {usePage} from '@inertiajs/vue3';
-import Dialog from 'primevue/dialog';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import ColumnGroup from 'primevue/columngroup';
 import Row from 'primevue/row';
-import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import {FilterMatchMode} from "@primevue/core/api";
 import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
-import {IconSearch, IconCircleXFilled, IconAdjustments, IconX} from '@tabler/icons-vue';
-import DatePicker from 'primevue/datepicker';
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -29,6 +22,7 @@ const selectedDate = ref(props.selectedDate);
 const transactions = ref();
 const groupTotalWithdrawal = ref(0);
 const dt = ref();
+const filteredValue = ref();
 const loading = ref(false);
 
 const getResults = async (selectedDate = null) => {
@@ -52,12 +46,6 @@ const getResults = async (selectedDate = null) => {
     }
 };
 
-// Watch for changes in selectedType
-watch(() => props.selectedType, (newType) => {
-    selectedType.value = newType;
-    getResults(selectedDate.value); // Fetch results for the new type and current date range
-}, { immediate: true });
-
 // Watch for changes in selectedDate
 watch(() => props.selectedDate, (newDateRange) => {
 
@@ -79,12 +67,19 @@ watch(() => props.selectedDate, (newDateRange) => {
     }
 }, { immediate: true });
 
-const emit = defineEmits(['updateDataTable']);
+const emit = defineEmits(['updateFilteredValue']);
 
-watch([dt], ([data]) => {
-    emit('updateDataTable', {
-        data
-    });
+const handleFilter = (e) => {
+    filteredValue.value = e.filteredValue;
+
+    emit('updateFilteredValue', filteredValue.value);
+};
+
+watch(transactions, (newTransactions) => {
+    if (newTransactions.length === 0) {
+        filteredValue.value = [];
+        emit('updateFilteredValue', []);
+    }
 });
 
 onMounted(() => {
@@ -109,6 +104,7 @@ onMounted(() => {
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         :globalFilterFields="['name']"
         ref="dt"
+        @filter="handleFilter"
         :loading="loading"
         >
         <template #header v-if="transactions?.length > 0">

@@ -70,7 +70,7 @@ watchEffect(() => {
             <div class="flex flex-col justify-center items-center p-6 gap-6 self-stretch rounded-lg bg-white shadow-card">
                 <div class="flex h-6 flex-col justify-center self-stretch text-gray-950 text-md font-bold">{{ $t('public.my_achievements') }}</div>
 
-                <div v-if="profileCount === 0 && !incentiveProfiles?.length">
+                <div v-if="!incentiveProfiles?.length">
                     <Empty
                         :title="$t('public.empty_incentive_profiles_title')"
                         :message="$t('public.empty_incentive_profiles_caption')"

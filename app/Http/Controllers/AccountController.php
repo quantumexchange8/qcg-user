@@ -332,7 +332,7 @@ class AccountController extends Controller
         //     $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, $tradingAccount->account_type_id, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
         // } catch (\Throwable $e) {
         //     if ($e->getMessage() == "Not found") {
-        //         TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
+        //         TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
         //     } else {
         //         Log::error($e->getMessage());
         //     }
@@ -424,7 +424,7 @@ class AccountController extends Controller
              $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
-                 TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
+                 TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
              } else {
                  Log::error($e->getMessage());
              }
@@ -496,7 +496,7 @@ class AccountController extends Controller
              $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
-                 TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'Inactive']);
+                 TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
              } else {
                  Log::error($e->getMessage());
              }
@@ -547,7 +547,7 @@ class AccountController extends Controller
             (new CTraderService)->updateLeverage($account->meta_login, $request->leverage);
         } catch (\Throwable $e) {
             if ($e->getMessage() == "Not found") {
-                TradingUser::firstWhere('meta_login', $account->meta_login)->update(['acc_status' => 'Inactive']);
+                TradingUser::firstWhere('meta_login', $account->meta_login)->update(['acc_status' => 'inactive']);
             } else {
                 Log::error($e->getMessage());
             }
@@ -690,7 +690,7 @@ class AccountController extends Controller
                         $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, "Deposit balance", ChangeTraderBalanceType::DEPOSIT);
                     } catch (\Throwable $e) {
                         if ($e->getMessage() == "Not found") {
-                            TradingUser::firstWhere('meta_login', $transaction->to)->update(['acc_status' => 'Inactive']);
+                            TradingUser::firstWhere('meta_login', $transaction->to)->update(['acc_status' => 'inactive']);
                         } else {
                             Log::error($e->getMessage());
                         }
