@@ -66,11 +66,9 @@ class LeaderboardController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'wallet_id' => ['required', 'exists:wallets,id'],
-            'amount' => ['required', 'numeric', 'gte:1'],
             'wallet_address' => ['required']
         ])->setAttributeNames([
             'wallet_id' => trans('public.wallet'),
-            'amount' => trans('public.amount'),
             'wallet_address' => trans('public.receiving_wallet'),
         ]);
         $validator->validate();
