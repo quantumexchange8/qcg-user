@@ -2,19 +2,21 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DepositApprovalNotification extends Notification
+class DepositApprovalNotification extends Notification implements ShouldQueue
 {
-    protected $transaction;
-    protected $user;
+    use Queueable;
 
-    public function __construct($transaction, $user) {
+    protected $transaction;
+
+    public function __construct($transaction)
+    {
         $this->transaction = $transaction;
-        $this->user = $user;
     }
 
     public function via($notifiable): array
@@ -24,17 +26,18 @@ class DepositApprovalNotification extends Notification
 
     public function toMail($notifiable): MailMessage
     {
-        // NOTE: NEED to change to transaction table usage, this is still based on payment table (outdated)
-        $token = md5($this->user->email . $this->transaction->transaction_number);
+        $user = User::find($this->transaction->user_id);
+        $token = md5($user->email . $this->transaction->transaction_number);
+
         return (new MailMessage)
             ->subject('Deposit Approval - ' . $this->transaction->transaction_number)
             ->greeting('Deposit Approval - ' . $this->transaction->transaction_number)
-            ->line('Platform: QCG User')
-            ->line('Email: ' . $this->user->email)
-            ->line('Name: ' . $this->user->first_name)
+            ->line('Email: ' . $user->email)
+            ->line('Name: ' . $user->first_name)
             ->line('Account No: ' . $this->transaction->to_meta_login)
             ->line('Deposit Amount: ' . $this->transaction->amount)
-            ->line('TxHash: ' . $this->transaction->txn_hash)
+            ->line('TxID: ' . $this->transaction->txn_hash)
+            ->line('Platform: QCG User')
             ->line('Click the button to proceed with approval')
             ->action('View', route('approval', [
                 'token' => $token,
