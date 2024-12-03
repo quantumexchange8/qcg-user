@@ -685,9 +685,6 @@ class AccountController extends Controller
                 'approved_at' => now()
             ]);
 
-//            Notification::route('mail', 'payment@currenttech.pro')
-//                ->notify(new DepositApprovalNotification($payment));
-
             if ($transaction->status == 'successful') {
                 if ($transaction->transaction_type == 'deposit') {
                     try {

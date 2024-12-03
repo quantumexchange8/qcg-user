@@ -7,10 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DepositApprovalNotification extends Notification implements ShouldQueue
+class DepositApprovalNotification extends Notification
 {
-    use Queueable;
-
     protected $transaction;
     protected $user;
 
@@ -30,15 +28,15 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
         $token = md5($this->user->email . $this->transaction->transaction_number);
         return (new MailMessage)
             ->subject('Deposit Approval - ' . $this->transaction->transaction_number)
-            ->greeting('Deposit Approval- ' . $this->transaction->transaction_number)
-            ->line('From: TTPay') // need to confirm
+            ->greeting('Deposit Approval - ' . $this->transaction->transaction_number)
+            ->line('Platform: QCG User')
             ->line('Email: ' . $this->user->email)
             ->line('Name: ' . $this->user->first_name)
             ->line('Account No: ' . $this->transaction->to_meta_login)
             ->line('Deposit Amount: ' . $this->transaction->amount)
             ->line('TxHash: ' . $this->transaction->txn_hash)
             ->line('Click the button to proceed with approval')
-            ->action('Approval', route('approval', [
+            ->action('View', route('approval', [
                 'token' => $token,
             ]))
             ->line('Thank you for using our application!');
