@@ -392,7 +392,7 @@ class AccountController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'account_id' => ['required', 'exists:trading_accounts,id'],
-            'amount' => ['required', 'numeric', 'gte:1'],
+            'amount' => ['required', 'numeric', 'gte:30'],
             'wallet_address' => ['required']
         ])->setAttributeNames([
             'account_id' => trans('public.account'),
