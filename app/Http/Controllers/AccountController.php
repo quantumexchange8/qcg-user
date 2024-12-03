@@ -641,7 +641,6 @@ class AccountController extends Controller
 
     public function depositCallback(Request $request)
     {
-        $user = Auth::user();
         $data = $request->all();
 
         $result = [

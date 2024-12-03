@@ -39,13 +39,12 @@ Route::get('approval/{token}', function ($token) {
         if ($token == $hashed_token) {
             return Inertia::render('DepositApproval', [
                 'transaction' => $transaction,
-                // 'receipt' => $transaction->getFirstMediaUrl('payment_receipt')
             ]);
         }
     }
 
     // Handle case when no payment matches the token
-    return '';
+    abort(503);
 })->name('approval');
 
 
