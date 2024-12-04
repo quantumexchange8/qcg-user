@@ -11,7 +11,7 @@ import dayjs from "dayjs";
 import { trans, wTrans } from "laravel-vue-i18n";
 import { transactionFormat } from "@/Composables/index.js";
 import {FilterMatchMode} from "@primevue/core/api";
-import {IconSearch, IconCircleXFilled, IconX, IconDownload} from '@tabler/icons-vue';
+import {IconSearch, IconX, IconDownload} from '@tabler/icons-vue';
 import InputText from 'primevue/inputtext';
 import Button from '@/Components/Button.vue';
 import DatePicker from 'primevue/datepicker';
@@ -122,11 +122,11 @@ const handleFilteredValue = (filteredData) => {
                     </div>
                     <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-60" />
                     <div
-                        
+                        v-if="filters['global'].value"
                         class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
                         @click="clearFilterGlobal"
                     >
-                        <IconCircleXFilled size="16" />
+                        <IconX size="16" />
                     </div>
                 </div>
                 <Button

@@ -2,7 +2,7 @@
 import Button from "@/Components/Button.vue"
 import { ref, watch } from "vue";
 import { useForm } from "@inertiajs/vue3";
-import { IconCircleXFilled, IconSearch, IconDownload } from "@tabler/icons-vue";
+import { IconX, IconSearch, IconDownload } from "@tabler/icons-vue";
 import { transactionFormat } from "@/Composables/index.js";
 import DatePicker from 'primevue/datepicker';
 import DataTable from "primevue/datatable";
@@ -32,7 +32,6 @@ const loading = ref(false);
 const dt = ref();
 const bonuses = ref()
 const totalBonusAmount = ref(0);
-const filteredValue = ref();
 
 // Get current date
 const today = new Date();
@@ -61,7 +60,7 @@ const getResults = async (dateRanges = null) => {
     }
 };
 
-getResults();
+getResults(selectedDate.value);
 
 watch(selectedDate, (newDateRange) => {
     if (Array.isArray(newDateRange)) {
@@ -87,7 +86,7 @@ const clearDate = () => {
 
 const exportXLSX = () => {
     // Retrieve the array from the reactive proxy
-    const data = filteredValue.value;
+    const data = bonuses.value;
 
     // Specify the headers
     const headers = [
@@ -133,11 +132,6 @@ const exportXLSX = () => {
     // Clean up by removing the link
     document.body.removeChild(link);
 };
-
-const handleFilter = (e) => {
-    filteredValue.value = e.filteredValue;
-};
-
 </script>
 
 <template>
@@ -162,7 +156,6 @@ const handleFilter = (e) => {
                 scrollHeight="400px"
                 tableStyle="md:min-width: 50rem"
                 ref="dt"
-                @filter="handleFilter"
                 :loading="loading"
             >
                 <template #header>
@@ -185,13 +178,13 @@ const handleFilter = (e) => {
                                     class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
                                     @click="clearDate"
                                 >
-                                    <IconCircleXFilled size="20" />
+                                    <IconX size="20" />
                                 </div>
                             </div>
 
                             <Button
                                 variant="primary-outlined"
-                                @click="filteredValue?.length > 0 ? exportXLSX($event) : null" 
+                                @click="bonuses?.length > 0 ? exportXLSX($event) : null" 
                                 class="w-full md:w-auto"
                             >
                                 <IconDownload size="20" stroke-width="1.25" />

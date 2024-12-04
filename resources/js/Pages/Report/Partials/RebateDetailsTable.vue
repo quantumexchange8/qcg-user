@@ -9,7 +9,7 @@ import {FilterMatchMode} from "@primevue/core/api";
 import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
-import {IconSearch, IconCircleXFilled, IconX, IconDownload} from '@tabler/icons-vue';
+import {IconSearch, IconX, IconDownload} from '@tabler/icons-vue';
 import DatePicker from 'primevue/datepicker';
 import { trans, wTrans } from "laravel-vue-i18n";
 
@@ -187,7 +187,7 @@ const openDialog = (rowData) => {
                         class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
                         @click="clearFilterGlobal"
                     >
-                        <IconCircleXFilled size="16" />
+                        <IconX size="16" />
                     </div>
                 </div>
                 <Button

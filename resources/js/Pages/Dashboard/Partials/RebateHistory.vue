@@ -3,7 +3,7 @@ import Dialog from "primevue/dialog";
 import Button from "@/Components/Button.vue";
 // import Tooltip from "@/Components/Tooltip.vue";
 import { computed, ref, watch } from "vue";
-import { IconCircleXFilled, IconReport, IconDownload } from "@tabler/icons-vue";
+import { IconX, IconReport, IconDownload } from "@tabler/icons-vue";
 import { transactionFormat } from "@/Composables/index.js";
 import DatePicker from 'primevue/datepicker';
 import DataTable from "primevue/datatable";
@@ -99,22 +99,6 @@ const clearDate = () => {
     selectedDate.value = null;
 };
 
-const exportCSV = () => {
-    const dtComponent = dt.value;
-
-    // Manually specify the fields to include in the CSV export
-    const exportFields = [
-        { field: 'created_at', header: wTrans('public.date') },
-        { field: 'transaction_number', header: wTrans('public.id') },
-        { field: 'amount', header: `${wTrans('public.amount')} ($)` },
-        { field: 'description', header: wTrans('public.description') },
-    ];
-
-    dtComponent.exportCSV({
-        exportColumns: exportFields, // Specify columns for export
-    });
-};
-
 // const getStatusColor = (status) => {
 //   switch(status.toLowerCase()) {
 //     case 'successful':
@@ -199,7 +183,7 @@ const openDialog = (rowData) => {
                                     class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
                                     @click="clearDate"
                                 >
-                                    <IconCircleXFilled size="20" />
+                                    <IconX size="20" />
                                 </div>
                             </div>
 

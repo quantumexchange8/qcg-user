@@ -2,17 +2,10 @@
 import AuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import { usePage, useForm } from "@inertiajs/vue3";
 import { transactionFormat } from "@/Composables/index.js";
-import { IconCircleXFilled, IconSearch, IconPencilMinus } from "@tabler/icons-vue";
 import { ref, watch, watchEffect, computed } from "vue";
-import Loader from "@/Components/Loader.vue";
-import { wTrans, trans } from "laravel-vue-i18n";
-import Button from '@/Components/Button.vue';
-import Select from 'primevue/select';
-import Paginator from 'primevue/paginator';
 import ProgressBar from 'primevue/progressbar';
 import Empty from "@/Components/Empty.vue";
 import StatusBadge from "@/Components/StatusBadge.vue";
-import debounce from "lodash/debounce.js";
 import dayjs from "dayjs";
 import TotalIncentiveGraph from "@/Pages/Leaderboard/Partials/TotalIncentiveGraph.vue";
 import IncentiveWithdrawal from "@/Pages/Leaderboard/Partials/IncentiveWithdrawal.vue";

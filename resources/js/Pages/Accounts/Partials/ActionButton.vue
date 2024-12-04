@@ -33,8 +33,6 @@ const getOptions = async () => {
     }
 };
 
-getOptions();
-
 // Computed property to exclude 'meta_login' from account.meta_login
 const filteredTransferOptions = computed(() => {
     if (!transferOptions.value.length) {
@@ -152,7 +150,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
         </div>
     </Dialog>
 
-    <Dialog v-model:visible="showTransferDialog" :header="$t('public.transfer')" modal class="dialog-xs sm:dialog-sm">
+    <Dialog v-model:visible="showTransferDialog" :header="$t('public.transfer')" modal class="dialog-xs sm:dialog-sm" @show="getOptions">
         <form @submit.prevent="submitForm('transfer')">
             <div class="flex flex-col py-6 gap-8">
                 <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">

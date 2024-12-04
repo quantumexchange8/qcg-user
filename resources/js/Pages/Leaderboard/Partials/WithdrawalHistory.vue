@@ -29,7 +29,6 @@ const loading = ref(false);
 const dt = ref();
 const withdrawals = ref()
 const totalWithdrawalAmount = ref(0);
-const filteredValue = ref();
 
 const today = new Date();
 
@@ -60,7 +59,7 @@ const getResults = async (dateRanges = null) => {
     }
 };
 
-getResults();
+getResults(selectedDate.value);
 
 watch(selectedDate, (newDateRange) => {
     if (Array.isArray(newDateRange)) {
@@ -86,7 +85,7 @@ const clearDate = () => {
 
 const exportXLSX = () => {
     // Retrieve the array from the reactive proxy
-    const data = filteredValue.value;
+    const data = withdrawals.value;
 
     // Specify the headers
     const headers = [
@@ -129,10 +128,6 @@ const exportXLSX = () => {
 
     // Clean up by removing the link
     document.body.removeChild(link);
-};
-
-const handleFilter = (e) => {
-    filteredValue.value = e.filteredValue;
 };
 
 const getStatusColor = (status) => {
@@ -184,7 +179,6 @@ const openDialog = (rowData) => {
                 ref="dt"
                 selectionMode="single"
                 :loading="loading"
-                @filter="handleFilter"
                 @row-click="(event) => openDialog(event.data)"
             >
                 <template #header>
@@ -213,7 +207,7 @@ const openDialog = (rowData) => {
 
                             <Button
                                 variant="primary-outlined"
-                                @click="filteredValue?.length > 0 ? exportXLSX($event) : null" 
+                                @click="withdrawals?.length > 0 ? exportXLSX($event) : null" 
                                 class="w-full md:w-auto"
                             >
                                 <IconDownload size="20" stroke-width="1.25" />

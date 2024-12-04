@@ -2,128 +2,130 @@
 import { transactionFormat } from "@/Composables/index.js";
 import { ref, computed, watch, onMounted } from "vue";
 import Select from 'primevue/select';
-import Chart from 'primevue/chart';
+import { wTrans, trans } from "laravel-vue-i18n";
+// import Chart from 'primevue/chart';
+import dayjs from "dayjs";
+import Chart from 'chart.js/auto'
 
 const { formatAmount, formatDate } = transactionFormat();
-// Chart labels (static, for months)
-const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-// To hold the chart data from the API
-const chartData = ref(new Array(12).fill(0)); // Initialize with zeros for each month
-
-// Chart options (optional for additional customization)
-const chartOptions = ref({
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-        y: {
-            grid: {
-                display: true, // Enable y-axis grid lines
-                drawBorder: false,
-            },
-            border: {
-                display: false,  // This removes the x-axis baseline
-            },
-            ticks: {
-                display: false, // Display y-axis labels
-                stepSize: 1
-            },
-            max: 5,
-            min: 0
-        },
-        x: {
-            grid: {
-                display: false, // Disable x-axis grid lines if not needed
-                drawBorder: false,
-            },
-            ticks: {
-                display: true // Keep x-axis labels visible
-            }
-        }
-    },
-    plugins: {
-        legend: {
-            display: false, // Disable the legend
-        },
-        title: {
-            display: false, // Disable the title
-        }
-    }
+let chartInstance = null;
+const chartData = ref({
+    labels: [],
+    datasets: [],
 });
 
 const totalYearlyIncentive = ref(0);  // Declare as a ref to make it reactive
-const monthlyIncentives = ref([]);
 
 // Initialize selectedYear to the current year
-const selectedYear = ref(new Date().getFullYear());
-const loading = ref(false);
+const selectedYear = ref('');
 
 // Available years for the dropdown
-const availableYears = ref([2024, 2023, 2022, 2021]);
+const availableYears = ref([]);
+const startYear = 2024;
+const endYear = dayjs().year();
 
-// Function to calculate the maximum value from monthly incentives
-const getMaxMonthlyIncentive = (incentives) => {
-    if (incentives.length === 0) return 0; // Handle empty case
-    return Math.max(...incentives.map(item => item.total || 0)); // Assuming `total` is the key for the incentive value
-};
+for (let year = startYear; year <= endYear; year++) {
+    availableYears.value.push({
+        value: year.toString()
+    });
+}
 
-// Function to fetch results
-const getResults = async (incentiveYear = selectedYear.value) => {
-    loading.value = true;
+selectedYear.value = dayjs().year().toString();
 
+const fetchData = async () => {
     try {
-        let url = `/leaderboard/getTotalIncentiveGraph?year=${incentiveYear}`;
+        // Fetch the chart data based on the selected year
+        const response = await axios.get('/leaderboard/getTotalIncentiveData', { params: { year: selectedYear.value } });
+        const { labels, datasets } = response.data.chartData;
 
-        const response = await axios.get(url);
-        totalYearlyIncentive.value = response.data.totalYearlyIncentive;
-        monthlyIncentives.value = Array.isArray(response.data.monthlyIncentives) ? response.data.monthlyIncentives : [];
+        datasets.forEach((dataset) => {
+            dataset.label = wTrans(dataset.label);
+        });
 
-        // Map the monthly incentives to align with the chart labels (Jan to Dec)
-        const monthlyData = new Array(12).fill(0); // Initialize an array for 12 months (Jan to Dec)
-
-        // Ensure monthlyIncentives is an array before using .forEach
-        if (Array.isArray(monthlyIncentives.value)) {
-            monthlyIncentives.value.forEach(item => {
-                if (item.month >= 1 && item.month <= 12) {
-                    monthlyData[item.month - 1] = item.total || 0; // Use item.total or 0 if undefined
-                }
-            });
+        chartData.value.labels = labels;
+        chartData.value.datasets = datasets;
+        totalYearlyIncentive.value = response.data.totalEarnedIncentive;
+        // Update the chart data
+        if (chartInstance) {
+            chartInstance.data = chartData.value;
+            chartInstance.update();
         }
-
-        chartData.value = monthlyData; // Set the chart data to be used in the chart
     } catch (error) {
-        console.error('Error fetching data:', error);
-    } finally {
-        loading.value = false;
+        console.error('Error fetching chart data:', error);
     }
 };
 
-// Watch for changes in selectedYear and call getResults when it changes
-watch(selectedYear, (newYear) => {
-    getResults(newYear);
+const initializeChart = () => {
+    const ctx = document.getElementById('total_incentive_chart');
+    if (!ctx) return;
+
+    // Initialize the chart
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: chartData.value,
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    ticks: {
+                        color: '#667085',
+                        font: {
+                            family: 'Poppins, sans-serif',
+                            size: 12,
+                            weight: 400,
+                        },
+                        display: false,
+                        count: 6,
+                    },
+                    beginAtZero: true,
+                    border: {
+                        display: false
+                    },
+                    grid: {
+                        drawTicks: false,
+                        color: '#F2F4F7',
+                    },
+                },
+                x: {
+                    ticks: {
+                        color: '#667085',
+                        font: {
+                            family: 'Poppins, sans-serif',
+                            size: 12,
+                            weight: 400,
+                        },
+                    },
+                    grid: {
+                        drawTicks: false,
+                        color: 'transparent'
+                    },
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+            }
+        }
+    });
+};
+
+onMounted(() => {
+    // Initialize the chart when the component is mounted
+    initializeChart();
+    // Fetch the initial data for the chart
+    fetchData();
 });
 
-// Call getResults initially with the current year
-getResults();
-
-// Combine the static labels with the dynamic data from the API
-const formattedChartData = computed(() => {
-    return {
-        labels,
-        datasets: [
-            {
-                label: 'Incentives',
-                backgroundColor: '#FF9800',
-                data: chartData.value // This should always have 12 values, filled with zeros or real data
-            }
-        ]
-    };
+// Watch for changes in selectedYear and call getResults when it changes
+watch(selectedYear, (newYear) => {
+    fetchData();
 });
 
 </script>
 
 <template>
-    <div class="flex flex-col px-8 py-6 h-[292px] items-center gap-3 rounded-lg bg-white shadow-card">
+    <div class="flex flex-col px-8 py-6 items-center gap-3 rounded-lg bg-white shadow-card">
         <div class="flex md:justify-center items-start gap-3 md:gap-8 self-stretch">
             <div class="flex flex-col items-start gap-2 flex-1">
                 <span class="text-gray-500 text-sm">{{ $t('public.total_incentive_earned') }}</span>
@@ -133,16 +135,15 @@ const formattedChartData = computed(() => {
                 <Select
                     v-model="selectedYear"
                     :options="availableYears"
+                    optionLabel="value"
+                    optionValue="value"
+                    class="border-none shadow-none font-medium text-gray-700"
+                    scroll-height="236px"
                 />
             </div>
         </div>
-        <div class="w-full h-full flex px-5 py-0 justify-between items-end">
-            <Chart 
-            type="bar" 
-            :data="formattedChartData" 
-            :options="chartOptions"
-            style="width: 100%; "
-            />
+        <div class="w-full">
+            <canvas id="total_incentive_chart" height="200"></canvas>
         </div>
     </div>
 

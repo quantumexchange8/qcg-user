@@ -1,5 +1,5 @@
 <script setup>
-import {IconSearch, IconCircleXFilled, IconChevronUp, IconMinus, IconUserCircle} from "@tabler/icons-vue";
+import {IconSearch, IconX, IconChevronUp, IconMinus, IconUserCircle} from "@tabler/icons-vue";
 import InputText from "primevue/inputtext";
 import Button from "@/Components/Button.vue";
 import {ref, watch} from "vue";
@@ -107,7 +107,7 @@ const clearSearch = () => {
                     class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
                     @click="clearSearch"
                 >
-                    <IconCircleXFilled size="16" />
+                    <IconX size="16" />
                 </div>
             </div>
             <div class="grid grid-cols-1 w-full gap-3">

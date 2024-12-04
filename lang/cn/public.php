@@ -407,4 +407,8 @@ return [
     'completed_date' => "完成日期",
     'target' => '目标',
     'rate' => '百分比',
+    'incentive_earned' => '奖励收入',
+    'personal_sales' => "个人业绩",
+    'group_sales' => "组织业绩",
+    'net_deposit' => "净入金",
 ];

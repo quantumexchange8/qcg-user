@@ -16,6 +16,7 @@ use App\Models\LeaderboardProfile;
 use App\Models\TradeBrokerHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class LeaderboardController extends Controller
 {
@@ -24,31 +25,51 @@ class LeaderboardController extends Controller
         return Inertia::render('Leaderboard/Leaderboard');
     }
 
-    public function getTotalIncentiveGraph(Request $request)
+    public function getTotalIncentiveData(Request $request)
     {
-        $user_id = Auth::id();
-        $incentiveYear = $request->query('year', Carbon::now()->year); 
+        $year = $request->year;
 
-        $monthlyIncentives = LeaderboardBonus::selectRaw('MONTH(created_at) as month, SUM(incentive_amount) as total')
-            ->where('user_id', $user_id)
-            ->whereYear('created_at', $incentiveYear)
-            ->whereIn('id', function($query) use ($user_id, $incentiveYear) {
-                $query->selectRaw('MAX(id)')
-                    ->from('leaderboard_bonuses')
-                    ->where('user_id', $user_id)
-                    ->whereYear('created_at', $incentiveYear)
-                    ->groupBy('leaderboard_profile_id', \DB::raw('MONTH(created_at)'));
-            })
-            ->groupBy(\DB::raw('MONTH(created_at)'))
-            ->orderBy(\DB::raw('MONTH(created_at)'))
+        // Your existing query to fetch chart data
+        $bonusQuery = LeaderboardBonus::whereYear('created_at', $year)
+            ->where('user_id', Auth::id());
+
+
+        $totalEarnedIncentive = $bonusQuery->sum('incentive_amount');
+
+        $chartResults = $bonusQuery->select(
+            DB::raw('incentive_month as month'),
+            DB::raw('SUM(incentive_amount) as incentive_amount')
+        )
+            ->groupBy('incentive_month')
             ->get();
 
-        $totalYearlyIncentive = $monthlyIncentives->sum('total');
+        $shortMonthNames = [];
+        for ($month = 1; $month <= 12; $month++) {
+            $shortMonthNames[] = date('M', mktime(0, 0, 0, $month, 1));
+        }
+
+        $chartData = [
+            'labels' => $shortMonthNames,
+            'datasets' => [],
+        ];
+
+        $dataset = [
+            'label' => 'public.incentive_earned',
+            'data' => array_map(function ($month) use ($chartResults) {
+                return $chartResults->firstWhere('month', $month)->incentive_amount ?? 0;
+            }, range(1, 12)), // Use month numbers 1-12
+            'backgroundColor' => '#FF9800',
+            'borderRadius' => 4,
+            'pointStyle' => false,
+            'fill' => true,
+        ];
+
+        $chartData['datasets'][] = $dataset;
 
         return response()->json([
-            'totalYearlyIncentive' => $totalYearlyIncentive,   
-            'monthlyIncentives' => $monthlyIncentives     
-        ]); 
+            'chartData' => $chartData,
+            'totalEarnedIncentive' => $totalEarnedIncentive,
+        ]);
     }
 
     public function getIncentiveData()

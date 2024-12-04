@@ -407,4 +407,8 @@ return [
     'completed_date' => "Completed Date",
     'target' => 'Target',
     'rate' => 'Rate',
+    'incentive_earned' => 'Incentive Earned',
+    'personal_sales' => "Personal Sales",
+    'group_sales' => "Group Sales",
+    'net_deposit' => "Net Deposit",
 ];

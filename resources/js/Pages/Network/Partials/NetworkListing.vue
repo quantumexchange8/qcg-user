@@ -9,7 +9,7 @@ import {FilterMatchMode} from "@primevue/core/api";
 import Loader from "@/Components/Loader.vue";
 import {
     IconSearch,
-    IconCircleXFilled,
+    IconX,
     IconFilterOff,
     IconDownload,
 } from '@tabler/icons-vue';
@@ -197,7 +197,7 @@ watchEffect(() => {
                             class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
                             @click="clearFilterGlobal"
                         >
-                            <IconCircleXFilled size="16" />
+                            <IconX size="16" />
                         </div>
                     </div>
                     <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="w-full md:w-auto">
