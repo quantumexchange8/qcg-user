@@ -278,16 +278,21 @@ class AccountController extends Controller
 
         $user = Auth::user();
 
-        $transaction = Transaction::create([
-            'user_id' => $user->id,
-            'category' => 'trading_account',
-            'transaction_type' => 'deposit',
-            'to_meta_login' => $request->meta_login,
-            'transaction_number' => RunningNumberService::getID('transaction'),
-            'status' => 'processing',
-        ]);
+        $transaction = Transaction::where('transaction_type', 'deposit')
+            ->where('to_meta_login', $request->meta_login)
+            ->where('status', 'processing')
+            ->first();
 
-        $token = Str::random(40);
+        if (empty($transaction)) {
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'category' => 'trading_account',
+                'transaction_type' => 'deposit',
+                'to_meta_login' => $request->meta_login,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'status' => 'processing',
+            ]);
+        }
 
         $payoutSetting = config('payment-gateway');
         $domain = $_SERVER['HTTP_HOST'];
@@ -307,7 +312,6 @@ class AccountController extends Controller
             'userId' => $user->id,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
-            'token' => $token,
             'locale' => app()->getLocale(),
         ];
 
