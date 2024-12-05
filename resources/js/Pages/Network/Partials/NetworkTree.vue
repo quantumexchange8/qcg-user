@@ -67,13 +67,15 @@ watch(search,
 const selectDownline = (downlineId) => {
     upline_id.value = parent.value.id;
     parent_id.value = downlineId;
-
+    search.value = '';
+    
     getNetwork(upline_id.value, parent_id.value)
 }
 
 const collapseAll = () => {
     upline_id.value = null;
     parent_id.value = null;
+    search.value = '';
     getNetwork()
 }
 
@@ -81,10 +83,12 @@ const backToUpline = (parentLevel) => {
     if (parentLevel === 1) {
         upline_id.value = null;
         parent_id.value = null;
+        search.value = '';
         getNetwork()
     } else {
         parent_id.value = parent.value.upline_id;
         upline_id.value = parent.value.upper_upline_id;
+        search.value = '';
         getNetwork(upline_id.value, parent_id.value)
     }
 }
