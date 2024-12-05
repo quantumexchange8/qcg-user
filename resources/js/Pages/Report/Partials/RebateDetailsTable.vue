@@ -211,7 +211,7 @@ const openDialog = (rowData) => {
             tableStyle="md:min-width: 50rem"
             paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-            :globalFilterFields="['name']"
+            :globalFilterFields="['name','email']"
             ref="dt"
             selectionMode="single"
             @filter="handleFilter"
