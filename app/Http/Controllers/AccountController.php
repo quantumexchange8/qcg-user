@@ -616,31 +616,7 @@ class AccountController extends Controller
     //payment gateway return function
     public function depositReturn(Request $request)
     {
-        $data = $request->all();
-
-        Log::debug('deposit return ', $data);
-
-        if ($data['response_status'] == 'success') {
-
-            $result = [
-                "amount" => $data['transfer_amount'],
-                "transaction_number" => $data['transaction_number'],
-                "txn_hash" => $data['txID'],
-            ];
-
-            $transaction = Transaction::query()
-                ->where('transaction_number', $result['transaction_number'])
-                ->first();
-
-            $result['date'] = $transaction->approved_at;
-
-            return redirect()->route('dashboard')->with('notification', [
-                'details' => $transaction,
-                'type' => 'deposit',
-            ]);
-        } else {
-            return to_route('dashboard');
-        }
+        return to_route('dashboard');
     }
 
     public function depositCallback(Request $request)
