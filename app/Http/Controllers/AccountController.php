@@ -599,7 +599,7 @@ class AccountController extends Controller
             'transaction_charges' => 0,
             'transaction_amount' => $request->amount,
             'status' => 'processing',
-            'comment' => $request->deposit_date . '|' . 'Missing Amount'
+            'comment' => date_format($request->deposit_date, 'Y-m-d') . '|' . 'Missing Amount'
         ]);
 
         if ($request->hasfile('screenshot')) {
