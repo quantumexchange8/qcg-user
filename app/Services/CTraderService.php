@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use AleeDhillon\MetaFive\Entities\Trade;
-use App\Models\TradingUser;
 use App\Models\User as UserModel;
 use App\Services\Data\CreateTradingAccount;
 use App\Services\Data\CreateTradingUser;
@@ -172,10 +171,7 @@ class CTraderService
             'amount' => $amount * 100, //
             'preciseAmount' => $amount, //
             'type' => $type,
-            'comment' => $comment, //
-            /* 'externalNote' => '', //
-            'source' => '', //
-            'externalId' => '', // */
+            'comment' => $comment,
         ]);
         $response = $response->json();
 

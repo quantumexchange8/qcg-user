@@ -5,6 +5,9 @@ import dayjs from "dayjs";
 import {transactionFormat} from "@/Composables/index.js";
 import {ref} from "vue";
 import Tag from "primevue/tag";
+import {useForm} from "@inertiajs/vue3";
+import Button from "primevue/button";
+import Image from "primevue/image";
 
 const props = defineProps({
     transaction: Object
@@ -34,6 +37,30 @@ function copyToClipboard(text) {
     }
 
     document.body.removeChild(textArea);
+}
+
+const getSeverity = (status) => {
+    switch (status) {
+        case 'failed':
+            return 'danger';
+
+        case 'successful':
+            return 'success';
+
+        case 'processing':
+            return 'info';
+    }
+}
+
+const form = useForm({
+    transaction_id: props.transaction.id,
+    action: ''
+})
+
+const handleApproval = (data) => {
+    form.action = data;
+
+    form.post(route('depositApproval'))
 }
 </script>
 
@@ -133,8 +160,49 @@ function copyToClipboard(text) {
                         {{ $t('public.status') }}
                     </div>
                     <div class="text-gray-950 text-sm md:text-base md:w-full font-medium">
-                        <Tag severity="success" :value="$t(`public.${transaction.status}`)" />
+                        <Tag :severity="getSeverity(transaction.status)" :value="$t(`public.${transaction.status}`)" />
                     </div>
+                </div>
+                <div v-if="transaction.media.length > 0" class="flex gap-1 self-stretch">
+                    <div class="w-[140px] md:w-full text-gray-500 text-xs md:text-sm font-medium">
+                        {{ $t('public.payment_slip') }}
+                    </div>
+                    <div
+                        class="relative w-full py-2 pl-2 flex justify-between rounded-lg border focus:ring-1 focus:outline-none"
+                    >
+                        <div class="inline-flex items-center gap-3">
+                            <Image
+                                :src="transaction.media[0].original_url"
+                                preview
+                                alt="Payment slip"
+                                image-class="w-10 h-8 object-contain rounded" />
+                            <div class="text-gray-500">
+                                {{ transaction.media[0].name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    v-if="transaction.status === 'processing'"
+                    class="flex justify-end items-center pt-6 gap-4 self-stretch w-full"
+                >
+                    <Button
+                        type="button"
+                        severity="danger"
+                        class="w-full"
+                        @click="handleApproval('reject')"
+                    >
+                        {{ $t('public.reject') }}
+                    </Button>
+                    <Button
+                        type="button"
+                        severity="success"
+                        class="w-full"
+                        @click="handleApproval('approve')"
+                    >
+                        {{ $t('public.approve') }}
+                    </Button>
                 </div>
             </div>
         </div>

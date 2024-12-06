@@ -419,4 +419,8 @@ return [
     'toast_missing_amount_success' => 'Submission Success!',
     'deposit_date' => 'Deposit Date',
     'upload_screenshot' => 'Upload Screenshot',
+    'screenshot' => 'Screenshot',
+    'payment_slip' => 'Payment Slip',
+    'approve' => 'Approve',
+    'reject' => 'Reject',
 ];

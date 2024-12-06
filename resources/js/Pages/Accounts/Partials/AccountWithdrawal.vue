@@ -46,11 +46,11 @@ const toggleFullAmount = () => {
 };
 
 const submitForm = () => {
-    form.post(route('accounts.withdrawal_from_account'), {
+    form.post(route('accounts.accountWithdrawal'), {
         onSuccess: () => {
             closeDialog();
         }
-    });
+    })
 }
 
 const closeDialog = () => {
@@ -122,7 +122,7 @@ const closeDialog = () => {
                 type="button"
                 variant="gray-tonal"
                 class="w-full md:w-[120px]"
-                @click.prevent="closeDialog()"
+                @click="closeDialog"
                 :disabled="form.processing"
             >
                 {{ $t('public.cancel') }}
@@ -130,7 +130,7 @@ const closeDialog = () => {
             <Button
                 variant="primary-flat"
                 class="w-full md:w-[120px]"
-                @click.prevent="submitForm"
+                @click="submitForm"
                 :disabled="form.processing || !walletOptions.length"
             >
                 {{ $t('public.confirm') }}

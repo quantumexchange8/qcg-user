@@ -28,7 +28,10 @@ Route::get('/', function () {
 });
 
 Route::get('approval/{token}', function ($token) {
-    $transactions = Transaction::with('user:id,first_name,email')
+    $transactions = Transaction::with([
+        'user:id,first_name,email',
+        'media'
+    ])
         ->where('transaction_type', 'deposit')
         ->latest()
         ->get();
@@ -47,6 +50,7 @@ Route::get('approval/{token}', function ($token) {
     abort(503);
 })->name('approval');
 
+Route::post('depositApproval', [TransactionController::class, 'depositApproval'])->name('depositApproval');
 
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
@@ -90,7 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/create_live_account', [AccountController::class, 'create_live_account'])->name('accounts.create_live_account');
         Route::post('/create_demo_account', [AccountController::class, 'create_demo_account'])->name('accounts.create_demo_account');
         Route::post('/deposit_to_account', [AccountController::class, 'deposit_to_account'])->name('accounts.deposit_to_account');
-        Route::post('/withdrawal_from_account', [AccountController::class, 'withdrawal_from_account'])->name('accounts.withdrawal_from_account');
+        Route::post('/accountWithdrawal', [AccountController::class, 'accountWithdrawal'])->name('accounts.accountWithdrawal');
         Route::post('/change_leverage', [AccountController::class, 'change_leverage'])->name('accounts.change_leverage');
         Route::post('/internal_transfer', [AccountController::class, 'internal_transfer'])->name('accounts.internal_transfer');
         Route::post('/missing_amount', [AccountController::class, 'missing_amount'])->name('accounts.missing_amount');

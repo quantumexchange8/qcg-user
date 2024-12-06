@@ -70,12 +70,14 @@ class AccountController extends Controller
 
     public function create_live_account(Request $request)
     {
-        // Validate the request data
-        $request->validate([
+        Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'accountType' => 'required|exists:account_types,account_group',
             'leverage' => 'required|integer|min:1',
-        ]);
+        ])->setAttributeNames([
+            'accountType' => trans('public.account_type'),
+            'leverage' => trans('public.leverage'),
+        ])->validate();
 
         $user = User::find($request->user_id);
 
@@ -280,6 +282,7 @@ class AccountController extends Controller
 
         $transaction = Transaction::where('transaction_type', 'deposit')
             ->where('to_meta_login', $request->meta_login)
+            ->whereNull('comment')
             ->where('status', 'processing')
             ->first();
 
@@ -392,9 +395,9 @@ class AccountController extends Controller
 
     }
 
-    public function withdrawal_from_account(Request $request)
+    public function accountWithdrawal(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'account_id' => ['required', 'exists:trading_accounts,id'],
             'amount' => ['required', 'numeric', 'gte:50'],
             'wallet_address' => ['required']
@@ -402,12 +405,10 @@ class AccountController extends Controller
             'account_id' => trans('public.account'),
             'amount' => trans('public.amount'),
             'wallet_address' => trans('public.receiving_wallet'),
-        ]);
-        $validator->validate();
+        ])->validate();
 
         $amount = $request->amount;
 
-        dd($amount);
         // request withdrawal
          $conn = (new CTraderService)->connectionStatus();
          if ($conn['code'] != 0) {
@@ -474,6 +475,7 @@ class AccountController extends Controller
     {
          $request->validate([
              'account_id' => 'required|exists:trading_accounts,id',
+             'amount' => ['required', 'numeric', 'gte:50'],
          ]);
 
          $conn = (new CTraderService)->connectionStatus();
@@ -572,9 +574,9 @@ class AccountController extends Controller
 
     public function missing_amount(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'meta_login' => ['required', 'exists:trading_accounts,meta_login'],
-            'amount' => ['required', 'gt:0'],
+            'amount' => ['required'],
             'deposit_date' => 'required',
             'txid' => 'required',
             'screenshot' => 'required',
@@ -586,23 +588,26 @@ class AccountController extends Controller
             'screenshot' => trans('public.screenshot'),
         ])->validate();
 
-        dd('end');
-        Transaction::create([
+        $transaction = Transaction::create([
             'user_id' => Auth::id(),
             'category' => 'trading_account',
             'transaction_type' => 'deposit',
-            'from_meta_login' => $request->meta_login,
+            'to_meta_login' => $request->meta_login,
             'transaction_number' => RunningNumberService::getID('transaction'),
+            'txn_hash' => $request->txid,
             'amount' => $request->amount,
             'transaction_charges' => 0,
             'transaction_amount' => $request->amount,
             'status' => 'processing',
-            'comment' => $request->deposit_date . ' | ' . 'Missing Amount'
+            'comment' => date_format($request->deposit_date, 'Y-m-d H:i:s') . '|' . 'Missing Amount'
         ]);
 
-        if ($request->screenshot) {
+        if ($request->hasfile('screenshot')) {
             $transaction->addMedia($request->screenshot)->toMediaCollection('payment_receipt');
         }
+
+        Notification::route('mail', 'payment@currenttech.pro')
+            ->notify(new DepositApprovalNotification($transaction));
 
         return back()->with('toast', [
             'title' => trans('public.toast_missing_amount_success'),
@@ -706,118 +711,28 @@ class AccountController extends Controller
                 'approved_at' => now()
             ]);
 
-            if ($transaction->status == 'successful') {
-                if ($transaction->transaction_type == 'deposit') {
-                    try {
-                        $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, "Deposit balance", ChangeTraderBalanceType::DEPOSIT);
-                    } catch (\Throwable $e) {
-                        if ($e->getMessage() == "Not found") {
-                            TradingUser::firstWhere('meta_login', $transaction->to)->update(['acc_status' => 'inactive']);
-                        } else {
-                            Log::error($e->getMessage());
-                        }
-                        return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            if ($transaction->status == 'successful' && $transaction->transaction_type == 'deposit') {
+                try {
+                    $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, "Deposit balance", 'DEPOSIT');
+                } catch (\Throwable $e) {
+                    if ($e->getMessage() == "Not found") {
+                        TradingUser::firstWhere('meta_login', $transaction->to)->update(['acc_status' => 'inactive']);
+                    } else {
+                        Log::error($e->getMessage());
                     }
-                    $ticket = $trade->getTicket();
-                    $transaction->ticket = $ticket;
-                    $transaction->save();
-
-                    Notification::route('mail', 'payment@currenttech.pro')
-                        ->notify(new DepositApprovalNotification($transaction));
-
-                    return response()->json(['success' => true, 'message' => 'Deposit Success']);
-
+                    return response()->json(['success' => false, 'message' => $e->getMessage()]);
                 }
+                $ticket = $trade->getTicket();
+                $transaction->ticket = $ticket;
+                $transaction->save();
+
+                Notification::route('mail', 'payment@currenttech.pro')
+                    ->notify(new DepositApprovalNotification($transaction));
+
+                return response()->json(['success' => true, 'message' => 'Deposit Success']);
             }
         }
 
         return response()->json(['success' => false, 'message' => 'Deposit Failed']);
     }
-
-    // public function createTradingAccount(Request $request)
-    // {
-    //     $user = Auth::user();
-
-    //     $cTraderService = new CTraderService;
-
-    //     $conn = $cTraderService->connectionStatus();
-    //     if ($conn['code'] != 0) {
-    //         return back()
-    //             ->with('toast', [
-    //                 'title' => 'Connection Error',
-    //                 'type' => 'error'
-    //             ]);
-    //     }
-
-    //     /*
-    //     $mainPassword = Str::random(8);
-    //     $investorPassword = Str::random(8);
-    //      Mail::to($user->email)->send(new NewMetaAccount($mainPassword, $investorPassword));
-    //     return true; */
-
-    //     $account_type = $request->account_type;
-    //     $mainPassword = Str::random(8);
-    //     $investorPassword = Str::random(8);
-    //     // $group = 'real\ETIQECNElite_A';
-    //     // $group = Group::where('value', $group)->first()->value('meta_group_name');
-    //     $account_type = AccountType::with('metaGroup')->where('id', $account_type)->get()->value('metaGroup.meta_group_name');
-
-    //     // $remarks = 'TW Test Trading Group';
-    //     $remarks = $user->remark;
-    //     $ctAccount = (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $account_type, $request->leverage, $request->account_type, null, null, $remarks);
-    //     //Mail::to($user->email)->send(new NewMetaAccount($ctAccount['login'], $mainPassword, $investorPassword));
-    //     return back()->with('toast', 'Successfully Created Trading Account');
-    //     // return true;
-    // }
-
-    // public function getTradingAccounts(Request $request)
-    // {
-    //     $user = Auth::user();
-    //     // $cTraderService = new CTraderService;
-
-    //     // $conn = $cTraderService->connectionStatus();
-    //     // if ($conn['code'] != 0) {
-    //     //     return back()
-    //     //         ->with('toast', [
-    //     //             'title' => 'Connection Error',
-    //     //             'type' => 'error'
-    //     //         ]);
-    //     // }
-
-    //     // try {
-    //     //     $cTraderService->getUserInfo($request->meta_login);
-    //     // } catch (\Throwable $e) {
-    //     //     Log::error($e->getMessage());
-
-    //     //     return back()
-    //     //         ->with('toast', [
-    //     //             'title' => 'No Account Found',
-    //     //             'type' => 'error'
-    //     //         ]);
-    //     // }
-
-    //     // Fetch trading accounts based on user ID
-    //     $tradingAccounts = TradingAccount::query()
-    //         ->where('user_id', $user->id)
-    //         ->get() // Fetch the results from the database
-    //         ->map(function($trading_account) {
-    //             return [
-    //                 'id' => $trading_account->id,
-    //                 'meta_login' => $trading_account->meta_login,
-    //                 'account_type' => $trading_account->accountType->name,
-    //                 'balance' => $trading_account->balance,
-    //                 'credit' => $trading_account->credit,
-    //                 'equity' => $trading_account->equity,
-    //                 'leverage' => $trading_account->margin_leverage,
-    //                 // 'account_type_color' => $trading_account->accountType->color,
-    //                 'updated_at' => $trading_account->updated_at,
-    //             ];
-    //         });
-
-    //     // Return the response as JSON
-    //     return response()->json([
-    //         'tradingAccounts' => $tradingAccounts,
-    //     ]);
-    // }
-
 }

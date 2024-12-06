@@ -419,4 +419,8 @@ return [
     'toast_missing_amount_success' => '提交成功!',
     'deposit_date' => '存款日期',
     'upload_screenshot' => '上传转账截图',
+    'screenshot' => '转账截图',
+    'payment_slip' => '转账截图',
+    'approve' => '批准',
+    'reject' => '拒绝',
 ];

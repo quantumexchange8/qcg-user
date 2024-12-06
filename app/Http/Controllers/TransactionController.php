@@ -323,4 +323,40 @@ class TransactionController extends Controller
             'transactions' => $transactions,
         ]);
     }
+
+    public function depositApproval(Request $request)
+    {
+        $transaction = Transaction::find($request->transaction_id);
+        $action = $request->action;
+
+        if ($transaction->status != 'processing') {
+            return redirect()->back()->with('toast', 'It appears you have already completed approval action');
+        }
+
+        $status = $action == "approve" ? "successful" : "failed";
+        $transaction->status = $status;
+        $transaction->remarks = 'System Approval';
+        $transaction->approved_at = now();
+        $transaction->save();
+
+        if ($transaction->status == "successful") {
+            try {
+                $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, "Deposit balance", 'DEPOSIT');
+                $transaction->ticket = $trade->getTicket();
+                $transaction->save();
+
+                return back()->with('toast', [
+                    'title' => 'Successfully Processed Deposit Request',
+                    'type' => 'success',
+                ]);
+            } catch (\Throwable $e) {
+                if ($e->getMessage() == "Not found") {
+                    TradingUser::firstWhere('meta_login', $transaction->to_meta_login)->update(['acc_status' => 'inactive']);
+                }
+                Log::error($e->getMessage() . " " . $transaction->transaction_number);
+            }
+        }
+
+        return redirect()->back()->with('toast', 'Successfully Rejected Deposit Request');
+    }
 }

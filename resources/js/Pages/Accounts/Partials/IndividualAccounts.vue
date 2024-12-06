@@ -27,11 +27,12 @@ const fetchLiveAccounts = async () => {
     }
 };
 
-// Fetch live accounts when the component is mounted
-onMounted(fetchLiveAccounts);
+onMounted(() => {
+    fetchLiveAccounts();
+});
 
 watchEffect(() => {
-    if (usePage().props.toast !== null || usePage().props.notification !== null) {
+    if (usePage().props.toast !== null) {
         fetchLiveAccounts();
     }
 });

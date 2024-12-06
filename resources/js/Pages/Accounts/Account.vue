@@ -153,7 +153,7 @@ const noticeVisible = ref(true);
         <div class="flex flex-col gap-20 md:gap-[100px]">
             <div class="flex flex-col items-start gap-5 self-stretch">
                 <!-- banner -->
-                <div class="relative h-[260px] pt-5 px-5 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-60 
+                <div class="relative h-[260px] pt-5 px-5 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-60
                     bg-no-repeat bg-right-bottom bg-contain overflow-hidden
                     md:pl-10 md:pt-[30px] md:pb-[58px] md:pr-[310px]
                     lg:pt-10 lg:pb-[68px] xl:pr-[469px] z-0"
@@ -309,6 +309,7 @@ const noticeVisible = ref(true);
                         </span>
                     </template>
                     </Select>
+                    <InputError :message="liveAccountForm.errors.leverage" />
                 </div>
             </div>
             <div class="self-stretch">
@@ -331,7 +332,7 @@ const noticeVisible = ref(true);
             <div class="flex flex-col items-center gap-5 self-stretch">
                 <div class="flex flex-col items-start gap-2 self-stretch">
                     <InputLabel for="amount" :value="$t('public.balance_amount')" />
-                    
+
                         <!-- <div class="text-gray-950 text-sm">$</div> -->
                         <InputNumber
                             id="amount"
@@ -343,7 +344,7 @@ const noticeVisible = ref(true);
                             :placeholder="'$ ' + formatAmount(0)"
                             :invalid="!!demoAccountForm.errors.amount"
                         />
-                    
+
                     <InputError :message="demoAccountForm.errors.amount" />
                 </div>
                 <div class="flex flex-col items-start gap-1 self-stretch">

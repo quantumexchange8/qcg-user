@@ -206,7 +206,7 @@ const requireAccountConfirmation = (accountType) => {
                 :class="{ 'hidden': item.disabled }"
             >
                 <component :is="item.icon" size="20" stroke-width="1.25" :color="item.label === 'delete_account' ? '#F04438' : '#667085'" />
-                <span class="font-medium" :class="{'text-error-500': item.label === 'delete_account'}">{{ $t(`public.${item.label}`) }}</span>
+                <span class="text-sm" :class="{'text-error-500': item.label === 'delete_account'}">{{ $t(`public.${item.label}`) }}</span>
             </div>
         </template>
     </TieredMenu>

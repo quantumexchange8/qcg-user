@@ -16,7 +16,6 @@ import InputNumber from "primevue/inputnumber";
 
 const props = defineProps({
     account: Object,
-    disabled: Boolean,
 });
 
 const showDepositDialog = ref(false);
@@ -65,7 +64,7 @@ const closeDialog = (dialogName) => {
 const depositForm = useForm({
     meta_login: props.account.meta_login,
     checkbox1: false,
-    checkbox2: false, 
+    checkbox2: false,
 });
 
 const transferForm = useForm({
@@ -129,7 +128,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
             <div class="flex flex-col w-[148px] md:w-[204px] gap-1">
                 <span class="text-sm md:text-md text-gray-950 font-bold">
                     {{ $t('public.ctrader_deposit') }}
-                </span>   
+                </span>
                 <span class="text-xs md:text-sm text-gray-700">
                     {{ $t('public.ctrader_deposit_caption') }}
                 </span>

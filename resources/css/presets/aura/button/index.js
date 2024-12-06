@@ -70,12 +70,12 @@ export default {
 
             // Success Button
             {
-                'text-white dark:text-green-900': props.severity === 'success' && !props.text && !props.outlined && !props.plain,
-                'bg-green-500 dark:bg-green-400': props.severity === 'success' && !props.text && !props.outlined && !props.plain,
-                'border border-green-500 dark:border-green-400': props.severity === 'success' && !props.text && !props.outlined && !props.plain
+                'text-white': props.severity === 'success' && !props.text && !props.outlined && !props.plain,
+                'bg-green-500': props.severity === 'success' && !props.text && !props.outlined && !props.plain,
+                'border border-green-500': props.severity === 'success' && !props.text && !props.outlined && !props.plain
             },
             // Success Text Button
-            { 'text-green-500 dark:text-green-400': props.text && props.severity === 'success' && !props.plain },
+            { 'text-green-500': props.text && props.severity === 'success' && !props.plain },
             // Success Outlined Button
             { 'text-green-500 border border-green-500 hover:bg-green-300/10': props.outlined && props.severity === 'success' && !props.plain },
 
@@ -114,12 +114,12 @@ export default {
 
             // Danger Button
             {
-                'text-white dark:text-surface-900': props.severity === 'danger' && !props.text && !props.outlined && !props.plain,
-                'bg-red-500 dark:bg-red-400': props.severity === 'danger' && !props.text && !props.outlined && !props.plain,
+                'text-white': props.severity === 'danger' && !props.text && !props.outlined && !props.plain,
+                'bg-red-500': props.severity === 'danger' && !props.text && !props.outlined && !props.plain,
                 'border border-red-500 dark:border-red-400': props.severity === 'danger' && !props.text && !props.outlined && !props.plain
             },
             // Danger Text Button
-            { 'text-red-500 dark:text-red-400': props.text && props.severity === 'danger' && !props.plain },
+            { 'text-red-500': props.text && props.severity === 'danger' && !props.plain },
             // Danger Outlined Button
             { 'text-red-500 border border-red-500 hover:bg-red-300/10': props.outlined && props.severity === 'danger' && !props.plain },
 

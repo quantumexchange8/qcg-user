@@ -44,7 +44,7 @@ const removeAttachment = () => {
 
 const form = useForm({
     meta_login: props.account.meta_login,
-    amount: 0,
+    amount: null,
     deposit_date: '',
     txid: '',
     screenshot: '',
@@ -64,7 +64,7 @@ const closeDialog = () => {
 </script>
 
 <template>
-    <form>
+    <form @submit.prevent="submitForm">
         <div class="flex flex-col items-center gap-8 self-stretch md:gap-10">
             <div class="flex flex-col py-6 gap-5">
                 <div class="flex flex-row gap-3 items-start">
@@ -151,8 +151,9 @@ const closeDialog = () => {
                                 <IconUpload size="20" stroke-width="1.25" stroke-linejoin="round"/>
                                 {{ $t('public.choose') }}
                             </Button>
-                            <InputError :message="form.errors.screenshot" />
                         </div>
+                        <InputError :message="form.errors.screenshot" />
+
                         <div
                             v-if="selectedAttachment"
                             class="relative w-full py-3 pl-4 flex justify-between rounded-xl bg-gray-50"
@@ -191,7 +192,6 @@ const closeDialog = () => {
                 type="submit"
                 variant="primary-flat"
                 class="w-full"
-                @click="submitForm"
                 :disabled="form.processing"
             >
                 {{ $t('public.submit') }}

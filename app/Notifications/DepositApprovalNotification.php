@@ -28,6 +28,7 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
     {
         $user = User::find($this->transaction->user_id);
         $token = md5($user->email . $this->transaction->transaction_number);
+        $action = $this->transaction->status == 'processing' ? 'Approval' : 'View';
 
         return (new MailMessage)
             ->subject('Deposit Approval - ' . $this->transaction->transaction_number)
@@ -39,7 +40,7 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
             ->line('From: QCG User')
             ->line('TxID: ' . $this->transaction->txn_hash)
             ->line('Click the button to proceed with approval')
-            ->action('View', route('approval', [
+            ->action($action, route('approval', [
                 'token' => $token,
             ]))
             ->line('Thank you for using our application!');
