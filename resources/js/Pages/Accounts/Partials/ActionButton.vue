@@ -20,6 +20,7 @@ const props = defineProps({
 });
 
 const showDepositDialog = ref(false);
+const contDepositDialog = ref(false);
 const showTransferDialog = ref(false);
 const transferOptions = ref([]);
 const selectedAccount = ref(0);
@@ -53,6 +54,7 @@ const openDialog = (dialogRef) => {
 const closeDialog = (dialogName) => {
     if (dialogName === 'deposit') {
         showDepositDialog.value = false;
+        contDepositDialog.value = false;
         depositForm.reset();
     } else if (dialogName === 'transfer') {
         showTransferDialog.value = false;
@@ -119,7 +121,28 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
         {{ $t('public.transfer') }}
     </Button>
 
-    <Dialog v-model:visible="showDepositDialog" modal :header="$t('public.deposit')" class="dialog-xs sm:dialog-sm">
+    <Dialog v-model:visible="showDepositDialog" header=" " modal class="dialog-xs sm:dialog-sm">
+        <div class="flex flex-col w-full pb-6 gap-8">
+            <div class="w-full h-[145px] md:h-[200px]">
+                <img src="/assets/deposit.png" alt="No data" class="absolute top-0 left-0 -z-10">
+            </div>
+            <div class="flex flex-col w-[148px] md:w-[204px] gap-1">
+                <span class="text-sm md:text-md text-gray-950 font-bold">
+                    {{ $t('public.ctrader_deposit') }}
+                </span>   
+                <span class="text-xs md:text-sm text-gray-700">
+                    {{ $t('public.ctrader_deposit_caption') }}
+                </span>
+            </div>
+        </div>
+        <div class="pt-6 w-full">
+            <Button variant="primary-flat" type="button" class="justify-center w-full" @click="contDepositDialog = true">
+                {{$t('public.continue')}}
+            </Button>
+        </div>
+    </Dialog>
+
+    <Dialog v-model:visible="contDepositDialog" modal :header="$t('public.deposit')" class="dialog-xs sm:dialog-sm">
         <div class="flex flex-col py-6 gap-8">
             <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
                 <span class="text-xs text-center text-gray-500">{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>

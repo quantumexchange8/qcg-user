@@ -10,7 +10,8 @@ import {
     IconTool,
     IconReportMoney,
     IconTrashX,
-    IconQuestionMark
+    IconQuestionMark,
+    IconHelp
 } from '@tabler/icons-vue';
 import toast from '@/Composables/toast';
 import AccountReport from '@/Pages/Accounts/Partials/AccountReport.vue';
@@ -19,6 +20,7 @@ import { trans } from "laravel-vue-i18n";
 import TieredMenu from "primevue/tieredmenu";
 import AccountWithdrawal from "@/Pages/Accounts/Partials/AccountWithdrawal.vue";
 import ChangeLeverage from "@/Pages/Accounts/Partials/ChangeLeverage.vue";
+import MissingAmount from "@/Pages/Accounts/Partials/MissingAmount.vue";
 
 const props = defineProps({
     account: Object,
@@ -68,6 +70,14 @@ const items = ref([
         },
     },
     {
+        label: 'missing_amount',
+        icon: h(IconHelp),
+        command: () => {
+            visible.value = true;
+            dialogType.value = 'missing_amount';
+        },
+    },
+    {
         label: 'delete',
         icon: h(IconTrashX),
         command: () => {
@@ -79,7 +89,7 @@ const items = ref([
 const filteredItems = computed(() => {
     return items.value.filter(item => {
         if (props.account.asset_master_id) {
-            return !(item.label === 'withdrawal' || item.label === 'change_leverage' || item.label === 'delete' || item.separator);
+            return !(item.label === 'withdrawal' || item.label === 'change_leverage' || item.label === 'delete' || item.label === 'missing_amount' || item.separator);
         }
 
         if (props.account.is_active === 'inactive') {
@@ -211,21 +221,28 @@ const requireAccountConfirmation = (accountType) => {
         <template v-if="dialogType === 'withdrawal'">
             <AccountWithdrawal
                 :account="account"
-                @update:visible="visible = false"
+                @update:visible="visible = $event"
             />
         </template>
 
         <template v-if="dialogType === 'change_leverage'">
             <ChangeLeverage
                 :account="account"
-                @update:visible="visible = false"
+                @update:visible="visible = $event"
             />
         </template>
 
         <template v-if="dialogType === 'account_report'">
             <AccountReport
-                :account="props.account"
-                @update:visible="visible = false"
+                :account="account"
+                @update:visible="visible = $event"
+            />
+        </template>
+
+        <template v-if="dialogType === 'missing_amount'">
+            <MissingAmount
+                :account="account"
+                @update:visible="visible = $event"
             />
         </template>
     </Dialog>

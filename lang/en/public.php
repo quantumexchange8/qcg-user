@@ -411,4 +411,12 @@ return [
     'personal_sales' => "Personal Sales",
     'group_sales' => "Group Sales",
     'net_deposit' => "Net Deposit",
+    'missing_amount' => 'Missing Amount',
+    'missing_information' => 'Information',
+    'missing_information_caption' => 'Your deposit should be updated within 1 hour. If it hasn’t been processed, please fill out the form below to help us resolve the issue promptly.',
+    'missing_amount_caption' => 'Please enter the deposited amount.',
+    'submit' => 'Submit',
+    'toast_missing_amount_success' => 'Submission Success!',
+    'deposit_date' => 'Deposit Date',
+    'upload_screenshot' => 'Upload Screenshot',
 ];

@@ -411,4 +411,12 @@ return [
     'personal_sales' => "個人業績",
     'group_sales' => "組織業績",
     'net_deposit' => "淨入金",
+    'missing_amount' => '遺失存款',
+    'missing_information' => '資訊',
+    'missing_information_caption' => '您的存款應在1小時內更新。如果尚未處理，請填寫下方表單，以便我們盡快協助解決問題.',
+    'missing_amount_caption' => '輸入存款金額.',
+    'submit' => '提交',
+    'toast_missing_amount_success' => '提交成功!',
+    'deposit_date' => '存款日期',
+    'upload_screenshot' => '上載轉帳截圖',
 ];

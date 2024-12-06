@@ -407,6 +407,7 @@ class AccountController extends Controller
 
         $amount = $request->amount;
 
+        dd($amount);
         // request withdrawal
          $conn = (new CTraderService)->connectionStatus();
          if ($conn['code'] != 0) {
@@ -564,6 +565,47 @@ class AccountController extends Controller
 
         return back()->with('toast', [
             'title' => trans('public.toast_change_leverage_success'),
+            'type' => 'success',
+        ]);
+
+    }
+
+    public function missing_amount(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'meta_login' => ['required', 'exists:trading_accounts,meta_login'],
+            'amount' => ['required', 'gt:0'],
+            'deposit_date' => 'required',
+            'txid' => 'required',
+            'screenshot' => 'required',
+        ])->setAttributeNames([
+            'meta_login' => trans('public.account'),
+            'amount' => trans('public.amount'),
+            'deposit_date' => trans('public.deposit_date'),
+            'txid' => trans('public.txid'),
+            'screenshot' => trans('public.screenshot'),
+        ])->validate();
+
+        dd('end');
+        Transaction::create([
+            'user_id' => Auth::id(),
+            'category' => 'trading_account',
+            'transaction_type' => 'deposit',
+            'from_meta_login' => $request->meta_login,
+            'transaction_number' => RunningNumberService::getID('transaction'),
+            'amount' => $request->amount,
+            'transaction_charges' => 0,
+            'transaction_amount' => $request->amount,
+            'status' => 'processing',
+            'comment' => $request->deposit_date . ' | ' . 'Missing Amount'
+        ]);
+
+        if ($request->screenshot) {
+            $transaction->addMedia($request->screenshot)->toMediaCollection('payment_receipt');
+        }
+
+        return back()->with('toast', [
+            'title' => trans('public.toast_missing_amount_success'),
             'type' => 'success',
         ]);
 

@@ -93,6 +93,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/withdrawal_from_account', [AccountController::class, 'withdrawal_from_account'])->name('accounts.withdrawal_from_account');
         Route::post('/change_leverage', [AccountController::class, 'change_leverage'])->name('accounts.change_leverage');
         Route::post('/internal_transfer', [AccountController::class, 'internal_transfer'])->name('accounts.internal_transfer');
+        Route::post('/missing_amount', [AccountController::class, 'missing_amount'])->name('accounts.missing_amount');
         Route::delete('/delete_account', [AccountController::class, 'delete_account'])->name('accounts.delete_account');
     });
 

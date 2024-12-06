@@ -45,7 +45,7 @@ export default {
 
             // Colors
             'text-gray-700',
-            'border border-b border-solid',
+            'border border-b-0 border-solid',
             'border-gray-200'
         ]
     },
