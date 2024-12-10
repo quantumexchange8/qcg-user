@@ -79,7 +79,6 @@ const closeDialog = () => {
                     <InputLabel for="amount" :value="$t('public.amount')" />
                     <InputNumber
                         inputId="amount"
-                        :input-props="{ inputmode: 'numeric' }"
                         autofocus
                         prefix="$ "
                         class="block w-full"
