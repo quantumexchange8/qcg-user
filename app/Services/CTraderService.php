@@ -173,19 +173,29 @@ class CTraderService
             'comment' => ['value' => $comment, 'type' => gettype($comment)],
             'type' => ['value' => $type, 'type' => gettype($type)],
         ]);
-
+        
+        // Build the full URL
+        $fullUrl = $this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token";
+        
+        // Log the full URL
+        Log::info('Request URL:', ['url' => $fullUrl]);
+        
         // Make the HTTP request
-        $response = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token", [
+        $response = Http::acceptJson()->post($fullUrl, [
             'login' => $meta_login,
-            'preciseAmount' => (double) $amount,
+            'preciseAmount' => $amount,
             'type' => $type,
             'comment' => $comment,
         ]);
-
-        // Log the response status
-        $status = $response->successful() ? 'success' : 'failure';
-        Log::info('Response Status:', ['status' => $status, 'response' => $response->json()]);
-
+        
+        // Log the response status code and details
+        $statusCode = $response->status();
+        Log::info('Response Status:', [
+            'status_code' => $statusCode,
+            'response_body' => $response->json(),
+            'url' => $fullUrl,
+        ]);
+        
         $response = $response->json();
 
         $trade = new Trade();
