@@ -77,18 +77,18 @@ const closeDialog = () => {
 
                 <div class="flex flex-col items-start gap-2 self-stretch">
                     <InputLabel for="amount" :value="$t('public.amount')" />
-                        <InputNumber
-                            id="amount"
-                            inputId="currency-us"
-                            autofocus
-                            prefix="$ "
-                            class="block w-full"
-                            :minFractionDigits="2"
-                            v-model="form.amount"
-                            :placeholder="'$ ' + formatAmount(0)"
-                            :invalid="!!form.errors.amount"
-                        />
-                        <span class="self-stretch text-gray-500 text-xs">{{ $t('public.missing_amount_caption') }}</span>
+                    <InputNumber
+                        inputId="amount"
+                        :input-props="{ inputmode: 'numeric' }"
+                        autofocus
+                        prefix="$ "
+                        class="block w-full"
+                        :max-fraction-digits="2"
+                        v-model="form.amount"
+                        :placeholder="'$ ' + formatAmount(0)"
+                        :invalid="!!form.errors.amount"
+                    />
+                    <span class="self-stretch text-gray-500 text-xs">{{ $t('public.missing_amount_caption') }}</span>
                     <InputError :message="form.errors.amount" />
                 </div>
 
