@@ -188,10 +188,6 @@ class CTraderService
 
         $response = $response->json();
 
-        if (isset($response['balanceHistoryId'])) {
-           Log::info('Balance history ID:', ['balanceHistoryId' => $response['balanceHistoryId']]);
-        }
-
         $trade = new Trade();
         $trade->setAmount($amount);
         $trade->setComment($comment);
