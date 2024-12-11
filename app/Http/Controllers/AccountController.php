@@ -703,9 +703,9 @@ class AccountController extends Controller
                 'from_wallet_address' => $result['from_wallet_address'],
                 'to_wallet_address' => $result['to_wallet_address'],
                 'txn_hash' => $result['txn_hash'],
-                'amount' => $result['amount'],
+                'amount' => round($result['amount'], 2),
                 'transaction_charges' => 0,
-                'transaction_amount' => $result['amount'],
+                'transaction_amount' => round($result['amount'], 2),
                 'status' => $status,
                 'remarks' => $result['remarks'],
                 'approved_at' => now()
@@ -713,7 +713,14 @@ class AccountController extends Controller
 
             if ($transaction->status == 'successful' && $transaction->transaction_type == 'deposit') {
                 try {
-                    $trade = (new CTraderService)->createTrade($transaction->to_meta_login, $transaction->transaction_amount, "Deposit balance", 'DEPOSIT');
+                    $transactionAmount = round($transaction->transaction_amount, 2);
+
+                    $trade = (new CTraderService)->createTrade(
+                        $transaction->to_meta_login,
+                        $transactionAmount,
+                        "Deposit balance",
+                        'DEPOSIT'
+                    );
                 } catch (\Throwable $e) {
                     if ($e->getMessage() == "Not found") {
                         TradingUser::firstWhere('meta_login', $transaction->to)->update(['acc_status' => 'inactive']);
