@@ -213,6 +213,7 @@ class CTraderService
         $trade->setType($type);
         $trade->setTicket($responseBody['balanceHistoryId'] ?? null);
 
+        $this->getUserInfo($meta_login);
         return $trade;
     }
 
