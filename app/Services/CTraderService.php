@@ -8,6 +8,8 @@ use App\Services\Data\CreateTradingAccount;
 use App\Services\Data\CreateTradingUser;
 use App\Services\Data\UpdateTradingAccount;
 use App\Services\Data\UpdateTradingUser;
+use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -56,7 +58,7 @@ class CTraderService
             ]);
             // Log::debug('linkAccountTOCTID response', ['response' => $response->json()]);
             return $response->json();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in linkAccountTOCTID', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return null;
         }
@@ -75,7 +77,7 @@ class CTraderService
             ]);
             // Log::debug('linkAccountTOCTID response', ['response' => $response->json()]);
             return $response->json();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in linkAccountTOCTID', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return null;
         }
@@ -112,7 +114,7 @@ class CTraderService
                 Log::error('createUser error', ['accountResponse' => $accountResponse]);
                 return null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in createUser', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return null;
         }
@@ -149,7 +151,7 @@ class CTraderService
                 Log::error('createUser error', ['accountResponse' => $accountResponse]);
                 return null;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in createUser', ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return null;
         }
@@ -163,48 +165,54 @@ class CTraderService
         return $response;
     }
 
-    //changeTraderBalance
+    /**
+     * @throws ConnectionException
+     * @throws Exception
+     * Change trader balance
+     */
     public function createTrade($meta_login, $amount, $comment, $type): Trade
     {
-        // Log the parameters and their types
-        Log::info('Request Parameters:', [
-            'meta_login' => ['value' => $meta_login, 'type' => gettype($meta_login)],
-            'amount' => ['value' => $amount, 'type' => gettype($amount)],
-            'comment' => ['value' => $comment, 'type' => gettype($comment)],
-            'type' => ['value' => $type, 'type' => gettype($type)],
-        ]);
-        
-        // Build the full URL
         $fullUrl = $this->baseURL . "/v2/webserv/traders/$meta_login/changebalance?token=$this->token";
-        
-        // Log the full URL
-        Log::info('Request URL:', ['url' => $fullUrl]);
-        
-        // Make the HTTP request
-        $response = Http::acceptJson()->post($fullUrl, [
-            'login' => $meta_login,
-            'preciseAmount' => $amount,
+
+        $payload = [
+            'login' => (int) $meta_login,
+            'preciseAmount' => (double) $amount,
             'type' => $type,
             'comment' => $comment,
-        ]);
-        
-        // Log the response status code and details
-        $statusCode = $response->status();
-        Log::info('Response Status:', [
-            'status_code' => $statusCode,
-            'response_body' => $response->json(),
-            'url' => $fullUrl,
-        ]);
-        
-        $response = $response->json();
+        ];
 
+        // Log the request details
+        Log::info('Sending API Request', [
+            'url' => $fullUrl,
+            'payload' => $payload,
+        ]);
+
+        $response = Http::acceptJson()
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post($fullUrl, $payload);
+
+        // Log the response details
+        Log::info('API Response', [
+            'status_code' => $response->status(),
+            'response_body' => $response->json(),
+        ]);
+
+        if (!$response->successful()) {
+            Log::error('API Request Failed', [
+                'status_code' => $response->status(),
+                'error_body' => $response->json(),
+            ]);
+            throw new Exception('Failed to process the trade. Please check the logs for more details.');
+        }
+
+        // Create the Trade object
+        $responseBody = $response->json();
         $trade = new Trade();
         $trade->setAmount($amount);
         $trade->setComment($comment);
         $trade->setType($type);
-        $trade->setTicket($response['balanceHistoryId']);
+        $trade->setTicket($responseBody['balanceHistoryId'] ?? null);
 
-        $this->getUserInfo($meta_login);
         return $trade;
     }
 
@@ -245,7 +253,7 @@ class CTraderService
                     'body' => $response->json(),
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error in createUser', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
