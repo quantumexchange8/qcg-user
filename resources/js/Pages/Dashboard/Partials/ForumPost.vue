@@ -4,11 +4,13 @@ import DefaultProfilePhoto from "@/Components/DefaultProfilePhoto.vue";
 import dayjs from "dayjs";
 import Image from 'primevue/image';
 import {wTrans} from "laravel-vue-i18n";
+import Button from "@/Components/Button.vue";
 import Empty from "@/Components/Empty.vue";
 import Skeleton from 'primevue/skeleton';
 import {usePage} from "@inertiajs/vue3";
 import CreatePost from "@/Pages/Dashboard/Partials/CreatePost.vue";
 import {usePermission} from "@/Composables/permissions.js";
+import { IconThumbUpFilled, IconThumbDownFilled } from "@tabler/icons-vue";
 
 const props = defineProps({
     postCounts: Number,
@@ -81,6 +83,28 @@ watchEffect(() => {
         getResults();
     }
 });
+
+const handleUserInteraction = async (postId, type) => {
+    try {
+        const response = await axios.post(route('dashboard.postInteraction'), {
+            postId: postId,
+            type: type,
+        });
+
+        if (response.data.success) {
+            const updatedPost = response.data.post; 
+            const index = posts.value.findIndex((post) => post.id === postId);
+            if (index !== -1) {
+                posts.value[index] = updatedPost; 
+            }
+        } else {
+            console.error('Failed to update user interaction:', response.data.message);
+        }
+    } catch (error) {
+        console.error('Error interacting with the server:', error);
+    }
+};
+
 </script>
 
 <template>
@@ -171,6 +195,40 @@ watchEffect(() => {
                         {{ expandedPosts[post.id] ? $t('public.see_less') : $t('public.see_more') }}
                     </div>
                 </div>
+
+                <div class="flex justify-between items-center self-stretch">
+                    <div class="flex items-center">
+                        <div class="flex justify-center items-center gap-1">
+                            <Button
+                                type="button"
+                                variant="success-text"
+                                size="sm"
+                                iconOnly
+                                pill
+                                class="hover:rotate-[-15deg]"
+                                @click="handleUserInteraction(post.id, 'like')"
+                            >
+                                <IconThumbUpFilled size="16" stroke-width="1.25" />
+                            </Button>
+                            <span class="min-w-10 text-gray-700 text-sm">{{ post.total_likes_count }}</span> 
+                        </div>
+                        <div class="flex justify-center items-center gap-1">
+                            <Button
+                                type="button"
+                                variant="error-text"
+                                size="sm"
+                                iconOnly
+                                pill
+                                class="hover:rotate-[-15deg]"
+                                @click="handleUserInteraction(post.id, 'dislike')"
+                            >
+                                <IconThumbDownFilled size="16" stroke-width="1.25" />
+                            </Button>
+                            <span class="min-w-10 text-gray-700 text-sm">{{ post.total_dislikes_count }}</span> 
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

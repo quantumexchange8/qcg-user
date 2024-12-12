@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Inertia\Inertia;
+use App\Models\Wallet;
 use App\Models\ForumPost;
 use App\Models\Transaction;
-use App\Models\User;
-use App\Models\Wallet;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use App\Models\UserPostInteraction;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
-use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
@@ -153,5 +154,61 @@ class DashboardController extends Controller
                 'type' => 'error'
             ]);
         }
+    }
+
+    public function postInteraction(Request $request)
+    {
+        $user = Auth::user(); 
+        $postId = $request->postId;
+        $interactionType = $request->type; 
+    
+        $existingInteraction = UserPostInteraction::where('user_id', $user->id)
+                                                ->where('post_id', $postId)
+                                                ->first();
+    
+        $post = ForumPost::findOrFail($postId);
+    
+        if ($existingInteraction) {
+            // If existing interaction type matches the new interaction type, cancel the interaction
+            if ($existingInteraction->type === $interactionType) {
+                $existingInteraction->delete();
+                if ($interactionType === 'like') {
+                    $post->decrement('total_likes_count'); 
+                } elseif ($interactionType === 'dislike') {
+                    $post->decrement('total_dislikes_count'); 
+                }
+            } else { 
+                // If existing interaction type is different, update it
+                $existingInteraction->update(['type' => $interactionType]); 
+                if ($interactionType === 'like') {
+                    $post->increment('total_likes_count'); 
+                    $post->decrement('total_dislikes_count'); 
+                } elseif ($interactionType === 'dislike') {
+                    $post->increment('total_dislikes_count'); 
+                    $post->decrement('total_likes_count'); 
+                }
+            }
+        } else {
+            // No existing interaction, create a new one if interactionType is provided
+            if ($interactionType) { 
+                UserPostInteraction::create([
+                    'user_id' => $user->id,
+                    'post_id' => $postId,
+                    'type' => $interactionType,
+                ]);
+                if ($interactionType === 'like') {
+                    $post->increment('total_likes_count'); 
+                } elseif ($interactionType === 'dislike') {
+                    $post->increment('total_dislikes_count'); 
+                }
+            }
+        }
+    
+        $post->save();
+    
+        return response()->json([
+            'success' => true,
+            'post' => $post, 
+        ]);
     }
 }

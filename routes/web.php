@@ -76,6 +76,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/walletWithdrawal', [TransactionController::class, 'walletWithdrawal'])->name('dashboard.walletWithdrawal');
         Route::get('/getRebateTransactions', [TransactionController::class, 'getRebateTransactions'])->name('dashboard.getRebateTransactions');
         Route::post('/createPost', [DashboardController::class, 'createPost'])->name('dashboard.createPost');
+        Route::post('/postInteraction', [DashboardController::class, 'postInteraction'])->name('dashboard.postInteraction');
     });
 
     /**

@@ -17,6 +17,8 @@ class ForumPost extends Model implements HasMedia
         'display_name',
         'subject',
         'message',
+        'total_likes_count',
+        'total_dislikes_count',
     ];
 
     // Relations

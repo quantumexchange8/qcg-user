@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
-use App\Models\PaymentAccount;
-use App\Models\Country;
-use App\Services\DropdownOptionService;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Country;
+use App\Models\ForumPost;
+use Illuminate\Http\Request;
+use App\Models\PaymentAccount;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use App\Services\DropdownOptionService;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
 {
@@ -73,6 +74,28 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
+        // Get all interactions for the user
+        $interactions = $user->interactions;
+
+        // Calculate adjustments for likes and dislikes
+        $userLikes = $interactions->where('type', 'like')->count();
+        $userDislikes = $interactions->where('type', 'dislike')->count();
+
+        // Get all posts interacted by the user
+        $posts = $interactions->pluck('post_id')->unique();
+
+        // Update post counts for each interacted post
+        foreach ($posts as $postId) {
+            $post = ForumPost::find($postId);
+
+            if ($post) { 
+                $post->update([
+                    'total_likes_count' => $post->total_likes_count - $userLikes,
+                    'total_dislikes_count' => $post->total_dislikes_count - $userDislikes,
+                ]);
+            }
+        }
+        
         $user->paymentAccounts()->delete();
         $user->tradingAccounts()->delete();
         $user->tradingUsers()->delete();
