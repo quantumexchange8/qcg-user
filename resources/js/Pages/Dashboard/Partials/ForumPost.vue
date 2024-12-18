@@ -113,7 +113,6 @@ const imageStyle = ref({
 });
 
 const scaleFactor = 3; // Scale factor for the image
-const movementAmplifier = 2; // Amplification factor for mouse-follow movement
 
 // Toggle enlarged state of the image
 const toggleEnlarged = (event) => {
@@ -147,8 +146,8 @@ const followMouse = (event) => {
     const mouseY = event.clientY - rect.top;
 
     // Amplify the translation values to make the movement more noticeable
-    const translateX = ((mouseX / rect.width) - 0.5) * -100 * movementAmplifier / scaleFactor;
-    const translateY = ((mouseY / rect.height) - 0.5) * -100 * movementAmplifier / scaleFactor;
+    const translateX = ((mouseX / rect.width) - 0.5) * -100 / scaleFactor;
+    const translateY = ((mouseY / rect.height) - 0.5) * -100 / scaleFactor;
 
     imageStyle.value.transform = `scale(${scaleFactor}) translate3d(${translateX}%, ${translateY}%, 0)`;
   }
