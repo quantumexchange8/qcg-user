@@ -237,6 +237,7 @@ const resetImageTransform = () => {
                             <img
                                 :src="post.post_attachment"
                                 alt="Image"
+                                class="h-full object-contain"
                                 :class="[isEnlarged ? 'cursor-zoom-out' : 'cursor-zoom-in']"
                                 @click="toggleEnlarged($event)"
                                 @mousemove="followMouse"
