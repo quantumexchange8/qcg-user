@@ -320,9 +320,15 @@ watchEffect(() => {
                 </template>
                 <template #body="slotProps">
                     <div class="flex py-1.5 items-center flex-1">
-                        <StatusBadge :variant="slotProps.data.role">
-                            {{ $t(`public.${slotProps.data.role}`) }}
-                        </StatusBadge>
+                        <div 
+                            :class="{
+                                'w-2.5 h-2.5 rounded-full': true, 
+                                'bg-orange': slotProps.data.role === 'agent', 
+                                'bg-info-500': slotProps.data.role === 'member', 
+                                'bg-gray-500': slotProps.data.role !== 'agent' && slotProps.data.role !== 'member'
+                            }"
+                            :title="$t(`public.${slotProps.data.role}`)">
+                        </div>
                     </div>
                 </template>
             </Column>

@@ -205,15 +205,20 @@ const filteredDataOverviews = computed(() => {
                                 {{ $t('public.role') }}
                             </div>
                             <div class="flex items-start">
-                                <StatusBadge :variant="userDetail.role">
-                                    {{ $t(`public.${userDetail.role}`) }}
-                                </StatusBadge>
+                                <div 
+                                    :class="{
+                                        'w-2.5 h-2.5 rounded-full': true, 
+                                        'bg-orange': userDetail.role === 'agent', 
+                                        'bg-info-500': userDetail.role === 'member', 
+                                    }"
+                                    :title="$t(`public.${userDetail.role}`)">
+                                </div>
                             </div>
                             <div class="text-gray-500 text-md">
-                                {{ $t('public.upline') }}
+                                {{ $t('public.total_referree') }}
                             </div>
                             <div class="truncate flex-1 text-gray-700 text-md font-medium">
-                                {{ userDetail.upline_name??'-' }}
+                                {{ filteredDataOverviews.find(item => item.label === trans('public.total_referree'))?.total ? formatAmount(filteredDataOverviews.find(item => item.label === trans('public.total_referree'))?.total, 0) : formatAmount(0, 0) }}
                             </div>
                         </div>
                         <!-- loading right bottom -->
@@ -226,7 +231,7 @@ const filteredDataOverviews = computed(() => {
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full md:w-48 my-2"></div>
                             <div class="text-gray-500 text-md">
-                                {{ $t('public.upline') }}
+                                {{ $t('public.total_referree') }}
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full w-24 my-2"></div>
                         </div>
