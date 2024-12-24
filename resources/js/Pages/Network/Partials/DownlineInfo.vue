@@ -231,7 +231,7 @@ const filteredDataOverviews = computed(() => {
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full md:w-48 my-2"></div>
                             <div class="text-gray-500 text-md">
-                                {{ $t('public.total_referree') }}
+                                {{ $t('public.user_group') }}
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full w-24 my-2"></div>
                         </div>
