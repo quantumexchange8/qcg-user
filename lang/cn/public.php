@@ -177,6 +177,7 @@ return [
     'my_achievements' => '我的成就',
     'incentive_threshold' => '达到 :threshold% 解锁奖励',
     'group' => '群组',
+    'user_group' => '组',
     'gross_deposit' => '总存款',
     'incentive' => '奖励',
     'achieved' => '已达成',

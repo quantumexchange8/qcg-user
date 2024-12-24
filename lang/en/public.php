@@ -177,6 +177,7 @@ return [
     'my_achievements' => 'My Achievements',
     'incentive_threshold' => 'Achieve :threshold% to unlock incentive',
     'group' => 'Group',
+    'user_group' => 'Group',
     'gross_deposit' => 'Gross Deposit',
     'incentive' => 'Incentive',
     'achieved' => 'Achieved',

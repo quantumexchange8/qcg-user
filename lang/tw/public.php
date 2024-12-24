@@ -177,6 +177,7 @@ return [
     'my_achievements' => '我的成就',
     'incentive_threshold' => '達到 :threshold% 解鎖獎勵',
     'group' => '群組',
+    'user_group' => '組',
     'gross_deposit' => '總存款',
     'incentive' => '獎勵',
     'achieved' => '已達成',

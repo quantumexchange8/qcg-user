@@ -215,10 +215,10 @@ const filteredDataOverviews = computed(() => {
                                 </div>
                             </div>
                             <div class="text-gray-500 text-md">
-                                {{ $t('public.total_referree') }}
+                                {{ $t('public.user_group') }}
                             </div>
                             <div class="truncate flex-1 text-gray-700 text-md font-medium">
-                                {{ filteredDataOverviews.find(item => item.label === trans('public.total_referree'))?.total ? formatAmount(filteredDataOverviews.find(item => item.label === trans('public.total_referree'))?.total, 0) : formatAmount(0, 0) }}
+                                {{ userDetail.upline_name ??'-' }}
                             </div>
                         </div>
                         <!-- loading right bottom -->
