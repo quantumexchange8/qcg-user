@@ -144,7 +144,7 @@ return [
     'level' => 'Level',
     'collapse_all' => 'Collapse All',
     'listing' => 'Listing',
-    'all_downlines' => 'All Downlines',
+    'all_users' => 'All Users',
     'filter_by_level' => 'Filter by level',
     'filter_by_role' => 'Filter by role',
     'filter_by_upline' => 'Filter by upline',
