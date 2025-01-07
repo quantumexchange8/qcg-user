@@ -144,7 +144,7 @@ return [
     'level' => '等级',
     'collapse_all' => '全部折叠',
     'listing' => '列表',
-    'all_downlines' => '所有下线',
+    'all_downlines' => '所有回员',
     'filter_by_level' => '按等级筛选',
     'filter_by_role' => '按角色筛选',
     'filter_by_upline' => '按推荐人筛选',
