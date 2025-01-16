@@ -131,7 +131,7 @@ return [
     'rejected' => '已拒絕',
     'details' => '詳情',
     'sent_address' => '發送地址',
-    'txid' => '交易 ID',
+    'txid' => 'TxID',
     'remarks' => '備註',
     'wallet_name' => '錢包名稱',
     'receiving_address' => '接收地址',
