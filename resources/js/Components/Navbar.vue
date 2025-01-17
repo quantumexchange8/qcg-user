@@ -5,7 +5,8 @@ import {
     IconTransferOut,
     IconMenu2,
     IconQrcode,
-    IconCopy
+    IconCopy,
+    IconMessage
 } from '@tabler/icons-vue';
 import QrcodeVue from 'qrcode.vue'
 import Dialog from "primevue/dialog";
@@ -105,6 +106,14 @@ const downloadQrCode = () => {
             {{ title }}
         </div> -->
         <div class="flex items-center">
+            <Link
+                class="w-12 h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                :href="route('forum')"
+                method="get"
+                as="button"
+            >
+                <IconMessage size="20" stroke-width="1.25" />
+            </Link>
             <div
                 class="w-12 h-12 p-3.5 flex items-center justify-center rounded-full hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 @click="toggle"

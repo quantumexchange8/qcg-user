@@ -54,7 +54,7 @@ const removeAttachment = () => {
 };
 
 const submitForm = () => {
-    form.post(route('dashboard.createPost'), {
+    form.post(route('forum.createPost'), {
         onSuccess: () => {
             visible.value = false;
             form.reset();

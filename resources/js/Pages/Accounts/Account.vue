@@ -149,112 +149,110 @@ const noticeVisible = ref(true);
 </script>
 
 <template>
-    <AuthenticatedLayout :title="$t('public.sidebar.accounts')">
-        <div class="flex flex-col gap-20 md:gap-[100px]">
-            <div class="flex flex-col items-start gap-5 self-stretch">
-                <!-- banner -->
-                <div class="relative h-[260px] pt-5 px-5 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-60
-                    bg-no-repeat bg-right-bottom bg-contain overflow-hidden
-                    md:pl-10 md:pt-[30px] md:pb-[58px] md:pr-[310px]
-                    lg:pt-10 lg:pb-[68px] xl:pr-[469px] z-0"
-                    >
-                    <div class="absolute inset-0 -z-10">
-                        <img src="/assets/account-vector-l-xl.svg" alt="" class="absolute bottom-0 left-0 object-contain hidden xl:block"/>
-                        <img src="/assets/account-vector-l-md.svg" alt="" class="absolute bottom-0 left-0 object-contain hidden md:block xl:hidden"/>
-                        <img src="/assets/account-vector-l-sm.svg" alt="" class="absolute bottom-0 left-0 object-contain md:hidden"/>
-
-                        <img src="/assets/account-vector-r-xl.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden xl:block"/>
-                        <img src="/assets/account-vector-r-md.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden md:block xl:hidden"/>
-                        <img src="/assets/account-vector-r-sm.svg" alt="" class="absolute bottom-0 object-contain right-0 md:hidden"/>
-
-                        <img src="/assets/account-bg-xl.png" alt="" class="absolute top-0 right-0 object-contain hidden xl:block"/>
-                        <img src="/assets/account-bg-md.png" alt="" class="absolute top-0 right-0 object-contain hidden md:block xl:hidden"/>
-                    </div>
-                    <!-- Content -->
-                    <div class="flex flex-col items-center gap-5 md:w-[380px] md:items-start xl:w-[480px]">
-                        <div class="flex flex-col justify-center items-start gap-2 self-stretch">
-                            <span class="self-stretch text-gray-950 font-bold text-md md:text-lg">{{ $t('public.open_acc_header') }}</span>
-                            <span class="self-stretch text-gray-700 text-sm">{{ $t('public.open_acc_caption') }}</span>
-                        </div>
-                        <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center">
-                            <Button
-                                type="button"
-                                variant="primary-flat"
-                                class="w-[140px] md:w-full"
-                                :size="buttonSize"
-                                @click="openDialog('live', liveAccountForm)"
-                                :disabled="!accountOptions.length"
-                            >
-                                {{ $t('public.open_account') }}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="primary-outlined"
-                                class="w-[140px] md:w-full"
-                                :size="buttonSize"
-                                @click="openDialog('demo', demoAccountForm)"
-                            >
-                                {{ $t('public.demo_account') }}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- notice -->
-                <TransitionGroup
-                    tag="div"
-                    enter-from-class="-translate-y-full opacity-0"
-                    enter-active-class="duration-300"
-                    leave-active-class="duration-300"
-                    leave-to-class="-translate-y-full opacity-0"
-                    class="w-full"
+    <div class="flex flex-col gap-20 md:gap-[100px] w-full">
+        <div class="flex flex-col items-start gap-5 self-stretch">
+            <!-- banner -->
+            <div class="relative h-[260px] pt-5 px-5 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-60
+                bg-no-repeat bg-right-bottom bg-contain overflow-hidden
+                md:pl-10 md:pt-[30px] md:pb-[58px] md:pr-[310px]
+                lg:pt-10 lg:pb-[68px] xl:pr-[469px] z-0"
                 >
-                    <div
-                        v-if="noticeVisible"
-                        class="py-4 px-5 flex justify-center self-stretch gap-3 border-l-8 rounded border-info-500 shadow-card bg-info-100 items-start"
-                        role="alert"
-                    >
-                        <div class="text-info-500">
-                            <IconInfoCircle size="24" stroke-width="2.0"/>
-                        </div>
-                        <div
-                            class="flex flex-col gap-1 items-start w-full text-sm"
+                <div class="absolute inset-0 -z-10">
+                    <img src="/assets/account-vector-l-xl.svg" alt="" class="absolute bottom-0 left-0 object-contain hidden xl:block"/>
+                    <img src="/assets/account-vector-l-md.svg" alt="" class="absolute bottom-0 left-0 object-contain hidden md:block xl:hidden"/>
+                    <img src="/assets/account-vector-l-sm.svg" alt="" class="absolute bottom-0 left-0 object-contain md:hidden"/>
+
+                    <img src="/assets/account-vector-r-xl.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden xl:block"/>
+                    <img src="/assets/account-vector-r-md.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden md:block xl:hidden"/>
+                    <img src="/assets/account-vector-r-sm.svg" alt="" class="absolute bottom-0 object-contain right-0 md:hidden"/>
+
+                    <img src="/assets/account-bg-xl.png" alt="" class="absolute top-0 right-0 object-contain hidden xl:block"/>
+                    <img src="/assets/account-bg-md.png" alt="" class="absolute top-0 right-0 object-contain hidden md:block xl:hidden"/>
+                </div>
+                <!-- Content -->
+                <div class="flex flex-col items-center gap-5 md:w-[380px] md:items-start xl:w-[480px]">
+                    <div class="flex flex-col justify-center items-start gap-2 self-stretch">
+                        <span class="self-stretch text-gray-950 font-bold text-md md:text-lg">{{ $t('public.open_acc_header') }}</span>
+                        <span class="self-stretch text-gray-700 text-sm">{{ $t('public.open_acc_caption') }}</span>
+                    </div>
+                    <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center">
+                        <Button
+                            type="button"
+                            variant="primary-flat"
+                            class="w-[140px] md:w-full"
+                            :size="buttonSize"
+                            @click="openDialog('live', liveAccountForm)"
+                            :disabled="!accountOptions.length"
                         >
-                            <div class="text-info-500 font-semibold">
-                                {{ $t('public.inactive_account_notice') }}
-                            </div>
-                            <div class="text-gray-700">
-                                {{ $t('public.inactive_account_notice_message') }}
-                            </div>
+                            {{ $t('public.open_account') }}
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="primary-outlined"
+                            class="w-[140px] md:w-full"
+                            :size="buttonSize"
+                            @click="openDialog('demo', demoAccountForm)"
+                        >
+                            {{ $t('public.demo_account') }}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- notice -->
+            <TransitionGroup
+                tag="div"
+                enter-from-class="-translate-y-full opacity-0"
+                enter-active-class="duration-300"
+                leave-active-class="duration-300"
+                leave-to-class="-translate-y-full opacity-0"
+                class="w-full"
+            >
+                <div
+                    v-if="noticeVisible"
+                    class="py-4 px-5 flex justify-center self-stretch gap-3 border-l-8 rounded border-info-500 shadow-card bg-info-100 items-start"
+                    role="alert"
+                >
+                    <div class="text-info-500">
+                        <IconInfoCircle size="24" stroke-width="2.0"/>
+                    </div>
+                    <div
+                        class="flex flex-col gap-1 items-start w-full text-sm"
+                    >
+                        <div class="text-info-500 font-semibold">
+                            {{ $t('public.inactive_account_notice') }}
                         </div>
-                        <div class="text-info-500 hover:text-info-700 hover:cursor-pointer select-none" @click="noticeVisible = false">
-                            <IconX size="16" stroke-width="1.25" />
+                        <div class="text-gray-700">
+                            {{ $t('public.inactive_account_notice_message') }}
                         </div>
                     </div>
-                </TransitionGroup>
-
-                <!-- tab -->
-                <div class="flex items-center gap-3 self-stretch">
-                    <Tabs v-model:value="activeIndex" class="w-full" @tab-change="updateType">
-                        <TabList>
-                            <Tab v-for="(tab, index) in tabs" :key="tab.title" :value="index">
-                                {{ $t(tab.title) }}
-                            </Tab>
-                        </TabList>
-                    </Tabs>
+                    <div class="text-info-500 hover:text-info-700 hover:cursor-pointer select-none" @click="noticeVisible = false">
+                        <IconX size="16" stroke-width="1.25" />
+                    </div>
                 </div>
+            </TransitionGroup>
 
-                <Tabs v-model:value="activeIndex" class="w-full">
-                    <TabPanels>
-                        <TabPanel :key="activeIndex" :value="activeIndex">
-                            <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" />
-                        </TabPanel>
-                    </TabPanels>
+            <!-- tab -->
+            <div class="flex items-center gap-3 self-stretch">
+                <Tabs v-model:value="activeIndex" class="w-full" @tab-change="updateType">
+                    <TabList>
+                        <Tab v-for="(tab, index) in tabs" :key="tab.title" :value="index">
+                            {{ $t(tab.title) }}
+                        </Tab>
+                    </TabList>
                 </Tabs>
             </div>
 
+            <Tabs v-model:value="activeIndex" class="w-full">
+                <TabPanels>
+                    <TabPanel :key="activeIndex" :value="activeIndex">
+                        <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" />
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
         </div>
-    </AuthenticatedLayout>
+    </div>
+
 
     <Dialog v-model:visible="showLiveAccountDialog" modal :header="$t('public.open_live_account')" class="dialog-xs sm:dialog-sm">
         <div class="flex flex-col items-center gap-6 py-4 md:py-6 self-stretch md:gap-8">

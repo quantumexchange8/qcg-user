@@ -15,6 +15,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RebateSettingController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\DownloadCenterController;
+use App\Http\Controllers\ForumController;
 
 Route::get('locale/{locale}', function ($locale) {
     App::setLocale($locale);
@@ -60,6 +61,18 @@ Route::post('deposit_callback', [AccountController::class, 'depositCallback'])->
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
+
+    /**
+     * ==============================
+     *             Forum
+     * ==============================
+     */
+    Route::prefix('forum')->group(function() {
+        Route::get('/', [ForumController::class, 'index'])->name('forum');
+        Route::get('/getPosts', [ForumController::class, 'getPosts'])->name('forum.getPosts');
+        Route::post('/createPost', [ForumController::class, 'createPost'])->name('forum.createPost');
+        Route::post('/postInteraction', [ForumController::class, 'postInteraction'])->name('forum.postInteraction');
+    });
     /**
      * ==============================
      *          Dashboard
@@ -69,14 +82,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/getDashboardData', [DashboardController::class, 'getDashboardData'])->name('getDashboardData');
         Route::get('/getRebateEarnData', [DashboardController::class, 'getRebateEarnData'])->name('getRebateEarnData');
-        Route::get('/getPosts', [DashboardController::class, 'getPosts'])->name('member.getPosts');
 
         Route::post('/applyRebate', [TransactionController::class, 'applyRebate'])->name('dashboard.applyRebate');
         Route::post('/walletTransfer', [TransactionController::class, 'walletTransfer'])->name('dashboard.walletTransfer');
         Route::post('/walletWithdrawal', [TransactionController::class, 'walletWithdrawal'])->name('dashboard.walletWithdrawal');
         Route::get('/getRebateTransactions', [TransactionController::class, 'getRebateTransactions'])->name('dashboard.getRebateTransactions');
-        Route::post('/createPost', [DashboardController::class, 'createPost'])->name('dashboard.createPost');
-        Route::post('/postInteraction', [DashboardController::class, 'postInteraction'])->name('dashboard.postInteraction');
     });
 
     /**
@@ -85,7 +95,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
      * ==============================
      */
     Route::prefix('accounts')->group(function () {
-        Route::get('/', [AccountController::class, 'index'])->name('accounts');
+        // Route::get('/', [AccountController::class, 'index'])->name('accounts');
 
         Route::post('/createTradingAccount', [AccountController::class, 'createTradingAccount'])->name('accounts.createTradingAccount');
         Route::get('/getTradingAccounts', [AccountController::class, 'getTradingAccounts'])->name('accounts.getTradingAccounts');

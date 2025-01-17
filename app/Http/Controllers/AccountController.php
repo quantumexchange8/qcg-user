@@ -28,18 +28,18 @@ use Illuminate\Validation\ValidationException;
 
 class AccountController extends Controller
 {
-    public function index()
-    {
-        $account_types = AccountType::select('id', 'name')
-                        ->where('show_register', 1)
-                        ->get();
-        $leverages = SettingLeverage::select('leverage', 'value')->get();
+    // public function index()
+    // {
+    //     $account_types = AccountType::select('id', 'name')
+    //                     ->where('show_register', 1)
+    //                     ->get();
+    //     $leverages = SettingLeverage::select('leverage', 'value')->get();
 
-        return Inertia::render('Accounts/Account', [
-            // 'account_types' => $account_types,
-            // 'leverages' => $leverages,
-        ]);
-    }
+    //     return Inertia::render('Accounts/Account', [
+    //         // 'account_types' => $account_types,
+    //         // 'leverages' => $leverages,
+    //     ]);
+    // }
 
     public function getOptions()
     {

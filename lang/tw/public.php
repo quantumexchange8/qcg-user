@@ -59,8 +59,8 @@ return [
     'demo_account' => '模擬帳戶',
     'standard_account' => '標準帳戶',
     'ECN' => 'ECN',
-    'balance' => '净值',
-    'equity' => '结余',
+    'balance' => '余额',
+    'equity' => '净值',
     'credit' => '信用',
     'leverage' => '槓桿',
     'deposit' => '存款',
@@ -424,4 +424,5 @@ return [
     'payment_slip' => '轉帳截圖',
     'approve' => '批准',
     'reject' => '拒絕',
+    'forum' => '論壇',
 ];

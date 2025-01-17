@@ -16,13 +16,13 @@ import RebateWalletAction from "@/Pages/Dashboard/Partials/RebateWalletAction.vu
 import RebateEarn from "@/Pages/Dashboard/Partials/RebateEarn.vue";
 import RebateHistory from "@/Pages/Dashboard/Partials/RebateHistory.vue";
 import Vue3Autocounter from "vue3-autocounter";
-import ForumPost from "@/Pages/Dashboard/Partials/ForumPost.vue";
+import Account from "@/Pages/Accounts/Account.vue";
 
-const props = defineProps({
-    terms: Object,
-    postCounts: Number,
-    authorName: String,
-})
+// const props = defineProps({
+//     terms: Object,
+//     postCounts: Number,
+//     authorName: String,
+// })
 
 const user = usePage().props.auth.user;
 const { formatAmount } = transactionFormat();
@@ -155,9 +155,11 @@ watchEffect(() => {
             </div>
 
             <!-- posts -->
-            <ForumPost
+            <!-- <ForumPost
                 :postCounts="postCounts"
                 :authorName="authorName"
+            /> -->
+            <Account
             />
         </div>
 

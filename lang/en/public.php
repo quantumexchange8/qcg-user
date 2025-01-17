@@ -424,4 +424,5 @@ return [
     'payment_slip' => 'Payment Slip',
     'approve' => 'Approve',
     'reject' => 'Reject',
+    'forum' => 'Forum',
 ];

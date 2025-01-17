@@ -59,8 +59,8 @@ return [
     'demo_account' => '模拟账户',
     'standard_account' => '标准账户',
     'ECN' => 'ECN',
-    'balance' => '净值',
-    'equity' => '结余',
+    'balance' => '余额',
+    'equity' => '净值',
     'credit' => '信用',
     'leverage' => '杠杆',
     'deposit' => '存款',
@@ -424,4 +424,5 @@ return [
     'payment_slip' => '转账截图',
     'approve' => '批准',
     'reject' => '拒绝',
+    'forum' => '论坛',
 ];
