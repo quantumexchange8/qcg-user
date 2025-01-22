@@ -4,6 +4,7 @@ namespace App\Services;
 
 use AleeDhillon\MetaFive\Entities\Trade;
 use App\Models\User as UserModel;
+use App\Models\AccountType as AccountTypeModel;
 use App\Services\Data\CreateTradingAccount;
 use App\Services\Data\CreateTradingUser;
 use App\Services\Data\UpdateTradingAccount;
@@ -83,7 +84,7 @@ class CTraderService
         }
     }
 
-    public function createUser(UserModel $user, $mainPassword, $investorPassword, $group, $leverage, $accountType, $leadCampaign = null, $leadSource = null, $remarks = null)
+    public function createUser(UserModel $user, $mainPassword, $investorPassword, $group, $leverage, AccountTypeModel $accountType, $leadCampaign = null, $leadSource = null, $remarks = null)
     {
         try {
             $accountResponse = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders?token=$this->token", [
@@ -107,7 +108,7 @@ class CTraderService
                 $response = $this->linkAccountTOCTID($accountResponse['login'], $mainPassword, $user->ct_user_id);
                 // Log::debug('linkAccountTOCTID result', ['response' => $response]);
 
-                (new CreateTradingUser)->execute($user, $accountResponse, $accountType, $remarks);
+                (new CreateTradingUser)->execute($user, $accountResponse, $accountType->id, $remarks);
                 (new CreateTradingAccount)->execute($user, $accountResponse, $accountType);
                 return $accountResponse;
             } else {

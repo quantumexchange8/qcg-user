@@ -425,4 +425,8 @@ return [
     'approve' => '批准',
     'reject' => '拒絕',
     'forum' => '論壇',
+    'promotion' => '促銷',
+    'unused_credit_warning' => '提醒：未使用的信用餘額提現',
+    'unused_credit_warning_message' => '您的交易賬戶#:8007393中未使用的信用餘額$:1,000.00將於:31/12/2024自動提現。請在此日期前利用您的餘額以充分使用您的信用。',
+    'promotion_account' => '促銷賬戶',
 ];

@@ -71,7 +71,7 @@ const variantClasses = (variant) => ({
     'bg-white hover:bg-primary-50 border border-primary-600 focus:ring-primary-600 text-primary-600 disabled:bg-white disabled:border-gray-300 disabled:text-gray-400': variant === 'primary-outlined',
     'bg-transparent hover:bg-primary-50 focus:ring-primary-50 text-primary-600 disabled:bg-transparent disabled:text-gray-400': variant === 'primary-text',
 
-    // 'bg-gray-400 hover:bg-gray-500 border border-gray-400 hover:border-gray-500 focus:ring-gray-500 text-white disabled:border-gray-100 disabled:bg-gray-100': variant === 'gray-flat',
+    'bg-gray-400 hover:bg-gray-500 border border-gray-400 hover:border-gray-500 focus:ring-gray-500 text-white disabled:border-gray-100 disabled:bg-gray-100': variant === 'gray-flat',
     'bg-gray-100 hover:bg-gray-200 border border-gray-100 hover:border-gray-200 focus:ring-gray-100 text-gray-700 disabled:border-gray-50 disabled:bg-gray-50 disabled:text-gray-400': variant === 'gray-tonal',
     'bg-white hover:bg-gray-50 border border-gray-300 focus:ring-gray-300 text-gray-700 disabled:bg-white disabled:text-gray-400': variant === 'gray-outlined',
     'bg-transparent hover:bg-gray-100 focus:ring-gray-100 text-gray-700 disabled:bg-transparent disabled:text-gray-400': variant === 'gray-text',

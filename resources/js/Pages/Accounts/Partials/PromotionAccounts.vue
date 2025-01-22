@@ -1,0 +1,172 @@
+<script setup>
+import { IconAlertCircleFilled } from '@tabler/icons-vue';
+import {ref, onMounted, watchEffect} from "vue";
+import StatusBadge from '@/Components/StatusBadge.vue';
+import Action from "@/Pages/Accounts/Partials/Action.vue";
+import ActionButton from "@/Pages/Accounts/Partials/ActionButton.vue";
+import Empty from '@/Components/Empty.vue';
+import {generalFormat, transactionFormat} from "@/Composables/index.js";
+import {usePage} from "@inertiajs/vue3";
+import Button from "@/Components/Button.vue";
+import ProgressBar from 'primevue/progressbar';
+
+const isLoading = ref(false);
+const accounts = ref([]);
+const accountType = ref('promotion');
+const { formatAmount } = transactionFormat();
+const { formatRgbaColor } = generalFormat();
+const progress = ref(50); 
+
+// Fetch live accounts from the backend
+const fetchLiveAccounts = async () => {
+    isLoading.value = true;
+    try {
+        const response = await axios.get(`/accounts/getLiveAccount?accountType=${accountType.value}`);
+        accounts.value = response.data;
+    } catch (error) {
+        console.error('Error fetching live accounts:', error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+onMounted(() => {
+    fetchLiveAccounts();
+});
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        fetchLiveAccounts();
+    }
+});
+
+const innerShadowColor = '#D1D5DB'; // Dynamic RGBA color
+const dropdownShadowColor = '#D1D5DB'; // Dynamic RGBA color
+</script>
+
+<template>
+    <div
+        v-if="isLoading"
+        class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-5 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-card w-1/2 animate-pulse"
+    >
+        <div class="flex items-center gap-5 self-stretch">
+            <div class="w-32 h-3 bg-gray-200 rounded-full my-2"></div>
+            <div
+                class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
+            >
+                <div class="w-20 h-2.5 bg-gray-200 rounded-full my-2"></div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 self-stretch xl:grid-cols-4">
+            <div class="w-full flex items-start gap-1 flex-col">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+            <div class="w-full flex items-start gap-1 flex-col">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+            <div class="w-full flex items-start gap-1 flex-col">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+            <div class="w-full flex items-start gap-1 flex-col">
+                <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>
+                <div class="w-20 h-2 bg-gray-200 rounded-full my-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <div
+        v-if="!isLoading && accounts.length > 0"
+        class="w-full grid grid-cols-1 gap-5 md:grid-cols-2"
+    >
+        <div
+            v-for="account in accounts"
+            :key="account.id"
+            class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-3 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-card w-full"
+            :style="{'borderColor': `#${account.account_type_color}`}"
+            :class="{'opacity-50': account.is_active === 'inactive'}"
+        >
+            <div class="flex items-center gap-5 self-stretch">
+                <div class="flex items-center content-center gap-y-2 gap-x-4 flex-grow">
+                    <span class="text-gray-950 font-semibold text-lg">#{{ account.meta_login }}</span>
+                    <div
+                        class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
+                        :style="{
+                            backgroundColor: formatRgbaColor(account.account_type_color, 0.15),
+                            color: `#${account.account_type_color}`,
+                        }"
+                    >
+                        {{ $t(`public.${account.account_type}`) }}
+                    </div>
+                    <IconAlertCircleFilled :size="20" stroke-width="1.25" class="text-error-500" v-if="account.is_active === 'inactive'" v-tooltip.top="$t('public.account_inactive_warning')" />
+                </div>
+                <Action :account="account" :type="accountType" />
+            </div>
+            <div class="grid grid-cols-2 gap-2 self-stretch xl:grid-cols-4">
+                <div class="w-full flex items-start gap-1 flex-col">
+                    <span class="w-16 text-gray-500 text-xs">{{ $t('public.balance') }}:</span>
+                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.balance) }}</span>
+                </div>
+                <div class="w-full flex items-start gap-1 flex-col">
+                    <span class="w-16 text-gray-500 text-xs">{{ $t('public.equity') }}:</span>
+                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.equity) }}</span>
+                </div>
+                <div class="w-full flex items-start gap-1 flex-col">
+                    <span class="w-16 text-gray-500 text-xs">{{ $t('public.credit') }}:</span>
+                    <span class="text-gray-950 text-xs font-medium">$&nbsp;{{ formatAmount(account.credit) }}</span>
+                </div>
+                <div class="w-full flex items-start gap-1 flex-col">
+                    <span class="w-16 text-gray-500 text-xs">{{ $t('public.leverage') }}:</span>
+                    <span class="text-gray-950 text-xs font-medium">1:{{ account.leverage }}</span>
+                </div>
+            </div>
+            <div class="flex justify-end items-center gap-3 self-stretch">
+                <ActionButton :account="account"/>
+            </div>
+            <!-- <div class="flex flex-col items-center self-stretch bg-gray-50 rounded-xl p-4 gap-2 shadow-inner">
+                <div class="flex items-center self-stretch justify-between">
+                    <div class="flex items-start gap-y-1 flex-col">
+                        <span class="text-gray-950 font-semibold text-sm">Welcome Bonus</span>
+                        <span class="text-gray-700 text-xs">Deposit at least $100 to unlock a 50% bonus.</span>   
+                    </div>
+                    <Button 
+                        variant="gray-flat"
+                        class="bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-xl"
+                        :style="{
+                            boxShadow: `inset 0 4px 6px ${innerShadowColor}, 0 4px 6px ${dropdownShadowColor}`
+                        }"
+                    >
+                        Claim Now
+                    </Button>
+                </div>
+                <div class="flex flex-col items-center self-stretch w-full">
+                    <div class="flex flex-row w-full">
+                        <div class="w-full bg-white rounded-[32px] my-[10px] flex-1 relative z-0 p-2 shadow-inner overflow-hidden">
+                            <div class="h-full rounded-[32px] bg-gradient-to-r from-green-400 to-green-600" style="width: 100%" 
+                                :style="{
+                                    boxShadow: `inset 0px -2px 4px #00000040, inset 2px 2px 2px #9BDA9E`
+                                }">
+                            </div>
+                        </div>
+                        <div class="flex justify-center items-center w-[52px] h-[52px] bg-white rounded-full pt-1 pl-1 -ml-[26px] shadow-inner overflow-hidden">
+                            <img src="/assets/Coin.png" alt="coin" class="z-10">
+                        </div>
+                    </div>
+                    <div class="flex items-center self-stretch justify-between pr-12">
+                        <span class="text-xs">Test: 100</span>
+                        <span class="text-xs">100 days left</span>
+                    </div>
+                </div>
+            </div> -->
+        </div>
+    </div>
+
+    <Empty
+        v-else-if="!isLoading && accounts.length === 0"
+        :title="$t('public.empty_trading_account_title')"
+        :message="$t('public.empty_trading_account_message')"
+    />
+
+</template>

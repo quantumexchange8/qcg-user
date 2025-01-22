@@ -109,7 +109,7 @@ class AccountController extends Controller
         if (App::environment('production')) {
             $mainPassword = Str::random(8);
             $investorPassword = Str::random(8);
-            (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType->id, null, null, '');
+            (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType, null, null, '');
         }
 
         return back()->with('toast', [
@@ -200,6 +200,19 @@ class AccountController extends Controller
                     'account_type_leverage' => $account->accountType->leverage,
                     'account_type_color' => $account->accountType->color,
                     'is_active' => $account->status,
+                    'promotion_title' => $account->promotion_title,
+                    'promotion_description' => $account->promotion_description,
+                    'promotion_period_type' => $account->promotion_period_type,
+                    'promotion_period' => $account->promotion_period,
+                    'promotion_type' => $account->promotion_type,
+                    'target_amount' => $account->target_amount,
+                    'bonus_type' => $account->bonus_type,
+                    'bonus_amount_type' => $account->bonus_amount_type,
+                    'bonus_amount' => $account->bonus_amount,
+                    'maximum_bonus_cap' => $account->maximum_bonus_cap,
+                    'applicable_deposit' => $account->applicable_deposit,
+                    'credit_withdraw_policy' => $account->credit_withdraw_policy,
+                    'credit_withdraw_date_period' => $account->credit_withdraw_date_period,
                 ];
             });
 

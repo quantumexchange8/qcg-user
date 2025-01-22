@@ -9,6 +9,7 @@ import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import IndividualAccounts from '@/Pages/Accounts/Partials/IndividualAccounts.vue';
+import PromotionAccounts from '@/Pages/Accounts/Partials/PromotionAccounts.vue';
 import DemoAccounts from '@/Pages/Accounts/Partials/DemoAccounts.vue';
 import { usePage, useForm } from "@inertiajs/vue3";
 import Dialog from 'primevue/dialog';
@@ -18,7 +19,7 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import IconField from 'primevue/iconfield';
 import Select from "primevue/select";
-import {IconCircleCheckFilled, IconInfoCircle, IconX} from '@tabler/icons-vue';
+import {IconCircleCheckFilled, IconInfoCircle, IconX, IconAlertTriangle} from '@tabler/icons-vue';
 import { trans, wTrans } from "laravel-vue-i18n";
 import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 import { transactionFormat } from "@/Composables/index.js";
@@ -45,6 +46,7 @@ const demoAccountForm = useForm({
 
 const tabs = ref([
     { title: wTrans('public.individual'), component: h(IndividualAccounts), type: 'individual' },
+    { title: wTrans('public.promotion'), component: h(PromotionAccounts), type: 'promotion' },
     { title: wTrans('public.demo'), component: h(DemoAccounts), type: 'demo' },
 ]);
 
@@ -146,6 +148,7 @@ const buttonSize = computed(() => {
 })
 
 const noticeVisible = ref(true);
+const warningVisible = ref(true);
 </script>
 
 <template>
@@ -231,6 +234,39 @@ const noticeVisible = ref(true);
                     </div>
                 </div>
             </TransitionGroup>
+
+            <!-- <TransitionGroup
+                v-if="tabs[activeIndex].type === 'promotion'"
+                tag="div"
+                enter-from-class="-translate-y-full opacity-0"
+                enter-active-class="duration-300"
+                leave-active-class="duration-300"
+                leave-to-class="-translate-y-full opacity-0"
+                class="w-full"
+            >
+                <div
+                    v-if="warningVisible"
+                    class="py-4 px-5 flex justify-center self-stretch gap-3 border-l-8 rounded border-warning-600 shadow-card bg-warning-100 items-start"
+                    role="alert"
+                >
+                    <div class="text-warning-600">
+                        <IconAlertTriangle size="24" stroke-width="2.0"/>
+                    </div>
+                    <div
+                        class="flex flex-col gap-1 items-start w-full text-sm"
+                    >
+                        <div class="text-warning-600 font-semibold">
+                            {{ $t('public.unused_credit_warning') }}
+                        </div>
+                        <div class="text-gray-700">
+                            {{ $t('public.unused_credit_warning_message') }}
+                        </div>
+                    </div>
+                    <div class="text-warning-600 hover:text-warning-800 hover:cursor-pointer select-none" @click="warningVisible = false">
+                        <IconX size="16" stroke-width="1.25" />
+                    </div>
+                </div>
+            </TransitionGroup> -->
 
             <!-- tab -->
             <div class="flex items-center gap-3 self-stretch">
