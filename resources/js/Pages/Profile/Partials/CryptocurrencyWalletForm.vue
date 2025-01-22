@@ -6,7 +6,7 @@ import {useForm, usePage} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue";
 
 const user = ref(usePage().props.auth.user);
-const paymentAccounts = ref(usePage().props.auth.payment_account);
+const paymentAccounts = ref(usePage().props.auth.payment_account.slice(-3));
 
 const form = useForm({
     id: new Array(3).fill(''),
