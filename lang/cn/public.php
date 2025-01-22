@@ -427,6 +427,6 @@ return [
     'forum' => '论坛',
     'promotion' => '促销',
     'unused_credit_warning' => '提醒：未使用的信用余额提现',
-    'unused_credit_warning_message' => '您的交易账户#:8007393中未使用的信用余额$:1,000.00将于:31/12/2024自动提现。请在此日期前利用您的余额以充分使用您的信用。',
+    'unused_credit_warning_message' => '您的交易账户#:00000000中未使用的信用余额$:1,000.00将于:31/12/2024自动提现。请在此日期前利用您的余额以充分使用您的信用。',
     'promotion_account' => '促销账户',
 ];

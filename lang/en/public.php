@@ -427,6 +427,6 @@ return [
     'forum' => 'Forum',
     'promotion' => 'Promotion',
     'unused_credit_warning' => 'Reminder: Unused Credit Withdrawal',
-    'unused_credit_warning_message' => 'Your unused credit balance of $:1,000.00 in trading account #:8007393 will be automatically withdrawn by the system on :31/12/2024. Please utilize your credits before this date to make the most of your balance.',
+    'unused_credit_warning_message' => 'Your unused credit balance of $:1,000.00 in trading account #:00000000 will be automatically withdrawn by the system on :31/12/2024. Please utilize your credits before this date to make the most of your balance.',
     'promotion_account' => 'Promotion Account',
 ];

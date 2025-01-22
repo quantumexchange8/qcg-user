@@ -8,11 +8,10 @@ import Empty from '@/Components/Empty.vue';
 import {generalFormat, transactionFormat} from "@/Composables/index.js";
 import {usePage} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue";
-import ProgressBar from 'primevue/progressbar';
 
 const isLoading = ref(false);
 const accounts = ref([]);
-const accountType = ref('promotion');
+const accountType = ref('individual');
 const { formatAmount } = transactionFormat();
 const { formatRgbaColor } = generalFormat();
 const progress = ref(50); 
@@ -125,7 +124,7 @@ const dropdownShadowColor = '#D1D5DB'; // Dynamic RGBA color
             <div class="flex justify-end items-center gap-3 self-stretch">
                 <ActionButton :account="account"/>
             </div>
-            <!-- <div class="flex flex-col items-center self-stretch bg-gray-50 rounded-xl p-4 gap-2 shadow-inner">
+            <div class="flex flex-col items-center self-stretch bg-gray-50 rounded-xl p-4 gap-2 shadow-inner">
                 <div class="flex items-center self-stretch justify-between">
                     <div class="flex items-start gap-y-1 flex-col">
                         <span class="text-gray-950 font-semibold text-sm">Welcome Bonus</span>
@@ -159,7 +158,7 @@ const dropdownShadowColor = '#D1D5DB'; // Dynamic RGBA color
                         <span class="text-xs">100 days left</span>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
     </div>
 

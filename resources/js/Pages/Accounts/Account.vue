@@ -235,7 +235,7 @@ const warningVisible = ref(true);
                 </div>
             </TransitionGroup>
 
-            <!-- <TransitionGroup
+            <TransitionGroup
                 v-if="tabs[activeIndex].type === 'promotion'"
                 tag="div"
                 enter-from-class="-translate-y-full opacity-0"
@@ -266,7 +266,7 @@ const warningVisible = ref(true);
                         <IconX size="16" stroke-width="1.25" />
                     </div>
                 </div>
-            </TransitionGroup> -->
+            </TransitionGroup>
 
             <!-- tab -->
             <div class="flex items-center gap-3 self-stretch">
