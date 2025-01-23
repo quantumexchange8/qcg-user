@@ -179,7 +179,7 @@ class AccountController extends Controller
             Log::error($e->getMessage());
         }
 
-        $liveAccounts = TradingAccount::with('account_type')
+        $liveAccounts = TradingAccount::with('account_type', 'transactions', 'trade_history')
             ->where('user_id', $user->id)
             ->when($accountType, function ($query) use ($accountType) {
                 return $query->whereHas('accountType', function ($query) use ($accountType) {
@@ -188,6 +188,37 @@ class AccountController extends Controller
             })
             ->get()
             ->map(function ($account) {
+                $achievedAmount = 0;
+                $expiryDate = null;
+                $daysLeft = 0;
+
+                if($account->accountType->category === 'promotion') {
+                    if ($account->promotion_period_type === 'specific_date_range') {
+                        $expiryDate = Carbon::parse($account->promotion_period); // Use the given date directly
+                    } elseif ($account->promotion_period_type === 'from_account_opening') {
+                        $expiryDate = Carbon::parse($account->created_at)
+                            ->addDays((int) $account->promotion_period);
+                    }
+    
+                    if ($expiryDate) {
+                        $now = Carbon::now();
+                        $daysLeft = intval($expiryDate->greaterThan($now) 
+                            ? $now->diffInDays($expiryDate) 
+                            : -$expiryDate->diffInDays($now));
+                    }
+    
+                    if ($account->promotion_type === 'deposit') {
+                        $achievedAmount = $account->transactions
+                            ->where('transaction_type', 'deposit')
+                            ->where('created_at', '<', $expiryDate)
+                            ->sum('amount');
+                    } elseif ($account->promotion_type === 'trade_volume') {
+                        $achievedAmount = $account->tradeHistory
+                            ->where('created_at', '<', $expiryDate)
+                            ->sum('trade_lots');
+                    }
+                }
+
                 return [
                     'id' => $account->id,
                     'user_id' => $account->user_id,
@@ -213,6 +244,12 @@ class AccountController extends Controller
                     'applicable_deposit' => $account->applicable_deposit,
                     'credit_withdraw_policy' => $account->credit_withdraw_policy,
                     'credit_withdraw_date_period' => $account->credit_withdraw_date_period,
+                    'claimed_amount' => $account->claimed_amount,
+                    'is_claimed' => $account->is_claimed,
+                    'created_at' => $account->created_at,
+                    'achieved_amount' => $achievedAmount,
+                    'expiry_date' => $expiryDate,
+                    'days_left' => $daysLeft,
                 ];
             });
 

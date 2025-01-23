@@ -42,6 +42,11 @@ class TradingAccount extends Model
                     ->orWhere('to_meta_login', $this->meta_login);
     }
 
+    public function trade_history(): HasMany
+    {
+        return $this->hasMany(TradeBrokerHistory::class, 'meta_login', 'meta_login');
+    }
+
     public function trading_user(): BelongsTo
     {
         return $this->belongsTo(TradingUser::class, 'meta_login', 'meta_login');

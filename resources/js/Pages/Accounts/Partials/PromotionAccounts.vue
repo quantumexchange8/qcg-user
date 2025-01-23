@@ -1,6 +1,6 @@
 <script setup>
 import { IconAlertCircleFilled } from '@tabler/icons-vue';
-import {ref, onMounted, watchEffect} from "vue";
+import {ref, onMounted, watchEffect, computed} from "vue";
 import StatusBadge from '@/Components/StatusBadge.vue';
 import Action from "@/Pages/Accounts/Partials/Action.vue";
 import ActionButton from "@/Pages/Accounts/Partials/ActionButton.vue";
@@ -8,10 +8,11 @@ import Empty from '@/Components/Empty.vue';
 import {generalFormat, transactionFormat} from "@/Composables/index.js";
 import {usePage} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue";
+import dayjs from "dayjs";
 
 const isLoading = ref(false);
 const accounts = ref([]);
-const accountType = ref('individual');
+const accountType = ref('promotion');
 const { formatAmount } = transactionFormat();
 const { formatRgbaColor } = generalFormat();
 const progress = ref(50); 
@@ -39,8 +40,59 @@ watchEffect(() => {
     }
 });
 
-const innerShadowColor = '#D1D5DB'; // Dynamic RGBA color
-const dropdownShadowColor = '#D1D5DB'; // Dynamic RGBA color
+const buttonText = (account) => {
+    if (account.isClaimed) {
+        return 'Completed';
+    } else if (account.days_left <= 0) {
+        return 'Expired';
+    } else {
+        return 'Claim Now';
+    }
+};
+
+// Function to determine if the button should be shown for each account
+const shouldShowClaimButton = (account) => {
+    if (account.promotion_type === 'trade_volume') {
+        return account.isClaimed || account.days_left <= 0;
+    }
+    return true;
+};
+
+// Function to get the button variant (color) based on the account state
+const getButtonVariant = (account) => {
+    if (account.promotion_type === 'deposit' && account.days_left > 0 && !account.isClaimed) {
+        return 'success-flat';
+    } else {
+        return 'gray-flat';
+    }
+};
+
+// Function to get the dynamic button class
+const buttonClass = (account) => {
+    return {
+        'bg-gradient-to-r from-green-400 to-green-600 text-white rounded-xl': account.promotion_type === 'deposit' && !account.isClaimed && account.days_left > 0,
+        'bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-xl': account.promotion_type !== 'trade_volume' && (account.isClaimed || account.days_left <= 0),
+    };
+};
+
+const isButtonDisabled = (account) => {
+    return account.isClaimed || account.days_left <= 0 || (account.promotion_type === 'trade_volume' && !account.isClaimed);
+};
+
+const buttonStyle = (account) => {
+    if (account.promotion_type === 'deposit' && !account.isClaimed && account.days_left > 0) {
+    return {
+        boxShadow: 'inset 2px 2px 4px #67C16B, 0 2px 2px #2E7D32',
+    };
+    } else if (account.promotion_type !== 'trade_volume' && (account.isClaimed || account.days_left <= 0)) {
+    return {
+        boxShadow: 'inset 2px 2px 4px #D1D5DB, 0 2px 2px #D1D5DB',
+    };
+    }
+
+    return {};
+};
+
 </script>
 
 <template>
@@ -127,24 +179,25 @@ const dropdownShadowColor = '#D1D5DB'; // Dynamic RGBA color
             <div class="flex flex-col items-center self-stretch bg-gray-50 rounded-xl p-4 gap-2 shadow-inner">
                 <div class="flex items-center self-stretch justify-between">
                     <div class="flex items-start gap-y-1 flex-col">
-                        <span class="text-gray-950 font-semibold text-sm">Welcome Bonus</span>
-                        <span class="text-gray-700 text-xs">Deposit at least $100 to unlock a 50% bonus.</span>   
+                        <span class="text-gray-950 font-semibold text-sm">{{ account.promotion_title }}</span>
+                        <span class="text-gray-700 text-xs">{{ account.promotion_description }}</span> 
                     </div>
-                    <Button 
-                        variant="gray-flat"
-                        class="bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-xl"
-                        :style="{
-                            boxShadow: `inset 0 4px 6px ${innerShadowColor}, 0 4px 6px ${dropdownShadowColor}`
-                        }"
+                    <Button
+                        v-if="shouldShowClaimButton(account)"
+                        :variant="getButtonVariant(account)"
+                        :class="buttonClass(account)"
+                        :style="buttonStyle(account)"
+                        :disabled="isButtonDisabled(account)"
                     >
-                        Claim Now
+                        {{ buttonText(account) }}
                     </Button>
                 </div>
                 <div class="flex flex-col items-center self-stretch w-full">
                     <div class="flex flex-row w-full">
                         <div class="w-full bg-white rounded-[32px] my-[10px] flex-1 relative z-0 p-2 shadow-inner overflow-hidden">
-                            <div class="h-full rounded-[32px] bg-gradient-to-r from-green-400 to-green-600" style="width: 100%" 
+                            <div class="h-full rounded-[32px] bg-gradient-to-r from-green-400 to-green-600"
                                 :style="{
+                                    width: `${Math.min((account.achieved_amount / account.target_amount) * 100, 100)}%`,
                                     boxShadow: `inset 0px -2px 4px #00000040, inset 2px 2px 2px #9BDA9E`
                                 }">
                             </div>
@@ -154,8 +207,9 @@ const dropdownShadowColor = '#D1D5DB'; // Dynamic RGBA color
                         </div>
                     </div>
                     <div class="flex items-center self-stretch justify-between pr-12">
-                        <span class="text-xs">Test: 100</span>
-                        <span class="text-xs">100 days left</span>
+                        <span class="text-xs">{{ $t(`public.${account.bonus_type}_unlocked`) }}: <span class="font-medium">${{formatAmount(account.achieved_amount)}}/${{formatAmount(account.target_amount)}}</span></span>
+                        <!-- compute for date -->
+                        <span v-if="account.days_left > 0" class="text-xs font-medium">{{ account.days_left }} day(s) left</span>
                     </div>
                 </div>
             </div>

@@ -429,4 +429,7 @@ return [
     'unused_credit_warning' => 'Reminder: Unused Credit Withdrawal',
     'unused_credit_warning_message' => 'Your unused credit balance of $:1,000.00 in trading account #:00000000 will be automatically withdrawn by the system on :31/12/2024. Please utilize your credits before this date to make the most of your balance.',
     'promotion_account' => 'Promotion Account',
+    'bonus' => 'Bonus',
+    'cash_bonus_unlocked' => 'Cash Bonus Unlocked',
+    'credit_bonus_unlocked' => 'Credit Bonus Unlocked',
 ];
