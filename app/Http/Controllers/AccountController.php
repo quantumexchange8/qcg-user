@@ -100,8 +100,8 @@ class AccountController extends Controller
         // Check if the user has reached the maximum number of accounts
         if ($existingAccountsCount >= $accountType->maximum_account_number) {
             return back()->with('toast', [
-                'title' => trans("public.account_limit_reach"),
-                'message' => trans("public.account_limit_reach_message"),
+                'title' => trans("public.account_limit_reached"),
+                'message' => trans("public.account_limit_reached_message"),
                 'type' => 'warning',
             ]);
         }
@@ -272,7 +272,8 @@ class AccountController extends Controller
         //         ]);
         // }
 
-        $tradingAccount = TradingAccount::find($request->meta_login);
+        $tradingAccount = TradingAccount::find($request->account_id);
+
         $tradingAccount->update([
             'claimed_amount' => $request->amount,
             'is_claimed' => 'claimed',
@@ -317,7 +318,7 @@ class AccountController extends Controller
         // ]);
 
         return back()->with('toast', [
-            'title' => trans('public.toast_internal_transfer_success'),
+            'title' => trans('public.toast_claim_success'),
             'type' => 'success',
         ]);
     }

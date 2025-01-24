@@ -8,6 +8,7 @@ import Empty from '@/Components/Empty.vue';
 import {generalFormat, transactionFormat} from "@/Composables/index.js";
 import {usePage} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue";
+import {useForm} from "@inertiajs/vue3";
 import dayjs from "dayjs";
 
 const isLoading = ref(false);
@@ -41,7 +42,7 @@ watchEffect(() => {
 });
 
 const buttonText = (account) => {
-    if (account.isClaimed) {
+    if (account.is_claimed === 'claimed') {
         return 'Completed';
     } else if (account.days_left <= 0) {
         return 'Expired';
@@ -53,14 +54,14 @@ const buttonText = (account) => {
 // Function to determine if the button should be shown for each account
 const shouldShowClaimButton = (account) => {
     if (account.promotion_type === 'trade_volume') {
-        return account.isClaimed || account.days_left <= 0;
+        return account.is_claimed === 'claimed' || account.days_left <= 0;
     }
     return true;
 };
 
 // Function to get the button variant (color) based on the account state
 const getButtonVariant = (account) => {
-    if (account.promotion_type === 'deposit' && account.days_left > 0 && !account.isClaimed) {
+    if (account.promotion_type === 'deposit' && account.days_left > 0 && account.is_claimed !== 'claimed') {
         return 'success-flat';
     } else {
         return 'gray-flat';
@@ -70,21 +71,21 @@ const getButtonVariant = (account) => {
 // Function to get the dynamic button class
 const buttonClass = (account) => {
     return {
-        'bg-gradient-to-r from-green-400 to-green-600 text-white rounded-xl': account.promotion_type === 'deposit' && !account.isClaimed && account.days_left > 0,
-        'bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-xl': account.promotion_type !== 'trade_volume' && (account.isClaimed || account.days_left <= 0),
+        'bg-gradient-to-r from-green-400 to-green-600 text-white rounded-xl': account.promotion_type === 'deposit' && account.is_claimed !== 'claimed' && account.days_left > 0,
+        'bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-xl': account.promotion_type !== 'trade_volume' && (account.is_claimed === 'claimed' || account.days_left <= 0),
     };
 };
 
 const isButtonDisabled = (account) => {
-    return account.isClaimed || account.days_left <= 0 || (account.promotion_type === 'trade_volume' && !account.isClaimed);
+    return account.is_claimed === 'claimed' || account.days_left <= 0 || (account.promotion_type === 'trade_volume' && account.is_claimed !== 'claimed');
 };
 
 const buttonStyle = (account) => {
-    if (account.promotion_type === 'deposit' && !account.isClaimed && account.days_left > 0) {
+    if (account.promotion_type === 'deposit' && account.is_claimed !== 'claimed' && account.days_left > 0) {
     return {
         boxShadow: 'inset 2px 2px 4px #67C16B, 0 2px 2px #2E7D32',
     };
-    } else if (account.promotion_type !== 'trade_volume' && (account.isClaimed || account.days_left <= 0)) {
+    } else if (account.promotion_type !== 'trade_volume' && (account.is_claimed === 'claimed' || account.days_left <= 0)) {
     return {
         boxShadow: 'inset 2px 2px 4px #D1D5DB, 0 2px 2px #D1D5DB',
     };
@@ -95,7 +96,7 @@ const buttonStyle = (account) => {
 
 const form = useForm({
     user_id: '',
-    meta_login: '',
+    account_id: '',
     promotion_type: '',
     bonus_type: '',
     amount: 0,
@@ -103,13 +104,13 @@ const form = useForm({
 
 const claimBonus = (account) => {
     form.user_id = account.user_id;
-    form.meta_login = account.meta_login;
+    form.account_id = account.id;
     form.promotion_type = account.promotion_type;
     form.bonus_type = account.bonus_type;
     if (account.achieved_amount > account.target_amount) {
         form.amount = account.target_amount;
     }
-    else    {
+    else {
         form.amount = account.achieved_amount;
     }
 

@@ -25,6 +25,8 @@ class CreateTradingAccount
         $tradingAccount->margin_leverage = $data['leverageInCents'] / 100;
         $tradingAccount->equity = $data['equity'] / 100;
         $tradingAccount->account_type_id = $accountType->id;
+        $tradingAccount->account_type = $accountType->id;
+        $tradingAccount->status = 'active';
 
         $tradingAccount->promotion_title = $accountType->promotion_title ?? null;
         $tradingAccount->promotion_description = $accountType->promotion_description ?? null;
