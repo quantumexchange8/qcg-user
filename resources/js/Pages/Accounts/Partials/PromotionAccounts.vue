@@ -93,6 +93,28 @@ const buttonStyle = (account) => {
     return {};
 };
 
+const form = useForm({
+    user_id: '',
+    meta_login: '',
+    promotion_type: '',
+    bonus_type: '',
+    amount: 0,
+})
+
+const claimBonus = (account) => {
+    form.user_id = account.user_id;
+    form.meta_login = account.meta_login;
+    form.promotion_type = account.promotion_type;
+    form.bonus_type = account.bonus_type;
+    if (account.achieved_amount > account.target_amount) {
+        form.amount = account.target_amount;
+    }
+    else    {
+        form.amount = account.achieved_amount;
+    }
+
+    form.post(route('accounts.claim_bonus'))
+}
 </script>
 
 <template>
@@ -188,6 +210,7 @@ const buttonStyle = (account) => {
                         :class="buttonClass(account)"
                         :style="buttonStyle(account)"
                         :disabled="isButtonDisabled(account)"
+                        @click="claimBonus(account)"
                     >
                         {{ buttonText(account) }}
                     </Button>
@@ -207,7 +230,8 @@ const buttonStyle = (account) => {
                         </div>
                     </div>
                     <div class="flex items-center self-stretch justify-between pr-12">
-                        <span class="text-xs">{{ $t(`public.${account.bonus_type}_unlocked`) }}: <span class="font-medium">${{formatAmount(account.achieved_amount)}}/${{formatAmount(account.target_amount)}}</span></span>
+                        <span v-if="account.promotion_type==='trade_volume'" class="text-xs">{{ $t('public.filled_volume') }}: <span class="font-medium">{{formatAmount(account.achieved_amount)}}Ł/{{formatAmount(account.target_amount)}}Ł</span></span>
+                        <span v-else class="text-xs">{{ $t(`public.${account.bonus_type}_unlocked`) }}: <span class="font-medium">${{formatAmount(account.achieved_amount)}}/${{formatAmount(account.target_amount)}}</span></span>
                         <!-- compute for date -->
                         <span v-if="account.days_left > 0" class="text-xs font-medium">{{ account.days_left }} day(s) left</span>
                     </div>

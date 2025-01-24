@@ -166,6 +166,14 @@ class CTraderService
         return $response;
     }
 
+    public function getGroups()
+    {
+        $response = Http::acceptJson()->get($this->baseURL . "/v2/webserv/tradergroups?token=$this->token")->json();
+        //TraderTO
+        Log::debug($response);
+        return $response;
+    }
+
     /**
      * @throws ConnectionException
      * @throws Exception

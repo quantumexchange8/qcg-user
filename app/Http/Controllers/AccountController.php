@@ -170,7 +170,7 @@ class AccountController extends Controller
                 $q->where('category', $accountType);
             })
             ->get();
-
+        (new CTraderService)->getGroups();
         try {
             foreach ($trading_accounts as $trading_account) {
                 (new CTraderService)->getUserInfo($trading_account->meta_login);
@@ -254,6 +254,72 @@ class AccountController extends Controller
             });
 
         return response()->json($liveAccounts);
+    }
+
+    public function claim_bonus(Request $request)
+    {
+        // $request->validate([
+        //     'account_id' => 'required|exists:trading_accounts,id',
+        //     'amount' => ['required', 'numeric', 'gte:50'],
+        // ]);
+
+        // $conn = (new CTraderService)->connectionStatus();
+        // if ($conn['code'] != 0) {
+        //     return back()
+        //         ->with('toast', [
+        //             'title' => 'Connection Error',
+        //             'type' => 'error'
+        //         ]);
+        // }
+
+        $tradingAccount = TradingAccount::find($request->meta_login);
+        $tradingAccount->update([
+            'claimed_amount' => $request->amount,
+            'is_claimed' => 'claimed',
+        ]);
+        // (new CTraderService)->getUserInfo(collect($tradingAccount));
+
+        // $tradingAccount = TradingAccount::find($request->account_id);
+        // $amount = $request->input('amount');
+        // $to_meta_login = $request->input('to_meta_login');
+
+        // if ($tradingAccount->balance < $amount) {
+        //     throw ValidationException::withMessages(['wallet' => trans('public.insufficient_balance')]);
+        // }
+
+        // try {
+        //     $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+        //     $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
+        // } catch (\Throwable $e) {
+        //     if ($e->getMessage() == "Not found") {
+        //         TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
+        //     } else {
+        //         Log::error($e->getMessage());
+        //     }
+        //     return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        // }
+
+        // $ticketFrom = $tradeFrom->getTicket();
+        // $ticketTo = $tradeTo->getTicket();
+        // Transaction::create([
+        //     'user_id' => Auth::id(),
+        //     'category' => 'trading_account',
+        //     'transaction_type' => 'account_to_account',
+        //     'from_meta_login' => $tradingAccount->meta_login,
+        //     'to_meta_login' => $to_meta_login,
+        //     'ticket' => $ticketFrom . ','. $ticketTo,
+        //     'transaction_number' => RunningNumberService::getID('transaction'),
+        //     'amount' => $amount,
+        //     'transaction_charges' => 0,
+        //     'transaction_amount' => $amount,
+        //     'status' => 'successful',
+        //     'comment' => 'to ' . $to_meta_login
+        // ]);
+
+        return back()->with('toast', [
+            'title' => trans('public.toast_internal_transfer_success'),
+            'type' => 'success',
+        ]);
     }
 
     public function getAccountReport(Request $request)
