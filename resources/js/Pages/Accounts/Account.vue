@@ -153,7 +153,7 @@ const warningVisible = ref(true);
 
 <template>
     <div class="flex flex-col gap-20 md:gap-[100px] w-full">
-        <div class="flex flex-col items-start gap-5 self-stretch">
+        <div class="flex flex-col items-start gap-2 self-stretch">
             <!-- banner -->
             <div class="relative h-[260px] pt-5 px-5 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-60
                 bg-no-repeat bg-right-bottom bg-contain overflow-hidden
@@ -235,7 +235,7 @@ const warningVisible = ref(true);
                 </div>
             </TransitionGroup>
 
-            <TransitionGroup
+            <!-- <TransitionGroup
                 v-if="tabs[activeIndex].type === 'promotion'"
                 tag="div"
                 enter-from-class="-translate-y-full opacity-0"
@@ -266,7 +266,7 @@ const warningVisible = ref(true);
                         <IconX size="16" stroke-width="1.25" />
                     </div>
                 </div>
-            </TransitionGroup>
+            </TransitionGroup> -->
 
             <!-- tab -->
             <div class="flex items-center gap-3 self-stretch">

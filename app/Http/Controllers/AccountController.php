@@ -272,12 +272,42 @@ class AccountController extends Controller
         //         ]);
         // }
 
+        Validator::make($request->all(), [
+            'account_id' => ['required', 'exists:trading_accounts,id'],
+            'amount' => ['required', 'numeric'],
+        ])->setAttributeNames([
+            'account_id' => trans('public.account'),
+            'amount' => trans('public.amount'),
+        ])->validate();
+
+        $amount = $request->amount;
         $tradingAccount = TradingAccount::find($request->account_id);
 
-        $tradingAccount->update([
-            'claimed_amount' => $request->amount,
-            'is_claimed' => 'claimed',
-        ]);
+        //  if ($tradingAccount->balance < $amount) {
+        //      throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
+        //  }
+
+         $amount = $request->input('amount');
+
+         $transaction = Transaction::create([
+             'user_id' => Auth::id(),
+             'category' => 'bonus',
+             'transaction_type' => 'cash_bonus',
+             'to_meta_login' => $tradingAccount->meta_login,
+             'transaction_number' => RunningNumberService::getID('transaction'),
+             'amount' => $amount,
+             'transaction_charges' => 0,
+             'transaction_amount' => $amount,
+             'status' => 'processing',
+         ]);
+
+
+        // $tradingAccount = TradingAccount::find($request->account_id);
+
+        // $tradingAccount->update([
+        //     'claimed_amount' => $request->amount,
+        //     'is_claimed' => 'claimed',
+        // ]);
         // (new CTraderService)->getUserInfo(collect($tradingAccount));
 
         // $tradingAccount = TradingAccount::find($request->account_id);
@@ -318,7 +348,7 @@ class AccountController extends Controller
         // ]);
 
         return back()->with('toast', [
-            'title' => trans('public.toast_claim_success'),
+            'title' => trans('public.toast_claim_request'),
             'type' => 'success',
         ]);
     }

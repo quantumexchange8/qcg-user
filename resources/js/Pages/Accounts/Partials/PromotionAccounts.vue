@@ -71,8 +71,8 @@ const getButtonVariant = (account) => {
 // Function to get the dynamic button class
 const buttonClass = (account) => {
     return {
-        'bg-gradient-to-r from-green-400 to-green-600 text-white rounded-xl': account.promotion_type === 'deposit' && account.is_claimed !== 'claimed' && account.days_left > 0,
-        'bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-xl': account.promotion_type !== 'trade_volume' && (account.is_claimed === 'claimed' || account.days_left <= 0),
+        'bg-gradient-to-r from-[#42A547] to-[#2A6B2D] text-white rounded-xl': account.promotion_type === 'deposit' && account.is_claimed !== 'claimed' && account.days_left > 0,
+        'bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-xl': account.promotion_type !== 'trade_volume' && (account.is_claimed === 'claimed' || account.days_left <= 0),
     };
 };
 

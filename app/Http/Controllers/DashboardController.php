@@ -9,6 +9,7 @@ use App\Models\ForumPost;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\UserPostInteraction;
+use App\Models\TradeBrokerHistory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -41,11 +42,25 @@ class DashboardController extends Controller
             ->whereIn('user_id', $groupIds)
             ->sum('amount');
 
+        $group_total_trade_lots = TradeBrokerHistory::with('trading_account.ofUser')
+            ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
+                $query->whereIn('id', $groupIds); 
+            })
+            ->sum('trade_lots');
+
+        $group_total_trade_volume = TradeBrokerHistory::with('trading_account.ofUser')
+            ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
+                $query->whereIn('id', $groupIds); 
+            })
+            ->sum('trade_volume');
+
         return response()->json([
             'rebateWallet' => $rebate_wallet,
             'groupTotalDeposit' => $group_total_deposit,
             'groupTotalWithdrawal' => $group_total_withdrawal,
             'totalGroupNetBalance' => $group_total_deposit - $group_total_withdrawal,
+            'groupTotalTradeLot' => $group_total_trade_lots,
+            'groupTotalTradeVolume' => $group_total_trade_volume,
         ]);
     }
 

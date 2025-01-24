@@ -429,4 +429,8 @@ return [
     'unused_credit_warning' => '提醒：未使用的信用余额提现',
     'unused_credit_warning_message' => '您的交易账户#:00000000中未使用的信用余额$:1,000.00将于:31/12/2024自动提现。请在此日期前利用您的余额以充分使用您的信用。',
     'promotion_account' => '促销账户',
+    'toast_claim_request' => '您已成功请求奖金',
+    'total_trade_lots' => '总交易手数',
+    'group_total_trade_lots' => '组总交易手数',
+    'group_total_trade_volume' => '组总交易量',
 ];

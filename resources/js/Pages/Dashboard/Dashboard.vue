@@ -9,6 +9,8 @@ import {
     WithdrawalIcon,
     NetBalanceIcon,
     NetAssetIcon,
+    TradeLotIcon,
+    TradeVolumeIcon,
 } from '@/Components/Icons/outline.jsx';
 import {IconReport} from '@tabler/icons-vue';
 import {trans} from "laravel-vue-i18n";
@@ -30,6 +32,8 @@ const groupTotalDeposit = ref(0);
 const groupTotalWithdrawal = ref(0);
 const totalGroupNetBalance = ref(0);
 const total_group_net_asset = ref(0);
+const groupTotalTradeLot = ref(0);
+const groupTotalTradeVolume = ref(0);
 const rebateWallet = ref();
 
 // data overview
@@ -39,24 +43,42 @@ const dataOverviews = computed(() => [
         total: groupTotalDeposit.value,
         label: user.role === 'member' ? trans('public.total_deposit') : trans('public.group_total_deposit'),
         borderColor: 'border-green',
+        type: 'total_deposit'
     },
     {
         icon: WithdrawalIcon,
         total: groupTotalWithdrawal.value,
         label: user.role === 'member' ? trans('public.total_withdrawal') : trans('public.group_total_withdrawal'),
         borderColor: 'border-pink',
+        type: 'total_withdrawal'
     },
     {
         icon: NetBalanceIcon,
         total: totalGroupNetBalance.value,
         label: user.role === 'member' ? trans('public.total_net_balance') : trans('public.group_total_net_balance'),
         borderColor: 'border-[#FEDC32]',
+        type: 'total_net_balance'
     },
     {
         icon: NetAssetIcon,
         total: total_group_net_asset.value,
         label: user.role === 'member' ? trans('public.total_asset') : trans('public.group_total_asset'),
         borderColor: 'border-indigo',
+        type: 'total_asset'
+    },
+    {
+        icon: TradeLotIcon,
+        total: groupTotalTradeLot.value,
+        label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
+        borderColor: 'border-green',
+        type: 'total_trade_lots'
+    },
+    {
+        icon: TradeVolumeIcon,
+        total: groupTotalTradeVolume.value,
+        label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
+        borderColor: 'border-green',
+        type: 'total_trade_volume'
     },
 ]);
 
@@ -67,6 +89,8 @@ const getDashboardData = async () => {
         groupTotalDeposit.value = response.data.groupTotalDeposit
         groupTotalWithdrawal.value = response.data.groupTotalWithdrawal
         totalGroupNetBalance.value = response.data.totalGroupNetBalance
+        groupTotalTradeLot.value = response.data.groupTotalTradeLot
+        groupTotalTradeVolume.value = response.data.groupTotalTradeVolume
     } catch (error) {
         console.error('Error pending counts:', error);
     }
@@ -84,7 +108,7 @@ watchEffect(() => {
 <template>
     <AuthenticatedLayout :title="$t('public.sidebar.dashboard')">
         <div class="flex flex-col gap-5 items-center self-stretch">
-            <div class="flex flex-col xl:flex-row items-center gap-5 self-stretch w-full">
+            <div class="flex flex-col items-center gap-5 self-stretch w-full">
                 <div class="flex flex-col gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
                     <div class="bg-white rounded-lg h-[120px] md:h-40 shadow-card relative overflow-hidden p-3 md:px-6 md:py-8 items-center w-full">
@@ -101,11 +125,7 @@ watchEffect(() => {
 
                     <!-- overview data -->
                     <div
-                        class="grid gap-5 w-full"
-                        :class="{
-                        'grid-cols-2': user.role === 'agent',
-                        'grid-cols-2 xl:grid-cols-4': user.role === 'member'
-                    }"
+                        class="grid gap-5 w-full grid-cols-2 xl:grid-cols-3"
                     >
                         <div
                             class="flex flex-col justify-center items-start gap-4 px-3 md:px-6 py-5 md:py-7 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
@@ -116,7 +136,13 @@ watchEffect(() => {
                             <component :is="item.icon" class="w-9 h-9 grow-0 shrink-0" />
                             <div class="flex flex-col items-start gap-4 w-full">
                                 <span class="text-gray-700 text-xs md:text-sm font-medium">{{ item.label }}</span>
-                                <div class="text-gray-950 text-md md:text-xl font-semibold">
+                                <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 text-md md:text-xl font-semibold">
+                                    {{ formatAmount(item.total, 0) }}
+                                </div>
+                                <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 text-md md:text-xl font-semibold">
+                                    {{ formatAmount(item.total) }}
+                                </div>
+                                <div v-else class="text-gray-950 text-md md:text-xl font-semibold">
                                     $ {{ formatAmount(item.total) }}
                                 </div>
                             </div>
@@ -135,7 +161,7 @@ watchEffect(() => {
                         <RebateHistory />
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 gap-6 items-center self-stretch h-full w-full">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center self-stretch h-full w-full">
                         <!-- rebate earn -->
                         <RebateEarn />
 
