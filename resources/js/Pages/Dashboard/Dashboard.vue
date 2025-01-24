@@ -128,13 +128,13 @@ watchEffect(() => {
                         class="grid gap-5 w-full grid-cols-2 xl:grid-cols-3"
                     >
                         <div
-                            class="flex flex-col justify-center items-start gap-4 px-3 md:px-6 py-5 md:py-7 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
+                            class="flex flex-row justify-between items-center gap-4 px-3 md:px-6 py-5 md:py-7 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
                             :class="item.borderColor"
                             v-for="(item, index) in dataOverviews"
                             :key="index"
                         >
                             <component :is="item.icon" class="w-9 h-9 grow-0 shrink-0" />
-                            <div class="flex flex-col items-start gap-4 w-full">
+                            <div class="flex flex-col items-end">
                                 <span class="text-gray-700 text-xs md:text-sm font-medium">{{ item.label }}</span>
                                 <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 text-md md:text-xl font-semibold">
                                     {{ formatAmount(item.total, 0) }}
@@ -166,7 +166,7 @@ watchEffect(() => {
                         <RebateEarn />
 
                         <!-- rebate wallet -->
-                        <div class="bg-gray-50 flex flex-col p-6 gap-4 xl:gap-0 justify-between items-center self-stretch w-full">
+                        <div class="bg-gray-50 flex flex-col p-6 gap-4 justify-between items-center self-stretch w-full">
                             <div class="flex flex-col gap-3 items-center justify-center self-stretch w-full">
                                 <span class="text-sm text-gray-500">{{ $t('public.available_rebate_balance') }}</span>
                                 <span class="text-xxl text-gray-950 font-semibold"> $ <vue3-autocounter ref="counter" :startAmount="0" :endAmount="rebateWallet ? Number(rebateWallet.balance) : 0" :duration="1" separator="," decimalSeparator="." :decimals="2" :autoinit="true" /></span>
