@@ -112,10 +112,10 @@ watchEffect(() => {
                 <div class="flex flex-col gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
                     <div class="bg-white rounded-lg h-[60px] md:h-20 shadow-card relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
-                        <div class="flex flex-col gap-1 items-start justify-center w-full">
-                            <span class="md:text-md text-sm text-gray-950 font-bold">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
-                            <span v-if="user.role==='agent'" class="md:text-sm text-xs text-gray-700">{{ $t('public.welcome_back_caption') }}</span>
-                            <span v-else class="md:text-sm text-xs text-gray-700">{{ $t('public.member_welcome_back_caption') }}</span>
+                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-60px)] truncate">
+                            <span class="md:text-md text-sm text-gray-950 font-bold truncate">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
+                            <span v-if="user.role==='agent'" class="md:text-sm text-xs text-gray-700 truncate">{{ $t('public.welcome_back_caption') }}</span>
+                            <span v-else class="md:text-sm text-xs text-gray-700 truncate">{{ $t('public.member_welcome_back_caption') }}</span>
                         </div>
 
                         <div class="absolute right-0 top-0">

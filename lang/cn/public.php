@@ -433,4 +433,5 @@ return [
     'total_trade_lots' => '总交易手数',
     'group_total_trade_lots' => '组总交易手数',
     'group_total_trade_volume' => '组总交易量',
+    "member_welcome_back_caption" => "让我们今天一起实现新的交易里程碑.",
 ];
