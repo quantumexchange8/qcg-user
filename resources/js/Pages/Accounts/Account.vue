@@ -143,10 +143,6 @@ const openDemoAccount = () => {
     });
 };
 
-const buttonSize = computed(() => {
-    return window.innerWidth < 768 ? 'sm' : 'base';
-})
-
 const noticeVisible = ref(true);
 const warningVisible = ref(true);
 </script>
@@ -155,10 +151,10 @@ const warningVisible = ref(true);
     <div class="flex flex-col gap-20 md:gap-[100px] w-full">
         <div class="flex flex-col items-start gap-2 self-stretch">
             <!-- banner -->
-            <div class="relative h-[260px] pt-5 px-5 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-60
+            <div class="relative pt-3 px-3 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-[180px]
                 bg-no-repeat bg-right-bottom bg-contain overflow-hidden
-                md:pl-10 md:pt-[30px] md:pb-[58px] md:pr-[310px]
-                lg:pt-10 lg:pb-[68px] xl:pr-[469px] z-0"
+                md:pl-6 md:pt-5 md:pb-9 md:pr-[308px]
+                z-0"
                 >
                 <div class="absolute inset-0 -z-10">
                     <img src="/assets/account-vector-l-xl.svg" alt="" class="absolute bottom-0 left-0 object-contain hidden xl:block"/>
@@ -167,23 +163,22 @@ const warningVisible = ref(true);
 
                     <img src="/assets/account-vector-r-xl.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden xl:block"/>
                     <img src="/assets/account-vector-r-md.svg" alt="" class="absolute bottom-0 object-contain ml-[128px] hidden md:block xl:hidden"/>
-                    <img src="/assets/account-vector-r-sm.svg" alt="" class="absolute bottom-0 object-contain right-0 md:hidden"/>
+                    <img src="/assets/account-vector-r-sm.svg" alt="" class="absolute bottom-0 object-contain ml-[63px] md:hidden"/>
 
-                    <img src="/assets/account-bg-xl.png" alt="" class="absolute top-0 right-0 object-contain hidden xl:block"/>
-                    <img src="/assets/account-bg-md.png" alt="" class="absolute top-0 right-0 object-contain hidden md:block xl:hidden"/>
+                    <img src="/assets/account-banner.png" alt="" class="absolute top-0 right-0 object-contain hidden md:block"/>
                 </div>
                 <!-- Content -->
-                <div class="flex flex-col items-center gap-5 md:w-[380px] md:items-start xl:w-[480px]">
-                    <div class="flex flex-col justify-center items-start gap-2 self-stretch">
-                        <span class="self-stretch text-gray-950 font-bold text-md md:text-lg">{{ $t('public.open_acc_header') }}</span>
-                        <span class="self-stretch text-gray-700 text-sm">{{ $t('public.open_acc_caption') }}</span>
+                <div class="flex flex-col items-center gap-5 md:items-start">
+                    <div class="flex flex-col justify-center items-start gap-1 self-stretch">
+                        <span class="self-stretch text-gray-950 font-bold text-sm md:text-md">{{ $t('public.open_acc_header') }}</span>
+                        <span class="self-stretch text-gray-700 text-xs md:text-sm">{{ $t('public.open_acc_caption') }}</span>
                     </div>
-                    <div class="flex flex-col justify-center items-start gap-3 self-stretch md:flex-row md:justify-end md:items-center">
+                    <div class="flex gap-3 self-stretch flex-row justify-start items-center">
                         <Button
                             type="button"
                             variant="primary-flat"
-                            class="w-[140px] md:w-full"
-                            :size="buttonSize"
+                            class="md:w-40"
+                            size="sm"
                             @click="openDialog('live', liveAccountForm)"
                             :disabled="!accountOptions.length"
                         >
@@ -192,8 +187,8 @@ const warningVisible = ref(true);
                         <Button
                             type="button"
                             variant="primary-outlined"
-                            class="w-[140px] md:w-full"
-                            :size="buttonSize"
+                            class="md:w-40"
+                            size="sm"
                             @click="openDialog('demo', demoAccountForm)"
                         >
                             {{ $t('public.demo_account') }}

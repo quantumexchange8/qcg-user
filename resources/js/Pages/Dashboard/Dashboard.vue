@@ -111,10 +111,11 @@ watchEffect(() => {
             <div class="flex flex-col items-center gap-5 self-stretch w-full">
                 <div class="flex flex-col gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
-                    <div class="bg-white rounded-lg h-[120px] md:h-40 shadow-card relative overflow-hidden p-3 md:px-6 md:py-8 items-center w-full">
-                        <div class="flex flex-col gap-2 items-start justify-center w-full h-24 md:max-w-[500px] max-w-[170px] " :class="{'xl:max-w-[277px]': user.role === 'agent'}">
-                            <span class="md:text-xl text-sm text-gray-950 font-bold">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
-                            <span class="md:text-sm text-xs text-gray-700">{{ $t('public.welcome_back_caption') }}</span>
+                    <div class="bg-white rounded-lg h-[60px] md:h-20 shadow-card relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
+                        <div class="flex flex-col gap-1 items-start justify-center w-full">
+                            <span class="md:text-md text-sm text-gray-950 font-bold">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
+                            <span v-if="user.role==='agent'" class="md:text-sm text-xs text-gray-700">{{ $t('public.welcome_back_caption') }}</span>
+                            <span v-else class="md:text-sm text-xs text-gray-700">{{ $t('public.member_welcome_back_caption') }}</span>
                         </div>
 
                         <div class="absolute right-0 top-0">
@@ -134,15 +135,15 @@ watchEffect(() => {
                             :key="index"
                         >
                             <component :is="item.icon" class="w-9 h-9 grow-0 shrink-0" />
-                            <div class="flex flex-col items-end">
-                                <span class="text-gray-700 text-xs md:text-sm font-medium">{{ item.label }}</span>
-                                <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 text-md md:text-xl font-semibold">
+                            <div class="flex flex-col items-end truncate">
+                                <span class="text-gray-700 text-xxs md:text-sm font-medium w-full truncate">{{ item.label }}</span>
+                                <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 text-md md:text-lg font-semibold">
                                     {{ formatAmount(item.total, 0) }}
                                 </div>
-                                <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 text-md md:text-xl font-semibold">
+                                <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 text-md md:text-lg font-semibold">
                                     {{ formatAmount(item.total) }}
                                 </div>
-                                <div v-else class="text-gray-950 text-md md:text-xl font-semibold">
+                                <div v-else class="text-gray-950 text-md md:text-lg font-semibold">
                                     $ {{ formatAmount(item.total) }}
                                 </div>
                             </div>
@@ -173,7 +174,6 @@ watchEffect(() => {
                             </div>
                             <RebateWalletAction
                                 :rebateWallet="rebateWallet"
-                                :terms="terms"
                             />
                         </div>
                     </div>

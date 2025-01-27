@@ -436,4 +436,5 @@ return [
     'total_trade_lots' => 'Total Trade Lots',
     'group_total_trade_lots' => 'Group Total Trade Lots',
     'group_total_trade_volume' => 'Group Total Trade Volume',
+    "member_welcome_back_caption" => "Let's achieve new trading milestones today.",
 ];

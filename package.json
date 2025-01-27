@@ -21,6 +21,7 @@
         "@heroicons/vue": "^1.0.6",
         "@inertiajs/inertia": "^0.11.1",
         "@tabler/icons-vue": "^3.14.0",
+        "@tailwindcss/line-clamp": "^0.4.4",
         "@tailwindcss/typography": "^0.5.15",
         "@tiptap/pm": "^2.9.1",
         "@tiptap/starter-kit": "^2.9.1",

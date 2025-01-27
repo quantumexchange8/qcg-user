@@ -12,6 +12,7 @@ import CreatePost from "@/Pages/Forums/Partials/CreatePost.vue";
 import {usePermission} from "@/Composables/permissions.js";
 import { IconThumbUpFilled, IconThumbDownFilled, IconChevronLeft } from "@tabler/icons-vue";
 import AuthenticatedLayout from '@/Layouts/Authenticated.vue';
+import ScrollPanel from 'primevue/scrollpanel';
 
 const props = defineProps({
     postCounts: Number,
@@ -46,26 +47,49 @@ const toggleExpand = (index) => {
     expandedPosts.value[index] = !expandedPosts.value[index];
 };
 
-const checkContentHeight = async () => {
-    // Ensure DOM updates are applied before measuring
+// Check content lines instead of height
+const checkContentLines = async () => {
+    // Ensure DOM updates are applied before measurement
     await nextTick();
 
     posts.value.forEach((post) => {
         const contentElement = document.getElementById(`content-${post.id}`);
-        if (contentElement) {
-            isTruncated.value[post.id] = contentElement.scrollHeight > 82;
+        const subjectElement = document.getElementById(`subject-${post.id}`);
+        
+        if (contentElement || subjectElement) {
+            let computedStyle;
+
+            // Get computed style of the subject element if it exists, else use content element
+            if (subjectElement) {
+                computedStyle = window.getComputedStyle(subjectElement);
+            } else if (contentElement) {
+                computedStyle = window.getComputedStyle(contentElement);
+            }
+
+            // Make sure computedStyle is valid before proceeding
+            if (computedStyle) {
+                const lineHeight = parseFloat(computedStyle.lineHeight || '16'); // Default line height
+                let totalHeight = 0;
+
+                // Add subject height if it exists
+                if (subjectElement) {
+                    totalHeight += subjectElement.scrollHeight;
+                }
+
+                // Add content height if it exists
+                if (contentElement) {
+                    totalHeight += contentElement.scrollHeight;
+                }
+
+                // Calculate total lines
+                const totalLines = Math.floor(totalHeight / lineHeight);
+                isTruncated.value[post.id] = totalLines > 1; // Check if subject + content exceeds 1 line
+            }
         }
     });
 };
 
-onMounted(() => {
-    checkContentHeight();
-});
-
-watch(posts, () => {
-    checkContentHeight();
-});
-
+// Format post date
 const formatPostDate = (date) => {
     const now = dayjs();
     const postDate = dayjs(date);
@@ -78,6 +102,16 @@ const formatPostDate = (date) => {
         return postDate.format('ddd, DD MMM');
     }
 };
+
+// Watch for changes in posts and recheck content
+watch(posts, () => {
+    checkContentLines();
+});
+
+// Check content lines on mount
+onMounted(() => {
+    checkContentLines();
+});
 
 watchEffect(() => {
     if (usePage().props.toast !== null) {
@@ -171,9 +205,9 @@ const goBack = () => {
         <div class="flex gap-2 items-center">
             <Button
                 variant="gray-text"
-                @click="goBack"
                 iconOnly
                 pill
+                :href="route('dashboard')"
             >
                 <IconChevronLeft size="20" stroke-width="1.25"/>
             </Button>
@@ -223,7 +257,7 @@ const goBack = () => {
                 </div>
             </div>
 
-            <div v-else class="overflow-y-auto">
+            <ScrollPanel v-else style="width: 100%; height:100%">
                 <div
                     v-for="post in posts"
                     :key="post.id"
@@ -231,7 +265,7 @@ const goBack = () => {
                 >
                     <div class="flex justify-between items-start self-stretch">
                         <span class="text-sm text-gray-950 font-bold">{{ post.display_name }}</span>
-                        <span class="text-gray-700 text-xs text-right min-w-28">{{ formatPostDate(post.created_at) }}</span>
+                        <span class="text-gray-700 text-xs text-right min-w-28 mr-4">{{ formatPostDate(post.created_at) }}</span>
                     </div>
 
                     <!-- content -->
@@ -262,19 +296,33 @@ const goBack = () => {
                             </template>
                         </Image>
                         <div class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
-                            <span class="font-semibold">{{ post.subject }}</span>
+                            <div v-if="post.subject" class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
+                                <span class="font-semibold" :id="`subject-${post.id}`">{{ post.subject }}</span>
+                                <div
+                                    :class="[
+                                        'prose prose-p:my-0 prose-ul:my-0 w-full',
+                                        {
+                                            'hidden': !expandedPosts[post.id] && isTruncated[post.id],
+                                            'max-h-auto block': expandedPosts[post.id],
+                                        }
+                                    ]"
+                                    :id="`content-${post.id}`"
+                                    v-html="post.message"
+                                />
+                            </div>
                             <div
+                                v-else
+                                :class="[
+                                    'prose prose-p:my-0 prose-ul:my-0 w-full',
+                                    {
+                                        'line-clamp-1': !expandedPosts[post.id] && isTruncated[post.id],
+                                        'max-h-auto block': expandedPosts[post.id],
+                                    }
+                                ]"
                                 :id="`content-${post.id}`"
                                 v-html="post.message"
-                                :class="[
-                                'prose prose-p:my-0 prose-ul:my-0 w-full',
-                                {
-                                    'max-h-[82px] truncate': !expandedPosts[post.id],
-                                    'max-h-auto': expandedPosts[post.id],
-                                }
-                            ]"
                             />
-                        </div>  
+                        </div>
                         <div
                             v-if="isTruncated[post.id]"
                             class="text-primary font-medium text-xs hover:text-primary-700 select-none cursor-pointer"
@@ -318,7 +366,8 @@ const goBack = () => {
                     </div>
 
                 </div>
-            </div>
+            </ScrollPanel>
+                
         </div>
     </AuthenticatedLayout>
 </template>

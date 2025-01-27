@@ -53,9 +53,9 @@ class ForumController extends Controller
         ]);
         $validator->validate();
 
-        if (!$request->filled('subject') && !$request->filled('message') && !$request->hasFile('attachment')) {
+        if (!$request->filled('message') && !$request->hasFile('attachment')) {
             throw ValidationException::withMessages([
-                'subject' => trans('public.at_least_one_field_required'),
+                'message' => trans('public.at_least_one_field_required'),
             ]);
         }
 

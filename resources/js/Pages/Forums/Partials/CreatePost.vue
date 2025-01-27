@@ -111,7 +111,6 @@ const closeDialog = () => {
                     <div class="flex flex-col items-start gap-1 self-stretch">
                         <InputLabel
                             for="subject"
-                            :invalid="!!form.errors.subject"
                         >
                             {{ $t('public.subject') }}
                         </InputLabel>
@@ -121,9 +120,7 @@ const closeDialog = () => {
                             class="block w-full"
                             v-model="form.subject"
                             :placeholder="$t('public.enter_subject')"
-                            :invalid="!!form.errors.subject"
                         />
-                        <InputError :message="form.errors.subject" />
                     </div>
 
                     <div class="flex flex-col items-start gap-1 self-stretch">

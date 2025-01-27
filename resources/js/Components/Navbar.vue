@@ -85,7 +85,7 @@ const downloadQrCode = () => {
 <template>
     <nav
         aria-label="secondary"
-        class="sticky top-0 z-20 py-2 px-3 md:px-5 bg-white flex items-center gap-3"
+        class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3"
     >
         <div
             class="inline-flex justify-center items-center rounded-full hover:bg-gray-100 w-12 h-12 shrink-0 grow-0 hover:select-none hover:cursor-pointer"
@@ -93,12 +93,16 @@ const downloadQrCode = () => {
         >
             <IconMenu2 size="20" color="#182230" stroke-width="1.25" />
         </div>
-        <div class="w-full h-full flex items-center gap-2">
-            <img src="/assets/QCG-logo.png" alt="no data" class="w-7 h-7" />
-            <div class="flex flex-col items-start">
-                <span class="text-gray-950 text-sm font-black tracking-[4.20px]">量子資本集團</span>
-                <span class="text-gray-700 text-xxxs font-medium">QUANTUM CAPITAL GROUP</span>
-            </div>
+        <div class="w-full h-full flex items-center">
+            <Link class="h-full flex items-center gap-2"
+                :href="route('dashboard')"
+            >
+                <img src="/assets/logo.svg" alt="no data" class="w-7 h-7" />
+                <div class="hidden md:flex flex-col items-start">
+                    <span class="text-gray-950 text-sm font-bold">Quantum</span>
+                    <span class="text-gray-700 text-xxxs font-medium tracking-[1.04px]">Capital Group</span>
+                </div>
+            </Link>
         </div>
         <!-- <div
             class="text-base md:text-lg font-semibold text-gray-950 w-full"
