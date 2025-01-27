@@ -134,16 +134,16 @@ watchEffect(() => {
                             v-for="(item, index) in dataOverviews"
                             :key="index"
                         >
-                            <component :is="item.icon" class="w-9 h-9 grow-0 shrink-0" />
+                            <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
                             <div class="flex flex-col items-end truncate">
-                                <span class="text-gray-700 text-xxs md:text-sm font-medium w-full truncate">{{ item.label }}</span>
-                                <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 text-md md:text-lg font-semibold">
+                                <span class="text-gray-700 text-xxs md:text-sm font-medium text-right w-full truncate">{{ item.label }}</span>
+                                <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 text-md md:text-lg font-semibold text-right w-full truncate">
                                     {{ formatAmount(item.total, 0) }}
                                 </div>
-                                <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 text-md md:text-lg font-semibold">
-                                    {{ formatAmount(item.total) }}
+                                <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 text-md md:text-lg font-semibold text-right w-full truncate">
+                                    {{ formatAmount(item.total) }} Ł
                                 </div>
-                                <div v-else class="text-gray-950 text-md md:text-lg font-semibold">
+                                <div v-else class="text-gray-950 text-md md:text-lg font-semibold w-full text-right truncate">
                                     $ {{ formatAmount(item.total) }}
                                 </div>
                             </div>
