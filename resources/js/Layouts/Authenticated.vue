@@ -21,7 +21,7 @@ defineProps({
             <!-- Navbar -->
             <Navbar :title="title" v-if="title!==$t('public.forum')"/>
 
-            <div class="flex flex-1 px-3 py-5 gap-5 md:px-5">
+            <div class="flex flex-1 p-3 md:p-5 gap-5">
                 <!-- Sidebar -->
                 <Sidebar  v-if="title!==$t('public.forum')"/>
 
