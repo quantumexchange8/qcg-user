@@ -28,7 +28,7 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
                     </div>
 
                     <div
-                        class="text-md text-gray-500"
+                        class=" text-gray-500"
                         v-if="verificationLinkSent"
                     >
                         {{ $t('public.verify_email_caption') }}

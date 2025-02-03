@@ -170,7 +170,7 @@ const warningVisible = ref(true);
                 <!-- Content -->
                 <div class="flex flex-col items-center gap-5 md:items-start">
                     <div class="flex flex-col justify-center items-start gap-1 self-stretch">
-                        <span class="self-stretch text-gray-950 font-bold text-sm md:text-md">{{ $t('public.open_acc_header') }}</span>
+                        <span class="self-stretch text-gray-950 font-bold text-sm md:text-base">{{ $t('public.open_acc_header') }}</span>
                         <span class="self-stretch text-gray-700 text-xs md:text-sm">{{ $t('public.open_acc_caption') }}</span>
                     </div>
                     <div class="flex gap-3 self-stretch flex-row justify-start items-center">

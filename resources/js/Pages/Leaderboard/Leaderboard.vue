@@ -61,7 +61,7 @@ watchEffect(() => {
                 <IncentiveWithdrawal class="col-span-1" />
             </div>
             <div class="flex flex-col justify-center items-center p-6 gap-6 self-stretch rounded-lg bg-white shadow-card">
-                <div class="flex h-6 flex-col justify-center self-stretch text-gray-950 text-md font-bold">{{ $t('public.my_achievements') }}</div>
+                <div class="flex h-6 flex-col justify-center self-stretch text-gray-950  font-bold">{{ $t('public.my_achievements') }}</div>
 
                 <div v-if="!incentiveProfiles?.length">
                     <Empty

@@ -139,7 +139,7 @@ const chartData = computed(() => {
     <div class="flex flex-col items-center gap-5 self-stretch">
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-5 justify-center items-center self-stretch">
             <div class="flex flex-col px-8 py-6 items-center gap-7 flex-1 self-stretch rounded-lg bg-white shadow-card">
-                <span class="text-gray-950 text-md font-bold">
+                <span class="text-gray-950  font-bold">
                     {{ $t('public.rebate_percentage_breakdown') }}
                 </span>
                 <div class="">

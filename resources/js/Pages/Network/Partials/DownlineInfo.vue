@@ -143,7 +143,7 @@ const filteredDataOverviews = computed(() => {
                             <div class="text-gray-950 text-xl font-bold">
                                 {{ userDetail.name }}
                             </div>
-                            <div class="text-gray-700 text-md font-medium">
+                            <div class="text-gray-700  font-medium">
                                 {{ userDetail.email }}
                             </div>
                         </div>
@@ -169,16 +169,16 @@ const filteredDataOverviews = computed(() => {
                             v-if="userDetail"
                             class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.id') }}
                             </div>
-                            <div class="truncate flex-1 text-gray-700 text-md font-medium">
+                            <div class="truncate flex-1 text-gray-700  font-medium">
                                 {{ userDetail.id_number }}
                             </div>
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.phone_number') }}
                             </div>
-                            <div class="truncate flex-1 text-gray-700 text-md font-medium">
+                            <div class="truncate flex-1 text-gray-700  font-medium">
                                 {{ userDetail.dial_code }} {{ userDetail.phone }}
                             </div>
                         </div>
@@ -187,11 +187,11 @@ const filteredDataOverviews = computed(() => {
                             v-else
                             class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.id') }}
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full md:w-48 my-1.5"></div>
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.phone_number') }}
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full md:w-48 my-1.5"></div>
@@ -201,7 +201,7 @@ const filteredDataOverviews = computed(() => {
                             v-if="userDetail"
                             class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.role') }}
                             </div>
                             <div class="flex items-start">
@@ -214,10 +214,10 @@ const filteredDataOverviews = computed(() => {
                                     :title="$t(`public.${userDetail.role}`)">
                                 </div>
                             </div>
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.user_group') }}
                             </div>
-                            <div class="truncate flex-1 text-gray-700 text-md font-medium">
+                            <div class="truncate flex-1 text-gray-700  font-medium">
                                 {{ userDetail.upline_name ??'-' }}
                             </div>
                         </div>
@@ -226,11 +226,11 @@ const filteredDataOverviews = computed(() => {
                             v-else
                             class="grid grid-flow-col grid-cols-2 grid-rows-2 gap-y-2 gap-x-5 items-center self-stretch"
                         >
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.role') }}
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full md:w-48 my-2"></div>
-                            <div class="text-gray-500 text-md">
+                            <div class="text-gray-500 ">
                                 {{ $t('public.user_group') }}
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full w-24 my-2"></div>

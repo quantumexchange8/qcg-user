@@ -430,7 +430,7 @@ const openDialog = (rowData) => {
                             <template #body="slotProps">
                                 <div class="flex items-center justify-between">
                                     <div class="flex flex-col items-start">
-                                        <div class="text-md font-semibold">
+                                        <div class=" font-semibold">
                                             {{ $t(`public.${slotProps.data.transaction_type}`) }}
                                         </div>
                                         <div class="flex gap-1 items-center text-gray-500 text-xs">
@@ -452,7 +452,7 @@ const openDialog = (rowData) => {
                                         </div>
                                     </div>
                                     <div class="flex flex-col items-end">
-                                        <div class="text-md font-semibold text-right">
+                                        <div class=" font-semibold text-right">
                                             $&nbsp;{{ formatAmount(slotProps.data.amount) }}
                                         </div>
                                         <div class="text-xs text-right" :style="{ color: getStatusColor(slotProps.data.status) }">

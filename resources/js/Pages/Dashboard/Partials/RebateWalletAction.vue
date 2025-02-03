@@ -62,7 +62,7 @@ const openDialog = (type) => {
 </script>
 
 <template>
-    <div class="flex gap-5 items-center self-stretch">
+    <div class="flex gap-3 items-center self-stretch">
         <Button
             type="button"
             variant="gray-outlined"

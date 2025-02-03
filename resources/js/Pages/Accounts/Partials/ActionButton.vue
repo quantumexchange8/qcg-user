@@ -126,7 +126,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
                 <img src="/assets/deposit.png" alt="No data" class="absolute top-0 left-0 -z-10">
             </div>
             <div class="flex flex-col w-[148px] md:w-[204px] gap-1">
-                <span class="text-sm md:text-md text-gray-950 font-bold">
+                <span class="text-sm md:text-base text-gray-950 font-bold">
                     {{ $t('public.ctrader_deposit') }}
                 </span>
                 <span class="text-xs md:text-sm text-gray-700">
