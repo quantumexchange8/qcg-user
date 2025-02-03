@@ -113,7 +113,7 @@ watchEffect(() => {
                 <div class="flex flex-col gap-3 md:gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
                     <div class="bg-white rounded-lg h-[60px] md:h-20 shadow-card relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
-                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-60px)]">
+                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-40px)]">
                             <span class="md:text-base text-sm text-gray-950 font-bold line-clamp-1">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
                             <span v-if="user.role==='agent'" class="md:text-sm text-xs text-gray-700 line-clamp-1">{{ $t('public.welcome_back_caption') }}</span>
                             <span v-else class="md:text-sm text-xs text-gray-700 line-clamp-1">{{ $t('public.member_welcome_back_caption') }}</span>
@@ -137,7 +137,7 @@ watchEffect(() => {
                         >
                             <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
                             <div class="flex flex-col items-end truncate">
-                                <span class="text-gray-500 text-xxs md:text-sm font-medium text-right w-full truncate">{{ item.label }}</span>
+                                <span class="text-gray-500 text-xxs md:text-sm text-right w-full truncate">{{ item.label }}</span>
                                 <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
                                     {{ formatAmount(item.total, 0) }}
                                 </div>
