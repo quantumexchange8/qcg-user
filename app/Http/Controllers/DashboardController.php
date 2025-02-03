@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Wallet;
 use App\Models\ForumPost;
 use App\Models\Transaction;
+use App\Models\TradingAccount;
 use Illuminate\Http\Request;
 use App\Models\UserPostInteraction;
 use App\Models\TradeBrokerHistory;
@@ -42,6 +43,12 @@ class DashboardController extends Controller
             ->whereIn('user_id', $groupIds)
             ->sum('amount');
 
+        $group_total_net_balance = TradingAccount::whereIn('user_id', $groupIds)
+            ->sum('balance');
+
+        $group_total_asset = TradingAccount::whereIn('user_id', $groupIds)
+            ->sum('equity');
+
         $group_total_trade_lots = TradeBrokerHistory::with('trading_account.ofUser')
             ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
                 $query->whereIn('id', $groupIds); 
@@ -58,7 +65,9 @@ class DashboardController extends Controller
             'rebateWallet' => $rebate_wallet,
             'groupTotalDeposit' => $group_total_deposit,
             'groupTotalWithdrawal' => $group_total_withdrawal,
-            'totalGroupNetBalance' => $group_total_deposit - $group_total_withdrawal,
+            // 'groupTotalNetBalance' => $group_total_deposit - $group_total_withdrawal,
+            'groupTotalNetBalance' => $group_total_net_balance,
+            'groupTotalAsset' => $group_total_asset,
             'groupTotalTradeLot' => $group_total_trade_lots,
             'groupTotalTradeVolume' => $group_total_trade_volume,
         ]);

@@ -208,19 +208,19 @@ const warningVisible = ref(true);
             >
                 <div
                     v-if="noticeVisible"
-                    class="py-4 px-5 flex justify-center self-stretch gap-3 border-l-8 rounded border-info-500 shadow-card bg-info-100 items-start"
+                    class="p-2 md:py-4 md:px-5 flex justify-center self-stretch gap-3 border-l-8 rounded border-info-500 shadow-card bg-info-100 items-start"
                     role="alert"
                 >
                     <div class="text-info-500">
                         <IconInfoCircle size="24" stroke-width="2.0"/>
                     </div>
                     <div
-                        class="flex flex-col gap-1 items-start w-full text-sm"
+                        class="flex flex-col gap-1 items-start w-full"
                     >
-                        <div class="text-info-500 font-semibold">
+                        <div class="text-info-500 font-semibold text-sm">
                             {{ $t('public.inactive_account_notice') }}
                         </div>
-                        <div class="text-gray-700">
+                        <div class="text-gray-700 text-xs md:text-sm">
                             {{ $t('public.inactive_account_notice_message') }}
                         </div>
                     </div>
@@ -264,7 +264,7 @@ const warningVisible = ref(true);
             </TransitionGroup> -->
 
             <!-- tab -->
-            <div class="flex items-center gap-3 self-stretch">
+            <div class="flex items-center gap-3 self-stretch text-xs md:text-sm">
                 <Tabs v-model:value="activeIndex" class="w-full" @tab-change="updateType">
                     <TabList>
                         <Tab v-for="(tab, index) in tabs" :key="tab.title" :value="index">

@@ -30,8 +30,8 @@ const user = usePage().props.auth.user;
 const { formatAmount } = transactionFormat();
 const groupTotalDeposit = ref(0);
 const groupTotalWithdrawal = ref(0);
-const totalGroupNetBalance = ref(0);
-const total_group_net_asset = ref(0);
+const groupTotalNetBalance = ref(0);
+const groupTotalAsset = ref(0);
 const groupTotalTradeLot = ref(0);
 const groupTotalTradeVolume = ref(0);
 const rebateWallet = ref();
@@ -54,14 +54,14 @@ const dataOverviews = computed(() => [
     },
     {
         icon: NetBalanceIcon,
-        total: totalGroupNetBalance.value,
+        total: groupTotalNetBalance.value,
         label: user.role === 'member' ? trans('public.total_net_balance') : trans('public.group_total_net_balance'),
         borderColor: 'border-[#FEDC32]',
         type: 'total_net_balance'
     },
     {
         icon: NetAssetIcon,
-        total: total_group_net_asset.value,
+        total: groupTotalAsset.value,
         label: user.role === 'member' ? trans('public.total_asset') : trans('public.group_total_asset'),
         borderColor: 'border-indigo',
         type: 'total_asset'
@@ -88,7 +88,8 @@ const getDashboardData = async () => {
         rebateWallet.value = response.data.rebateWallet
         groupTotalDeposit.value = response.data.groupTotalDeposit
         groupTotalWithdrawal.value = response.data.groupTotalWithdrawal
-        totalGroupNetBalance.value = response.data.totalGroupNetBalance
+        groupTotalNetBalance.value = response.data.groupTotalNetBalance
+        groupTotalAsset.value = response.data.groupTotalAsset
         groupTotalTradeLot.value = response.data.groupTotalTradeLot
         groupTotalTradeVolume.value = response.data.groupTotalTradeVolume
     } catch (error) {
@@ -136,7 +137,7 @@ watchEffect(() => {
                         >
                             <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
                             <div class="flex flex-col items-end truncate">
-                                <span class="text-gray-700 text-xxs md:text-sm font-medium text-right w-full truncate">{{ item.label }}</span>
+                                <span class="text-gray-500 text-xxs md:text-sm font-medium text-right w-full truncate">{{ item.label }}</span>
                                 <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
                                     {{ formatAmount(item.total, 0) }}
                                 </div>
