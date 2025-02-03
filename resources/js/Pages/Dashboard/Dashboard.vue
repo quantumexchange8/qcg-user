@@ -107,9 +107,9 @@ watchEffect(() => {
 
 <template>
     <AuthenticatedLayout :title="$t('public.sidebar.dashboard')">
-        <div class="flex flex-col gap-5 items-center self-stretch">
-            <div class="flex flex-col items-center gap-5 self-stretch w-full">
-                <div class="flex flex-col gap-5 items-center self-stretch w-full">
+        <div class="flex flex-col gap-3 md:gap-5 items-center self-stretch">
+            <div class="flex flex-col items-center gap-3 md:gap-5 self-stretch w-full">
+                <div class="flex flex-col gap-3 md:gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
                     <div class="bg-white rounded-lg h-[60px] md:h-20 shadow-card relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
                         <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-60px)]">
@@ -129,7 +129,7 @@ watchEffect(() => {
                         class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-3"
                     >
                         <div
-                            class="flex flex-row justify-between items-center gap-2 md:gap-4 px-3 md:px-6 py-5 md:py-7 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
+                            class="flex flex-row justify-between items-center gap-2 p-2 md:px-6 md:py-4 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
                             :class="item.borderColor"
                             v-for="(item, index) in dataOverviews"
                             :key="index"
