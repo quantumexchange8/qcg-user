@@ -561,7 +561,7 @@ class AccountController extends Controller
 
              if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
                 $credit_amount = $tradingAccount->credit;
-                $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::DEPOSIT_NONWITHDRAWABLE_BONUS);
+                $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::WITHDRAW_NONWITHDRAWABLE_BONUS);
                 $ticketCredit = $tradeCredit->getTicket();
                 Transaction::create([
                     'user_id' => Auth::id(),
@@ -653,7 +653,7 @@ class AccountController extends Controller
 
             if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
                 $credit_amount = $tradingAccount->credit;
-                $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::DEPOSIT_NONWITHDRAWABLE_BONUS);
+                $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::WITHDRAW_NONWITHDRAWABLE_BONUS);
                 $ticketCredit = $tradeCredit->getTicket();
                 Transaction::create([
                     'user_id' => Auth::id(),
