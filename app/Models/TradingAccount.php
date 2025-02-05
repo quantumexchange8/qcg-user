@@ -21,9 +21,9 @@ class TradingAccount extends Model
     ];
 
     // Relations
-    public function accountType(): HasOne
+    public function accountType(): BelongsTo
     {
-        return $this->hasOne(AccountType::class, 'id', 'account_type');
+        return $this->belongsTo(AccountType::class, 'account_type', 'id');
     }
 
     public function account_type(): BelongsTo

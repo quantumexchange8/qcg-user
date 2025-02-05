@@ -8,8 +8,8 @@ const props = defineProps({
         default: 'primary',
         validator(value) {
             return [
-                'primary-flat', 'primary-tonal', 'primary-outlined', 'primary-text',
-                'gray-flat', 'gray-tonal', 'gray-outlined', 'gray-text',
+                'primary-flat', 'primary-tonal', 'primary-outlined', 'primary-text', 'primary-button',
+                'gray-flat', 'gray-tonal', 'gray-outlined', 'gray-text', 'gray-button',
                 'error-flat', 'error-tonal', 'error-outlined', 'error-text',
                 'success-flat', 'success-tonal', 'success-outlined', 'success-text',
             ].includes(value)
@@ -70,11 +70,13 @@ const variantClasses = (variant) => ({
     'bg-primary-100 hover:bg-primary-200 border border-primary-100 hover:border-primary-200 focus:ring-primary-100 text-primary-600 disabled:bg-gray-50 disabled:border-gray-50 disabled:text-gray-400': variant === 'primary-tonal',
     'bg-white hover:bg-primary-50 border border-primary-600 focus:ring-primary-600 text-primary-600 disabled:bg-white disabled:border-gray-300 disabled:text-gray-400': variant === 'primary-outlined',
     'bg-transparent hover:bg-primary-50 focus:ring-primary-50 text-primary-600 disabled:bg-transparent disabled:text-gray-400': variant === 'primary-text',
+    'bg-gradient-to-r from-primary-500 to-primary-700 text-white hover:opacity-90 shadow-primary-button': variant === 'primary-button',
 
     'bg-gray-400 hover:bg-gray-500 border border-gray-400 hover:border-gray-500 focus:ring-gray-500 text-white disabled:border-gray-100 disabled:bg-gray-100': variant === 'gray-flat',
     'bg-gray-100 hover:bg-gray-200 border border-gray-100 hover:border-gray-200 focus:ring-gray-100 text-gray-700 disabled:border-gray-50 disabled:bg-gray-50 disabled:text-gray-400': variant === 'gray-tonal',
     'bg-white hover:bg-gray-50 border border-gray-300 focus:ring-gray-300 text-gray-700 disabled:bg-white disabled:text-gray-400': variant === 'gray-outlined',
     'bg-transparent hover:bg-gray-100 focus:ring-gray-100 text-gray-700 disabled:bg-transparent disabled:text-gray-400': variant === 'gray-text',
+    'bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-gray-button': variant === 'gray-button',
 
     'bg-success-500 hover:bg-success-600 focus:ring-success-500 text-white disabled:bg-success-300': variant === 'success-flat',
     // 'bg-success-50 hover:bg-success-100 border border-success-50 hover:border-success-100 focus:ring-success-100 text-success-500 disabled:border-gray-100 disabled:bg-gray-100': variant === 'success-tonal',

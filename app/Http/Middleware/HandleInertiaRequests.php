@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
                 'payment_account' => $request->user() ? $request->user()->paymentAccounts : null,
             ],
             'toast' => session('toast'),
+            'notification' => session('notification'),
             'locale' => session('locale') ? session('locale') : app()->getLocale(),
             'permissions' => $request->user() ? $request->user()->getAllPermissions()->pluck('name')->toArray() : 'no permission',
         ];

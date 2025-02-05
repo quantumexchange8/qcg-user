@@ -16,6 +16,7 @@ import InputNumber from "primevue/inputnumber";
 
 const props = defineProps({
     account: Object,
+    type: String,
 });
 
 const showDepositDialog = ref(false);
@@ -71,6 +72,7 @@ const transferForm = useForm({
     account_id: props.account.id,
     to_meta_login: '',
     amount: 0,
+    checkbox: false,
 });
 
 const toggleFullAmount = () => {
@@ -94,7 +96,8 @@ const submitForm = (formType) => {
     }
 }
 
-const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox2);
+const isDepositFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox2);
+const isTransferFormValid = computed(() => transferForm.checkbox);
 </script>
 
 <template>
@@ -166,7 +169,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
             </label>
         </div>
         <div class="pt-6 w-full">
-            <Button variant="primary-flat" type="button" class="justify-center w-full" :disabled="!isFormValid" @click.prevent="submitForm('deposit')">
+            <Button variant="primary-flat" type="button" class="justify-center w-full" :disabled="!isDepositFormValid" @click.prevent="submitForm('deposit')">
                 {{$t('public.deposit_now')}}
             </Button>
         </div>
@@ -174,7 +177,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
 
     <Dialog v-model:visible="showTransferDialog" :header="$t('public.transfer')" modal class="dialog-xs sm:dialog-sm" @show="getOptions">
         <form @submit.prevent="submitForm('transfer')">
-            <div class="flex flex-col py-6 gap-8">
+            <div class="flex flex-col py-6 gap-5">
                 <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
                     <span class="text-gray-500 text-center text-xs">#{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
                     <span class="text-gray-950 text-center text-lg font-semibold">$ {{ props.account.balance }}</span>
@@ -223,8 +226,13 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
                     </div>
                     <InputError :message="transferForm.errors.amount" />
                 </div>
+
+                <label v-if="type==='promotion'"  class="flex items-center gap-2">
+                    <Checkbox binary v-model="transferForm.checkbox" class="w-4 h-4 flex-shrink-0" />
+                    <span class="text-gray-500 text-xs">{{ $t('public.transfer_term_1') }}</span>
+                </label>
             </div>
-            <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-7">
+            <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-6">
                 <Button
                     type="button"
                     variant="gray-tonal"
@@ -237,7 +245,7 @@ const isFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox
                     variant="primary-flat"
                     class="w-full"
                     @click.prevent="submitForm('transfer')"
-                    :disabled="depositForm.processing || transferForm.processing || !filteredTransferOptions.length"
+                    :disabled="depositForm.processing || transferForm.processing || !filteredTransferOptions.length || !isTransferFormValid"
                 >
                     {{ $t('public.confirm') }}
                 </Button>

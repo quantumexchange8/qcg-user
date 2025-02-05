@@ -437,4 +437,13 @@ return [
     'group_total_trade_lots' => 'Group Trade Lots',
     'group_total_trade_volume' => 'Group Trade Volume',
     "member_welcome_back_caption" => "Let's achieve new trading milestones today.",
+    'withdrawal_term_1' => 'I agree that any credit bonus in my account will be withdrawn if the account balance is withdrawn or transferred.',
+    'withdrawal_term_2' => 'I agree that withdrawal requests submitted on weekdays from 8:00 AM to 10:00 PM will be processed on the same day, while requests submitted after 10:00 PM on Friday or on Saturday and Sunday will be processed on the following Monday.',
+    'transfer_term_1' => 'By proceeding, I agree that any credit bonus in my account will be withdrawn if the account balance is withdrawn or transferred.',
+    'bonus_request_submitted' => 'Bonus Request Submitted',
+    'bonus_request_message' => 'Your bonus request has been received! We’ll process it shortly. Thank you for your patience!',
+    'requested_bonus' => 'Requested Bonus',
+    'claimable_credit_bonus' => 'Claimable Credit Bonus',
+    'claim_bonus' => 'Claim Bonus',
+    'toast_claim_bonus_error' => 'Unable to claim bonus. Please try again later.',
 ];

@@ -86,10 +86,9 @@ watchEffect(() => {
                 <div class="flex items-center content-center gap-y-2 gap-x-4 flex-grow">
                     <span class="text-gray-950 font-semibold text-lg">#{{ account.meta_login }}</span>
                     <div
-                        class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
+                        class="flex px-2 py-1 justify-center items-center text-xs rounded-sm text-white"
                         :style="{
-                            backgroundColor: formatRgbaColor(account.account_type_color, 0.15),
-                            color: `#${account.account_type_color}`,
+                            backgroundColor: `#${account.account_type_color}`,
                         }"
                     >
                         {{ $t(`public.${account.account_type}`) }}
@@ -117,7 +116,7 @@ watchEffect(() => {
                 </div>
             </div>
             <div class="flex justify-end items-center gap-3 self-stretch">
-                <ActionButton :account="account"/>
+                <ActionButton :account="account" :type="accountType" />
             </div>
         </div>
     </div>

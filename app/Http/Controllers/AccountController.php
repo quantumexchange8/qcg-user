@@ -166,7 +166,7 @@ class AccountController extends Controller
         }
 
         $trading_accounts = $user->tradingAccounts()
-            ->whereHas('account_type', function($q) use ($accountType) {
+            ->whereHas('accountType', function($q) use ($accountType) {
                 $q->where('category', $accountType);
             })
             ->get();
@@ -179,7 +179,7 @@ class AccountController extends Controller
             Log::error($e->getMessage());
         }
 
-        $liveAccounts = TradingAccount::with('account_type', 'transactions', 'trade_history')
+        $liveAccounts = TradingAccount::with('accountType', 'transactions', 'trade_history')
             ->where('user_id', $user->id)
             ->when($accountType, function ($query) use ($accountType) {
                 return $query->whereHas('accountType', function ($query) use ($accountType) {
@@ -188,13 +188,15 @@ class AccountController extends Controller
             })
             ->get()
             ->map(function ($account) {
-                $achievedAmount = 0;
+                // $achievedAmount = 0;
+                // $claimAmount = 0;
                 $expiryDate = null;
                 $daysLeft = 0;
+                $claimable_status = false;
 
                 if($account->accountType->category === 'promotion') {
                     if ($account->promotion_period_type === 'specific_date_range') {
-                        $expiryDate = Carbon::parse($account->promotion_period); // Use the given date directly
+                        $expiryDate = Carbon::parse($account->promotion_period); 
                     } elseif ($account->promotion_period_type === 'from_account_opening') {
                         $expiryDate = Carbon::parse($account->created_at)
                             ->addDays((int) $account->promotion_period);
@@ -207,15 +209,21 @@ class AccountController extends Controller
                             : -$expiryDate->diffInDays($now));
                     }
     
-                    if ($account->promotion_type === 'deposit') {
-                        $achievedAmount = $account->transactions
-                            ->where('transaction_type', 'deposit')
-                            ->where('created_at', '<', $expiryDate)
-                            ->sum('amount');
-                    } elseif ($account->promotion_type === 'trade_volume') {
-                        $achievedAmount = $account->tradeHistory
-                            ->where('created_at', '<', $expiryDate)
-                            ->sum('trade_lots');
+                    // if ($account->promotion_type === 'deposit') {
+                    //     $achievedAmount = $account->transactions
+                    //         ->where('transaction_type', 'deposit')
+                    //         ->where('created_at', '<', $expiryDate)
+                    //         ->sum('amount');
+
+                    //     if ($account->bonus_amount_type === 'percentage_of_deposit') {
+                    //         $achievedAmount = ($achievedAmount * $account->bonus_amount / 100);
+                    //     }
+                    //         // achievedAmount = 1100 targetAmount = 1000 claimed_amount = 600
+                    //     $claimAmount = min($achievedAmount, $targetAmount) - ($account->claimed_amount ?? 0);
+                    // }
+
+                    if ($account->achieved_amount > 0 && ($account->is_claimed != 'claimed' || $account->is_claimed != 'completed' || $account->is_claimed != 'expired')) {
+                        $claimable_status = true;
                     }
                 }
 
@@ -236,20 +244,24 @@ class AccountController extends Controller
                     'promotion_period_type' => $account->promotion_period_type,
                     'promotion_period' => $account->promotion_period,
                     'promotion_type' => $account->promotion_type,
-                    'target_amount' => $account->target_amount,
+                    'min_threshold' => $account->min_threshold,
                     'bonus_type' => $account->bonus_type,
                     'bonus_amount_type' => $account->bonus_amount_type,
                     'bonus_amount' => $account->bonus_amount,
-                    'maximum_bonus_cap' => $account->maximum_bonus_cap,
+                    'target_amount' => $account->target_amount,
                     'applicable_deposit' => $account->applicable_deposit,
                     'credit_withdraw_policy' => $account->credit_withdraw_policy,
                     'credit_withdraw_date_period' => $account->credit_withdraw_date_period,
-                    'claimed_amount' => $account->claimed_amount,
+                    // 'claimed_amount' => $account->claimed_amount,
                     'is_claimed' => $account->is_claimed,
                     'created_at' => $account->created_at,
-                    'achieved_amount' => $achievedAmount,
+                    // 'achieved_amount' => $achievedAmount,
+                    'achieved_amount' => $account->achieved_amount,
                     'expiry_date' => $expiryDate,
                     'days_left' => $daysLeft,
+                    'claimable_status' => $claimable_status,
+                    // 'claimable_amount' => $claimAmount,
+                    'claimable_amount' => $account->claimable_amount,
                 ];
             });
 
@@ -280,77 +292,49 @@ class AccountController extends Controller
             'amount' => trans('public.amount'),
         ])->validate();
 
-        $amount = $request->amount;
+        $claim_amount = $request->amount;
         $tradingAccount = TradingAccount::find($request->account_id);
-
         //  if ($tradingAccount->balance < $amount) {
         //      throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
         //  }
 
-         $amount = $request->input('amount');
+        try {
+            $transaction = Transaction::create([
+                'user_id' => Auth::id(),
+                'category' => 'bonus',
+                'transaction_type' => $request->bonus_type,
+                'to_meta_login' => $tradingAccount->meta_login,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'amount' => $claim_amount,
+                'transaction_charges' => 0,
+                'transaction_amount' => $claim_amount,
+                'status' => 'processing',
+            ]);
 
-         $transaction = Transaction::create([
-             'user_id' => Auth::id(),
-             'category' => 'bonus',
-             'transaction_type' => 'cash_bonus',
-             'to_meta_login' => $tradingAccount->meta_login,
-             'transaction_number' => RunningNumberService::getID('transaction'),
-             'amount' => $amount,
-             'transaction_charges' => 0,
-             'transaction_amount' => $amount,
-             'status' => 'processing',
-         ]);
+            if ($tradingAccount->achieved_amount == $tradingAccount->target_amount || $tradingAccount->applicable_deposit == 'first_deposit_only') {
+                $tradingAccount->update([
+                    'is_claimed' => 'completed',
+                ]);
+            }
+            else {
+                $tradingAccount->update([
+                    'is_claimed' => 'claimed',
+                ]);
+            }
 
-
-        // $tradingAccount = TradingAccount::find($request->account_id);
-
-        // $tradingAccount->update([
-        //     'claimed_amount' => $request->amount,
-        //     'is_claimed' => 'claimed',
-        // ]);
-        // (new CTraderService)->getUserInfo(collect($tradingAccount));
-
-        // $tradingAccount = TradingAccount::find($request->account_id);
-        // $amount = $request->input('amount');
-        // $to_meta_login = $request->input('to_meta_login');
-
-        // if ($tradingAccount->balance < $amount) {
-        //     throw ValidationException::withMessages(['wallet' => trans('public.insufficient_balance')]);
-        // }
-
-        // try {
-        //     $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-        //     $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
-        // } catch (\Throwable $e) {
-        //     if ($e->getMessage() == "Not found") {
-        //         TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
-        //     } else {
-        //         Log::error($e->getMessage());
-        //     }
-        //     return response()->json(['success' => false, 'message' => $e->getMessage()]);
-        // }
-
-        // $ticketFrom = $tradeFrom->getTicket();
-        // $ticketTo = $tradeTo->getTicket();
-        // Transaction::create([
-        //     'user_id' => Auth::id(),
-        //     'category' => 'trading_account',
-        //     'transaction_type' => 'account_to_account',
-        //     'from_meta_login' => $tradingAccount->meta_login,
-        //     'to_meta_login' => $to_meta_login,
-        //     'ticket' => $ticketFrom . ','. $ticketTo,
-        //     'transaction_number' => RunningNumberService::getID('transaction'),
-        //     'amount' => $amount,
-        //     'transaction_charges' => 0,
-        //     'transaction_amount' => $amount,
-        //     'status' => 'successful',
-        //     'comment' => 'to ' . $to_meta_login
-        // ]);
-
-        return back()->with('toast', [
-            'title' => trans('public.toast_claim_request'),
-            'type' => 'success',
-        ]);
+            return redirect()->back()->with('notification', [
+                'show_confirm_dialog' => true,
+                'form_data' => [
+                    'meta_login' => $request->meta_login,
+                    'bonus_amount' => $request->amount,
+                ]
+            ]);
+        } catch (\Exception $e) {
+                return back()->with('toast', [
+                'title' => trans('public.toast_claim_bonus_error'),
+                'type' => 'error',
+            ]);
+        }
     }
 
     public function getAccountReport(Request $request)
@@ -575,6 +559,25 @@ class AccountController extends Controller
 
          try {
              $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+
+             if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
+                $credit_amount = $trading_account->credit;
+                $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::DEPOSIT_NONWITHDRAWABLE_BONUS);
+                $ticketCredit = $tradeCredit->getTicket();
+                Transaction::create([
+                    'user_id' => Auth::id(),
+                    'category' => 'trading_account',
+                    'transaction_type' => 'withdrawal',
+                    'from_meta_login' => $tradingAccount->meta_login,
+                    'ticket' => $ticketCredit,
+                    'transaction_number' => RunningNumberService::getID('transaction'),
+                    'amount' => $amount,
+                    'transaction_charges' => 0,
+                    'transaction_amount' => $amount,
+                    'status' => 'successful',
+                    'comment' => 'Credit Withdrawal'
+                ]);
+            }
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
                  TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
@@ -646,8 +649,27 @@ class AccountController extends Controller
          }
 
          try {
-             $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-             $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
+            $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+            $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
+
+            if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
+                $credit_amount = $trading_account->credit;
+                $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::DEPOSIT_NONWITHDRAWABLE_BONUS);
+                $ticketCredit = $tradeCredit->getTicket();
+                Transaction::create([
+                    'user_id' => Auth::id(),
+                    'category' => 'trading_account',
+                    'transaction_type' => 'withdrawal',
+                    'from_meta_login' => $tradingAccount->meta_login,
+                    'ticket' => $ticketCredit,
+                    'transaction_number' => RunningNumberService::getID('transaction'),
+                    'amount' => $amount,
+                    'transaction_charges' => 0,
+                    'transaction_amount' => $amount,
+                    'status' => 'successful',
+                    'comment' => 'Credit Withdrawal'
+                ]);
+            }
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
                  TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
@@ -879,6 +901,53 @@ class AccountController extends Controller
                 $ticket = $trade->getTicket();
                 $transaction->ticket = $ticket;
                 $transaction->save();
+
+                $tradingAccount = TradingAccount::where('meta_login', $transaction->to_meta_login)->first();
+
+                if ($tradingAccount->promotion_type == 'deposit') {
+                    // $expiryDate = null;
+                    // $daysLeft = 0;
+                    $claimable_status = false;
+                    $bonus_amount = 0;
+                    $achievedAmount = $tradingAccount->achieved_amount ?? 0;
+
+                    // if ($tradingAccount->promotion_period_type === 'specific_date_range') {
+                    //     $expiryDate = Carbon::parse($tradingAccount->promotion_period); 
+                    // } elseif ($account->promotion_period_type === 'from_account_opening') {
+                    //     $expiryDate = Carbon::parse($tradingAccount->created_at)
+                    //         ->addDays((int) $tradingAccount->promotion_period);
+                    // }
+                    
+                    if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || $achievedAmount >= $tradingAccount->target_amount) 
+                        && $tradingAccount->promotion_type == 'deposit' && ($tradingAccount->applicable_deposit !== 'first_deposit_only' || $achievedAmount == 0)) {
+                        if ($tradingAccount->bonus_amount_type === 'percentage_of_deposit') {
+                            $bonus_amount = ($transaction->amount * $account->bonus_amount / 100);
+                                
+                            if ($bonus_amount >= $tradingAccount->min_threshold) {
+                                // achievedAmount = 600 target_amount = 1000 bonus_amount = 600 , remaining should be 400
+                                $remainingAmount = $tradingAccount->target_amount - $achievedAmount;
+                                if ($bonus_amount > $remainingAmount) {
+                                    $bonus_amount = $remainingAmount;
+                                }
+                                $tradingAccount->claimable_amount = $tradingAccount->claimable_amount + $bonus_amount;
+                                $tradingAccount->is_claimed = 'claimable';
+                                $tradingAccount->achieved_amount = $achievedAmount + $bonus_amount;
+                            }
+                        }
+                        else{
+                            $bonus_amount = $transaction->amount;
+                            $remainingAmount = $tradingAccount->min_threshold - $achievedAmount;
+
+                            if ($achievedAmount + $bonus_amount >= $tradingAccount->min_threshold) {
+                                $bonus_amount = $remainingAmount;
+                                $tradingAccount->claimable_amount = $tradingAccount->bonus_amount;
+                                $tradingAccount->is_claimed = 'claimable';
+                            }
+                            $tradingAccount->achieved_amount = $achievedAmount + $bonus_amount;
+                        }
+                        $tradingAccount->save();
+                    }
+                }
 
                 Notification::route('mail', 'payment@currenttech.pro')
                     ->notify(new DepositApprovalNotification($transaction));

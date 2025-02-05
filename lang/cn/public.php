@@ -434,4 +434,10 @@ return [
     'group_total_trade_lots' => '组织总交易手数',
     'group_total_trade_volume' => '组织总交易量',
     "member_welcome_back_caption" => "让我们今天一起实现新的交易里程碑.",
+    'withdrawal_term_1' => 'I agree that any credit bonus in my account will be withdrawn if the account balance is withdrawn or transferred.',
+    'withdrawal_term_2' => 'I agree that withdrawal requests submitted on weekdays from 8:00 AM to 10:00 PM will be processed on the same day, while requests submitted after 10:00 PM on Friday or on Saturday and Sunday will be processed on the following Monday.',
+    'transfer_term_1' => 'By proceeding, I agree that any credit bonus in my account will be withdrawn if the account balance is withdrawn or transferred.',
+    'bonus_request_submitted' => 'Bonus Request Submitted',
+    'bonus_request_message' => 'Your bonus request has been received! We’ll process it shortly. Thank you for your patience!',
+    'requested_bonus' => 'Requested Bonus',    
 ];

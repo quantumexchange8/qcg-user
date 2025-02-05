@@ -17,8 +17,12 @@ import Button from "@/Components/Button.vue";
                     </span>
                 </div>
                 <!-- <div class="flex justify-end items-center gap-4 self-stretch"> -->
+                <div v-if="message.content" class="self-stretch">
+                    <component :is="message.content" />
+                </div>
                 <div class="grid grid-cols-2 justify-items-end items-center gap-4 self-stretch">
                     <Button
+                        v-if="message.cancelButton" 
                         type="button"
                         variant="gray-outlined"
                         @click="rejectCallback"
@@ -32,6 +36,7 @@ import Button from "@/Components/Button.vue";
                         :variant="`${message.color}-flat`"
                         @click="acceptCallback"
                         class="w-full text-nowrap"
+                        :class="{ 'col-span-2': !message.cancelButton }"
                         size="base"
                     >
                         {{ message.acceptButton }}

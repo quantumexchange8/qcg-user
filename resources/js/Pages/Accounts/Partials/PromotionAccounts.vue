@@ -1,6 +1,6 @@
 <script setup>
-import { IconAlertCircleFilled } from '@tabler/icons-vue';
-import {ref, onMounted, watchEffect, computed} from "vue";
+import { IconAlertCircleFilled, IconChecks } from '@tabler/icons-vue';
+import {ref, onMounted, watchEffect, computed, h} from "vue";
 import StatusBadge from '@/Components/StatusBadge.vue';
 import Action from "@/Pages/Accounts/Partials/Action.vue";
 import ActionButton from "@/Pages/Accounts/Partials/ActionButton.vue";
@@ -10,13 +10,18 @@ import {usePage} from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue";
 import {useForm} from "@inertiajs/vue3";
 import dayjs from "dayjs";
+import Dialog from 'primevue/dialog';
+import TermsAndCondition from "@/Components/TermsAndCondition.vue";
+import {trans} from "laravel-vue-i18n";
+import { useConfirm } from 'primevue/useconfirm';
 
 const isLoading = ref(false);
 const accounts = ref([]);
 const accountType = ref('promotion');
 const { formatAmount } = transactionFormat();
 const { formatRgbaColor } = generalFormat();
-const progress = ref(50); 
+const data = ref({});
+const showClaimDialog = ref(false);
 
 // Fetch live accounts from the backend
 const fetchLiveAccounts = async () => {
@@ -35,12 +40,6 @@ onMounted(() => {
     fetchLiveAccounts();
 });
 
-watchEffect(() => {
-    if (usePage().props.toast !== null) {
-        fetchLiveAccounts();
-    }
-});
-
 const buttonText = (account) => {
     if (account.is_claimed === 'claimed') {
         return 'Completed';
@@ -51,71 +50,110 @@ const buttonText = (account) => {
     }
 };
 
-// Function to determine if the button should be shown for each account
-const shouldShowClaimButton = (account) => {
-    if (account.promotion_type === 'trade_volume') {
-        return account.is_claimed === 'claimed' || account.days_left <= 0;
-    }
-    return true;
-};
-
 // Function to get the button variant (color) based on the account state
-const getButtonVariant = (account) => {
-    if (account.promotion_type === 'deposit' && account.days_left > 0 && account.is_claimed !== 'claimed') {
-        return 'success-flat';
+const statusVariant = (account) => {
+    if (account.claimable_status) {
+        return 'primary-button';
     } else {
-        return 'gray-flat';
+        return 'gray-button';
     }
-};
-
-// Function to get the dynamic button class
-const buttonClass = (account) => {
-    return {
-        'bg-gradient-to-r from-[#42A547] to-[#2A6B2D] text-white rounded-xl': account.promotion_type === 'deposit' && account.is_claimed !== 'claimed' && account.days_left > 0,
-        'bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-xl': account.promotion_type !== 'trade_volume' && (account.is_claimed === 'claimed' || account.days_left <= 0),
-    };
-};
-
-const isButtonDisabled = (account) => {
-    return account.is_claimed === 'claimed' || account.days_left <= 0 || (account.promotion_type === 'trade_volume' && account.is_claimed !== 'claimed');
-};
-
-const buttonStyle = (account) => {
-    if (account.promotion_type === 'deposit' && account.is_claimed !== 'claimed' && account.days_left > 0) {
-    return {
-        boxShadow: 'inset 2px 2px 4px #67C16B, 0 2px 2px #2E7D32',
-    };
-    } else if (account.promotion_type !== 'trade_volume' && (account.is_claimed === 'claimed' || account.days_left <= 0)) {
-    return {
-        boxShadow: 'inset 2px 2px 4px #D1D5DB, 0 2px 2px #D1D5DB',
-    };
-    }
-
-    return {};
 };
 
 const form = useForm({
     user_id: '',
     account_id: '',
+    meta_login: '',
     promotion_type: '',
     bonus_type: '',
     amount: 0,
+    claim_amount: 0,
 })
 
-const claimBonus = (account) => {
+const submitForm = (account) => {
     form.user_id = account.user_id;
     form.account_id = account.id;
+    form.meta_login = account.meta_login;
     form.promotion_type = account.promotion_type;
     form.bonus_type = account.bonus_type;
-    if (account.achieved_amount > account.target_amount) {
-        form.amount = account.target_amount;
-    }
-    else {
-        form.amount = account.achieved_amount;
-    }
+    form.amount = account.claimable_amount;
+//     if (account.achieved_amount > account.target_amount) {
+//         form.amount = account.target_amount;
+//     }
+//     else {
+//         form.amount = account.achieved_amount;
+//    }
 
-    form.post(route('accounts.claim_bonus'))
+    form.post(route('accounts.claim_bonus'), {
+        onSuccess: () => {
+            closeDialog();
+        }
+    });
 }
+
+const openDialog = (accountData) => {
+    showClaimDialog.value = true;
+    data.value = accountData;
+}
+
+const closeDialog = () => {
+    showClaimDialog.value = false;
+}
+
+const confirm = useConfirm();
+const claimBonusConfirmation = (accountType, formData) => {
+    // console.log("ClaimBonusConfirmation executed", formData);
+    const messages = {
+        bonus: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconChecks),
+            header: trans('public.bonus_request_submitted'),
+            message: trans('public.bonus_request_message'),
+            actionType: 'bonus',
+            acceptButton: trans('public.alright'),
+            action: () => {
+                window.location.reload();
+            }
+        }
+    };
+
+    const { group, color, icon, header, message, actionType, acceptButton, action } = messages[accountType];
+
+    confirm.require({
+        group,
+        color,
+        icon,
+        header,
+        message,
+        actionType,
+        acceptButton,
+        accept: action,
+        content: h('div', { class: 'flex flex-col p-3 gap-3 bg-gray-50' }, [
+            h('div', { class: 'flex flex-row md:flex-col gap-1 flex-wrap' }, [
+                h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.date')),
+                h('p', { class: 'text-sm font-medium text-gray-950' }, dayjs().format('YYYY/MM/DD')),
+            ]),
+            h('div', { class: 'flex flex-row md:flex-col gap-1 flex-wrap' }, [
+                h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
+                h('p', { class: 'text-sm font-medium text-gray-950' }, `${formData.meta_login}`),
+            ]),
+            h('div', { class: 'flex flex-row md:flex-col gap-1 flex-wrap' }, [
+                h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.requested_bonus')),
+                h('p', { class: 'text-sm font-medium text-gray-950' }, `$ ${formatAmount(formData.bonus_amount)}`),
+            ])
+        ])
+    });
+
+}
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        fetchLiveAccounts();
+    }
+    if (usePage().props.notification) {
+        claimBonusConfirmation('bonus', usePage().props.notification.form_data);
+    }
+});
 </script>
 
 <template>
@@ -166,10 +204,9 @@ const claimBonus = (account) => {
                 <div class="flex items-center content-center gap-y-2 gap-x-4 flex-grow">
                     <span class="text-gray-950 font-semibold text-lg">#{{ account.meta_login }}</span>
                     <div
-                        class="flex px-2 py-1 justify-center items-center text-xs font-semibold hover:-translate-y-1 transition-all duration-300 ease-in-out rounded"
+                        class="flex px-2 py-1 justify-center items-center text-xs rounded-sm text-white"
                         :style="{
-                            backgroundColor: formatRgbaColor(account.account_type_color, 0.15),
-                            color: `#${account.account_type_color}`,
+                            backgroundColor: `#${account.account_type_color}`,
                         }"
                     >
                         {{ $t(`public.${account.account_type}`) }}
@@ -197,7 +234,7 @@ const claimBonus = (account) => {
                 </div>
             </div>
             <div class="flex justify-end items-center gap-3 self-stretch">
-                <ActionButton :account="account"/>
+                <ActionButton :account="account" :type="accountType"/>
             </div>
             <div class="flex flex-col items-center self-stretch bg-gray-50 rounded-xl p-4 gap-2 shadow-inner">
                 <div class="flex items-center self-stretch justify-between">
@@ -206,12 +243,12 @@ const claimBonus = (account) => {
                         <span class="text-gray-700 text-xs">{{ account.promotion_description }}</span> 
                     </div>
                     <Button
-                        v-if="shouldShowClaimButton(account)"
-                        :variant="getButtonVariant(account)"
-                        :class="buttonClass(account)"
-                        :style="buttonStyle(account)"
-                        :disabled="isButtonDisabled(account)"
-                        @click="claimBonus(account)"
+                        v-if="!(account.promotion_type === 'trade_volume' && account.is_claimed == null)"
+                        class="rounded-xl"
+                        size="sm"
+                        :variant="statusVariant(account)"
+                        :disabled="!account.claimable_status"
+                        @click="openDialog(account)"
                     >
                         {{ buttonText(account) }}
                     </Button>
@@ -232,7 +269,7 @@ const claimBonus = (account) => {
                     </div>
                     <div class="flex items-center self-stretch justify-between pr-12">
                         <span v-if="account.promotion_type==='trade_volume'" class="text-xs">{{ $t('public.filled_volume') }}: <span class="font-medium">{{formatAmount(account.achieved_amount)}}Ł/{{formatAmount(account.target_amount)}}Ł</span></span>
-                        <span v-else class="text-xs">{{ $t(`public.${account.bonus_type}_unlocked`) }}: <span class="font-medium">${{formatAmount(account.achieved_amount)}}/${{formatAmount(account.target_amount)}}</span></span>
+                        <span v-else class="text-xs">{{ $t(`public.${account.bonus_type}_unlocked`) }}: <span class="font-medium">${{formatAmount(account.achieved_amount ?? 0)}}/${{formatAmount(account.target_amount)}}</span></span>
                         <!-- compute for date -->
                         <span v-if="account.days_left > 0" class="text-xs font-medium">{{ account.days_left }} day(s) left</span>
                     </div>
@@ -246,5 +283,41 @@ const claimBonus = (account) => {
         :title="$t('public.empty_trading_account_title')"
         :message="$t('public.empty_trading_account_message')"
     />
+
+    <Dialog v-model:visible="showClaimDialog" :header="$t('public.claim_bonus')" modal class="dialog-xs sm:dialog-sm">
+        <form @submit.prevent="submitForm()">
+            <div class="flex flex-col py-6 gap-5">
+                <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
+                    <span class="text-gray-500 text-center text-xs">#{{ data.meta_login }} - {{ $t('public.claimable_credit_bonus') }}</span>
+                    <span class="text-gray-950 text-center text-lg font-semibold">$ {{ formatAmount(data.claimable_amount) }}</span>
+                </div>
+
+                <div class="self-stretch">
+                    <div class="text-gray-500 text-xs">{{ $t('public.acknowledgement') }}
+                        <TermsAndCondition
+                        />.
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-6">
+                <Button
+                    type="button"
+                    variant="gray-tonal"
+                    class="w-full"
+                    @click.prevent="closeDialog()"
+                >
+                    {{ $t('public.cancel') }}
+                </Button>
+                <Button
+                    variant="primary-flat"
+                    class="w-full"
+                    @click.prevent="submitForm(data)"
+                    :disabled="form.processing"
+                >
+                    {{ $t('public.confirm') }}
+                </Button>
+            </div>
+        </form>
+    </Dialog>
 
 </template>

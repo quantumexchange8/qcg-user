@@ -33,11 +33,11 @@ class CreateTradingAccount
         $tradingAccount->promotion_period_type = $accountType->promotion_period_type ?? null;
         $tradingAccount->promotion_period = $accountType->promotion_period ?? null;
         $tradingAccount->promotion_type = $accountType->promotion_type ?? null;
-        $tradingAccount->target_amount = $accountType->target_amount ?? null;
+        $tradingAccount->min_threshold = $accountType->min_threshold ?? null;
         $tradingAccount->bonus_type = $accountType->bonus_type ?? null;
         $tradingAccount->bonus_amount_type = $accountType->bonus_amount_type ?? null;
         $tradingAccount->bonus_amount = $accountType->bonus_amount ?? null;
-        $tradingAccount->maximum_bonus_cap = $accountType->maximum_bonus_cap ?? null;
+        $tradingAccount->target_amount = $accountType->target_amount ?? null;
         $tradingAccount->applicable_deposit = $accountType->applicable_deposit ?? null;
         $tradingAccount->credit_withdraw_policy = $accountType->credit_withdraw_policy ?? null;
         $tradingAccount->credit_withdraw_date_period = $accountType->credit_withdraw_date_period ?? null;

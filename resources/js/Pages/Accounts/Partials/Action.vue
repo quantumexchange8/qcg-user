@@ -221,6 +221,7 @@ const requireAccountConfirmation = (accountType) => {
         <template v-if="dialogType === 'withdrawal'">
             <AccountWithdrawal
                 :account="account"
+                :type="type"
                 @update:visible="visible = $event"
             />
         </template>
