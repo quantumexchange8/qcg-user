@@ -231,7 +231,7 @@ class AccountController extends Controller
                     'id' => $account->id,
                     'user_id' => $account->user_id,
                     'meta_login' => $account->meta_login,
-                    'balance' => $account->balance,
+                    'balance' => $account->balance - $account->credit,
                     'credit' => $account->credit,
                     'leverage' => $account->margin_leverage,
                     'equity' => $account->equity,
@@ -553,7 +553,7 @@ class AccountController extends Controller
          $tradingAccount = TradingAccount::find($request->account_id);
          (new CTraderService)->getUserInfo($tradingAccount->meta_login);
 
-         if ($tradingAccount->balance < $amount) {
+         if (($tradingAccount->balance - $tradingAccount->credit) < $amount) {
              throw ValidationException::withMessages(['amount' => trans('public.insufficient_balance')]);
          }
 
@@ -561,7 +561,7 @@ class AccountController extends Controller
              $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
 
              if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
-                $credit_amount = $trading_account->credit;
+                $credit_amount = $tradingAccount->credit;
                 $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::DEPOSIT_NONWITHDRAWABLE_BONUS);
                 $ticketCredit = $tradeCredit->getTicket();
                 Transaction::create([
@@ -644,7 +644,7 @@ class AccountController extends Controller
          $amount = $request->input('amount');
          $to_meta_login = $request->input('to_meta_login');
 
-         if ($tradingAccount->balance < $amount) {
+         if (($tradingAccount->balance - $tradingAccount->credit) < $amount) {
              throw ValidationException::withMessages(['wallet' => trans('public.insufficient_balance')]);
          }
 
@@ -653,7 +653,7 @@ class AccountController extends Controller
             $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
 
             if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
-                $credit_amount = $trading_account->credit;
+                $credit_amount = $tradingAccount->credit;
                 $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::DEPOSIT_NONWITHDRAWABLE_BONUS);
                 $ticketCredit = $tradeCredit->getTicket();
                 Transaction::create([

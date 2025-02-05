@@ -11,6 +11,7 @@ use App\Models\TradingAccount;
 use Illuminate\Http\Request;
 use App\Models\UserPostInteraction;
 use App\Models\TradeBrokerHistory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -44,7 +45,7 @@ class DashboardController extends Controller
             ->sum('amount');
 
         $group_total_net_balance = TradingAccount::whereIn('user_id', $groupIds)
-            ->sum('balance');
+            ->sum(DB::raw('balance - credit'));
 
         $group_total_asset = TradingAccount::whereIn('user_id', $groupIds)
             ->sum('equity');

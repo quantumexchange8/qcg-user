@@ -13,6 +13,7 @@ import IconField from 'primevue/iconfield';
 import Checkbox from 'primevue/checkbox';
 import axios from 'axios';
 import InputNumber from "primevue/inputnumber";
+import {transactionFormat} from "@/Composables/index.js";
 
 const props = defineProps({
     account: Object,
@@ -24,6 +25,7 @@ const contDepositDialog = ref(false);
 const showTransferDialog = ref(false);
 const transferOptions = ref([]);
 const selectedAccount = ref(0);
+const {formatAmount} = transactionFormat()
 
 const getOptions = async () => {
     try {
@@ -148,7 +150,7 @@ const isTransferFormValid = computed(() => transferForm.checkbox);
         <div class="flex flex-col py-6 gap-8">
             <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
                 <span class="text-xs text-center text-gray-500">{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
-                <span class="text-lg text-center font-bold text-gray-950">$ {{ props.account.balance }}</span>
+                <span class="text-lg text-center font-bold text-gray-950">$ {{ formatAmount(props.account.balance) }}</span>
             </div>
             <div class="flex flex-row gap-3 items-start">
                 <div><IconInfoCircle size="24" color="#030712" stroke-width="2"/></div>
@@ -180,7 +182,7 @@ const isTransferFormValid = computed(() => transferForm.checkbox);
             <div class="flex flex-col py-6 gap-5">
                 <div class="flex flex-col gap-1 px-8 py-3 bg-gray-100">
                     <span class="text-gray-500 text-center text-xs">#{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
-                    <span class="text-gray-950 text-center text-lg font-semibold">$ {{ props.account.balance }}</span>
+                    <span class="text-gray-950 text-center text-lg font-semibold">$ {{ formatAmount(props.account.balance) }}</span>
                 </div>
                 <div class="flex flex-col items-start gap-1 self-stretch">
                     <InputLabel for="to_meta_login" :value="$t('public.transfer_to')" />
