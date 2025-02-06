@@ -446,4 +446,5 @@ return [
     'claimable_credit_bonus' => 'Claimable Credit Bonus',
     'claim_bonus' => 'Claim Bonus',
     'toast_claim_bonus_error' => 'Unable to claim bonus. Please try again later.',
+    'credit_withdrawal' => 'Credit Withdrawal',
 ];

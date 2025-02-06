@@ -557,26 +557,47 @@ class AccountController extends Controller
          }
 
          try {
-             $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-
-             if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
+            if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
                 $credit_amount = $tradingAccount->credit;
                 $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::WITHDRAW_NONWITHDRAWABLE_BONUS);
                 $ticketCredit = $tradeCredit->getTicket();
                 Transaction::create([
                     'user_id' => Auth::id(),
                     'category' => 'trading_account',
-                    'transaction_type' => 'withdrawal',
+                    'transaction_type' => 'credit_withdrawal',
                     'from_meta_login' => $tradingAccount->meta_login,
                     'ticket' => $ticketCredit,
                     'transaction_number' => RunningNumberService::getID('transaction'),
-                    'amount' => $amount,
+                    'amount' => $credit_amount,
                     'transaction_charges' => 0,
-                    'transaction_amount' => $amount,
+                    'transaction_amount' => $credit_amount,
                     'status' => 'successful',
                     'comment' => 'Credit Withdrawal'
                 ]);
             }
+
+             $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+
+             $amount = $request->input('amount');
+            $paymentWallet = PaymentAccount::where('user_id', Auth::id())
+                ->where('account_no', $request->wallet_address)
+                ->first();
+
+            $transaction = Transaction::create([
+                'user_id' => Auth::id(),
+                'category' => 'trading_account',
+                'transaction_type' => 'withdrawal',
+                'from_meta_login' => $tradingAccount->meta_login,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'payment_account_id' => $paymentWallet->id,
+                'to_wallet_address' => $paymentWallet->account_no,
+                'ticket' => $trade->getTicket(),
+                'amount' => $amount,
+                'transaction_charges' => 0,
+                'transaction_amount' => $amount,
+                'status' => 'processing',
+            ]);
+
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
                  TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
@@ -590,25 +611,6 @@ class AccountController extends Controller
                  ]);
          }
 
-         $amount = $request->input('amount');
-         $paymentWallet = PaymentAccount::where('user_id', Auth::id())
-             ->where('account_no', $request->wallet_address)
-             ->first();
-
-         $transaction = Transaction::create([
-             'user_id' => Auth::id(),
-             'category' => 'trading_account',
-             'transaction_type' => 'withdrawal',
-             'from_meta_login' => $tradingAccount->meta_login,
-             'transaction_number' => RunningNumberService::getID('transaction'),
-             'payment_account_id' => $paymentWallet->id,
-             'to_wallet_address' => $paymentWallet->account_no,
-             'ticket' => $trade->getTicket(),
-             'amount' => $amount,
-             'transaction_charges' => 0,
-             'transaction_amount' => $amount,
-             'status' => 'processing',
-         ]);
 
         // disable trade
 
@@ -648,9 +650,6 @@ class AccountController extends Controller
          }
 
          try {
-            $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-            $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
-
             if ($tradingAccount->accountType->category == 'promotion' && $tradingAccount->credit > 0) {
                 $credit_amount = $tradingAccount->credit;
                 $tradeCredit = (new CTraderService)->createTrade($tradingAccount->meta_login, $credit_amount, "Credit Withdraw From Account", ChangeTraderBalanceType::WITHDRAW_NONWITHDRAWABLE_BONUS);
@@ -658,17 +657,37 @@ class AccountController extends Controller
                 Transaction::create([
                     'user_id' => Auth::id(),
                     'category' => 'trading_account',
-                    'transaction_type' => 'withdrawal',
+                    'transaction_type' => 'credit_withdrawal',
                     'from_meta_login' => $tradingAccount->meta_login,
                     'ticket' => $ticketCredit,
                     'transaction_number' => RunningNumberService::getID('transaction'),
-                    'amount' => $amount,
+                    'amount' => $credit_amount,
                     'transaction_charges' => 0,
-                    'transaction_amount' => $amount,
+                    'transaction_amount' => $credit_amount,
                     'status' => 'successful',
                     'comment' => 'Credit Withdrawal'
                 ]);
             }
+
+            $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+            $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
+
+            $ticketFrom = $tradeFrom->getTicket();
+            $ticketTo = $tradeTo->getTicket();
+            Transaction::create([
+                'user_id' => Auth::id(),
+                'category' => 'trading_account',
+                'transaction_type' => 'account_to_account',
+                'from_meta_login' => $tradingAccount->meta_login,
+                'to_meta_login' => $to_meta_login,
+                'ticket' => $ticketFrom . ','. $ticketTo,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'amount' => $amount,
+                'transaction_charges' => 0,
+                'transaction_amount' => $amount,
+                'status' => 'successful',
+                'comment' => 'to ' . $to_meta_login
+            ]);
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
                  TradingUser::firstWhere('meta_login', $tradingAccount->meta_login)->update(['acc_status' => 'inactive']);
@@ -677,23 +696,6 @@ class AccountController extends Controller
              }
              return response()->json(['success' => false, 'message' => $e->getMessage()]);
          }
-
-         $ticketFrom = $tradeFrom->getTicket();
-         $ticketTo = $tradeTo->getTicket();
-         Transaction::create([
-             'user_id' => Auth::id(),
-             'category' => 'trading_account',
-             'transaction_type' => 'account_to_account',
-             'from_meta_login' => $tradingAccount->meta_login,
-             'to_meta_login' => $to_meta_login,
-             'ticket' => $ticketFrom . ','. $ticketTo,
-             'transaction_number' => RunningNumberService::getID('transaction'),
-             'amount' => $amount,
-             'transaction_charges' => 0,
-             'transaction_amount' => $amount,
-             'status' => 'successful',
-             'comment' => 'to ' . $to_meta_login
-         ]);
 
         return back()->with('toast', [
             'title' => trans('public.toast_internal_transfer_success'),
