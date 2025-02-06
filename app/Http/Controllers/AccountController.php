@@ -576,9 +576,9 @@ class AccountController extends Controller
                 ]);
             }
 
-             $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
+            $trade = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount,"Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
 
-             $amount = $request->input('amount');
+            $amount = $request->input('amount');
             $paymentWallet = PaymentAccount::where('user_id', Auth::id())
                 ->where('account_no', $request->wallet_address)
                 ->first();
@@ -612,6 +612,10 @@ class AccountController extends Controller
          }
 
 
+        // return back()->with('toast', [
+        //     'title' => trans('public.toast_withdrawal_success'),
+        //     'type' => 'success',
+        // ]);
         // disable trade
 
         // Set notification data in the session
@@ -906,18 +910,9 @@ class AccountController extends Controller
                 $tradingAccount = TradingAccount::where('meta_login', $transaction->to_meta_login)->first();
 
                 if ($tradingAccount->promotion_type == 'deposit') {
-                    // $expiryDate = null;
-                    // $daysLeft = 0;
                     $claimable_status = false;
                     $bonus_amount = 0;
                     $achievedAmount = $tradingAccount->achieved_amount ?? 0;
-
-                    // if ($tradingAccount->promotion_period_type === 'specific_date_range') {
-                    //     $expiryDate = Carbon::parse($tradingAccount->promotion_period); 
-                    // } elseif ($account->promotion_period_type === 'from_account_opening') {
-                    //     $expiryDate = Carbon::parse($tradingAccount->created_at)
-                    //         ->addDays((int) $tradingAccount->promotion_period);
-                    // }
                     
                     if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || $achievedAmount >= $tradingAccount->target_amount) 
                         && $tradingAccount->promotion_type == 'deposit' && ($tradingAccount->applicable_deposit !== 'first_deposit_only' || $achievedAmount == 0)) {

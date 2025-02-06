@@ -110,7 +110,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/internal_transfer', [AccountController::class, 'internal_transfer'])->name('accounts.internal_transfer');
         Route::post('/missing_amount', [AccountController::class, 'missing_amount'])->name('accounts.missing_amount');
         Route::delete('/delete_account', [AccountController::class, 'delete_account'])->name('accounts.delete_account');
-        Route::post('/claim_bonus', [AccountController::class, 'claim_bonus'])->name('accounts.claim_bonus');
+        // Route::post('/claim_bonus', [AccountController::class, 'claim_bonus'])->name('accounts.claim_bonus');
     });
 
     /**

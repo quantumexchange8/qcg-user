@@ -46,7 +46,7 @@ const demoAccountForm = useForm({
 
 const tabs = ref([
     { title: wTrans('public.individual'), component: h(IndividualAccounts), type: 'individual' },
-    { title: wTrans('public.promotion'), component: h(PromotionAccounts), type: 'promotion' },
+    // { title: wTrans('public.promotion'), component: h(PromotionAccounts), type: 'promotion' },
     { title: wTrans('public.demo'), component: h(DemoAccounts), type: 'demo' },
 ]);
 
