@@ -66,20 +66,20 @@ const dataOverviews = computed(() => [
         borderColor: 'border-indigo',
         type: 'total_asset'
     },
-    {
-        icon: TradeLotIcon,
-        total: groupTotalTradeLot.value,
-        label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
-        borderColor: 'border-green',
-        type: 'total_trade_lots'
-    },
-    {
-        icon: TradeVolumeIcon,
-        total: groupTotalTradeVolume.value,
-        label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
-        borderColor: 'border-green',
-        type: 'total_trade_volume'
-    },
+    // {
+    //     icon: TradeLotIcon,
+    //     total: groupTotalTradeLot.value,
+    //     label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
+    //     borderColor: 'border-green',
+    //     type: 'total_trade_lots'
+    // },
+    // {
+    //     icon: TradeVolumeIcon,
+    //     total: groupTotalTradeVolume.value,
+    //     label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
+    //     borderColor: 'border-green',
+    //     type: 'total_trade_volume'
+    // },
 ]);
 
 const getDashboardData = async () => {
@@ -90,8 +90,8 @@ const getDashboardData = async () => {
         groupTotalWithdrawal.value = response.data.groupTotalWithdrawal
         groupTotalNetBalance.value = response.data.groupTotalNetBalance
         groupTotalAsset.value = response.data.groupTotalAsset
-        groupTotalTradeLot.value = response.data.groupTotalTradeLot
-        groupTotalTradeVolume.value = response.data.groupTotalTradeVolume
+        // groupTotalTradeLot.value = response.data.groupTotalTradeLot
+        // groupTotalTradeVolume.value = response.data.groupTotalTradeVolume
     } catch (error) {
         console.error('Error pending counts:', error);
     }
@@ -127,7 +127,7 @@ watchEffect(() => {
 
                     <!-- overview data -->
                     <div
-                        class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-3"
+                        class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-2"
                     >
                         <div
                             class="flex flex-row justify-between items-center gap-2 p-2 md:px-6 md:py-4 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
