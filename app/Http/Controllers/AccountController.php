@@ -222,7 +222,7 @@ class AccountController extends Controller
                     //     $claimAmount = min($achievedAmount, $targetAmount) - ($account->claimed_amount ?? 0);
                     // }
 
-                    if ($account->achieved_amount > 0 && ($account->is_claimed != 'claimed' || $account->is_claimed != 'completed' || $account->is_claimed != 'expired')) {
+                    if ($account->achieved_amount > 0 && ($account->is_claimed == 'claimable')) {
                         $claimable_status = true;
                     }
                 }
@@ -911,20 +911,17 @@ class AccountController extends Controller
                     $claimable_status = false;
                     $bonus_amount = 0;
                     $achievedAmount = $tradingAccount->achieved_amount ?? 0;
+                    $targetAmount = ($tradingAccount->bonus_amount_type === 'specified_amount') 
+                                ? $tradingAccount->min_threshold 
+                                : $tradingAccount->target_amount;
 
-                    // if ($tradingAccount->promotion_period_type === 'specific_date_range') {
-                    //     $expiryDate = Carbon::parse($tradingAccount->promotion_period); 
-                    // } elseif ($account->promotion_period_type === 'from_account_opening') {
-                    //     $expiryDate = Carbon::parse($tradingAccount->created_at)
-                    //         ->addDays((int) $tradingAccount->promotion_period);
-                    // }
-                    
-                    if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || $achievedAmount >= $tradingAccount->target_amount) 
+                    Log::info('Promotion detected');
+                    if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || ($targetAmount !== null && $achievedAmount >= $targetAmount)) 
                         && $tradingAccount->promotion_type == 'deposit' && ($tradingAccount->applicable_deposit !== 'first_deposit_only' || $achievedAmount == 0)) {
                         if ($tradingAccount->bonus_amount_type === 'percentage_of_deposit') {
-                            $bonus_amount = ($transaction->amount * $account->bonus_amount / 100);
+                            $bonus_amount = ($transaction->amount * $tradingAccount->bonus_amount / 100);
                                 
-                            if ($bonus_amount >= $tradingAccount->min_threshold) {
+                            if ($transaction->amount >= $tradingAccount->min_threshold) {
                                 // achievedAmount = 600 target_amount = 1000 bonus_amount = 600 , remaining should be 400
                                 $remainingAmount = $tradingAccount->target_amount - $achievedAmount;
                                 if ($bonus_amount > $remainingAmount) {
@@ -946,6 +943,7 @@ class AccountController extends Controller
                             }
                             $tradingAccount->achieved_amount = $achievedAmount + $bonus_amount;
                         }
+                        Log::info('Updated Account : ' . $tradingAccount->meta_login);
                         $tradingAccount->save();
                     }
                 }

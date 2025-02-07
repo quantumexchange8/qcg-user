@@ -50,17 +50,19 @@ class DashboardController extends Controller
         $group_total_asset = TradingAccount::whereIn('user_id', $groupIds)
             ->sum('equity');
 
-        $group_total_trade_lots = TradeBrokerHistory::with('trading_account.ofUser')
-            ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
-                $query->whereIn('id', $groupIds); 
-            })
-            ->sum('trade_lots');
+        $group_total_trade_lots = 0.00;
+        // $group_total_trade_lots = TradeBrokerHistory::with('trading_account.ofUser')
+        //     ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
+        //         $query->whereIn('id', $groupIds); 
+        //     })
+        //     ->sum('trade_lots');
 
-        $group_total_trade_volume = TradeBrokerHistory::with('trading_account.ofUser')
-            ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
-                $query->whereIn('id', $groupIds); 
-            })
-            ->sum('trade_volume');
+        $group_total_trade_volume = 0.00;
+        // $group_total_trade_volume = TradeBrokerHistory::with('trading_account.ofUser')
+        //     ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
+        //         $query->whereIn('id', $groupIds); 
+        //     })
+        //     ->sum('trade_volume');
 
         return response()->json([
             'rebateWallet' => $rebate_wallet,
