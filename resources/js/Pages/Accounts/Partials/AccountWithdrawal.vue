@@ -62,7 +62,12 @@ const closeDialog = () => {
     emit('update:visible', false)
 }
 
-const isFormValid = computed(() => form.checkbox1 && form.checkbox2);
+const isFormValid = computed(() => {
+    if (props.account.account_category === 'promotion') {
+        return form.checkbox1 && form.checkbox2;
+    }
+    return true; // Enable for other account types
+});
 </script>
 
 <template>

@@ -238,6 +238,7 @@ class AccountController extends Controller
                     'account_type' => $account->accountType->slug,
                     'account_type_leverage' => $account->accountType->leverage,
                     'account_type_color' => $account->accountType->color,
+                    'account_category' => $account->accountType->category,
                     'is_active' => $account->status,
                     'promotion_title' => $account->promotion_title,
                     'promotion_description' => $account->promotion_description,

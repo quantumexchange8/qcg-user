@@ -99,7 +99,12 @@ const submitForm = (formType) => {
 }
 
 const isDepositFormValid = computed(() => depositForm.checkbox1 && depositForm.checkbox2);
-const isTransferFormValid = computed(() => transferForm.checkbox);
+const isTransferFormValid = computed(() => {
+    if (props.account.account_category === 'promotion') {
+        return transferForm.checkbox;
+    }
+    return true;
+});
 </script>
 
 <template>
