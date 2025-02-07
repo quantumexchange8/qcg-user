@@ -41,9 +41,9 @@ onMounted(() => {
 });
 
 const buttonText = (account) => {
-    if (account.is_claimed === 'claimed') {
+    if (account.is_claimed === 'completed') {
         return 'Completed';
-    } else if (account.days_left <= 0) {
+    } else if (account.days_left <= 0 || account.is_claimed === 'expired') {
         return 'Expired';
     } else {
         return 'Claim Now';
