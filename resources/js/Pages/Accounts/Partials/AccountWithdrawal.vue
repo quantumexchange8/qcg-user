@@ -66,7 +66,9 @@ const isFormValid = computed(() => {
     if (props.account.account_category === 'promotion') {
         return form.checkbox1 && form.checkbox2;
     }
-    return true; // Enable for other account types
+    else {
+        return form.checkbox2;
+    }
 });
 </script>
 
@@ -134,8 +136,8 @@ const isFormValid = computed(() => {
                     />.
                 </div>
             </div>
-            <div v-if="type==='promotion'" class="flex flex-col gap-4">
-                <label class="flex items-center gap-2">
+            <div class="flex flex-col gap-4">
+                <label v-if="type==='promotion'" class="flex items-center gap-2">
                     <Checkbox binary v-model="form.checkbox1" class="w-4 h-4 flex-shrink-0" />
                     <span class="text-gray-500 text-xs">{{ $t('public.withdrawal_term_1') }}</span>
                 </label>
