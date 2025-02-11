@@ -7,6 +7,7 @@ import ActionButton from "@/Pages/Accounts/Partials/ActionButton.vue";
 import Empty from '@/Components/Empty.vue';
 import {generalFormat, transactionFormat} from "@/Composables/index.js";
 import {usePage} from "@inertiajs/vue3";
+import {trans} from "laravel-vue-i18n";
 import { useConfirm } from 'primevue/useconfirm';
 
 const isLoading = ref(false);

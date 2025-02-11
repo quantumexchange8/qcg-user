@@ -193,6 +193,7 @@ class AccountController extends Controller
                 $expiryDate = null;
                 $daysLeft = 0;
                 $claimable_status = false;
+                $bonus_status = null;
 
                 if($account->accountType->category === 'promotion') {
                     if ($account->promotion_period_type === 'specific_date_range') {
@@ -211,6 +212,13 @@ class AccountController extends Controller
 
                     if ($account->claimable_amount > 0 && $account->is_claimed == 'claimable') {
                         $claimable_status = true;
+                    }
+
+                    if ($account->is_claimed) {
+                        $bonus_status = $account->is_claimed;
+                    }
+                    else {
+                        $bonus_status = 'claimable';
                     }
                 }
 
@@ -238,7 +246,7 @@ class AccountController extends Controller
                     'applicable_deposit' => $account->applicable_deposit,
                     'credit_withdraw_policy' => $account->credit_withdraw_policy,
                     'credit_withdraw_date_period' => $account->credit_withdraw_date_period,
-                    'is_claimed' => $account->is_claimed,
+                    'is_claimed' => $bonus_status,
                     'created_at' => $account->created_at,
                     'achieved_amount' => $account->achieved_amount,
                     'expiry_date' => $expiryDate,
