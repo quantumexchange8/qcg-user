@@ -51,13 +51,13 @@ class DashboardController extends Controller
             ->sum('equity');
 
         $group_total_trade_lots = 0.00;
-        $group_total_trade_volume = 0.00;
         // $group_total_trade_lots = TradeBrokerHistory::with('trading_account.ofUser')
         //     ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
         //         $query->whereIn('id', $groupIds); 
         //     })
         //     ->sum('trade_lots');
 
+        $group_total_trade_volume = 0.00;
         // $group_total_trade_volume = TradeBrokerHistory::with('trading_account.ofUser')
         //     ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
         //         $query->whereIn('id', $groupIds); 
