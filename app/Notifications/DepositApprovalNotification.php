@@ -17,6 +17,8 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
     public function __construct($transaction)
     {
         $this->transaction = $transaction;
+        // queue
+        $this->queue = 'create_email';
     }
 
     public function via($notifiable): array
