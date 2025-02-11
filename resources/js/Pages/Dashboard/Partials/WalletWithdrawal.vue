@@ -7,6 +7,7 @@ import InputError from "@/Components/InputError.vue";
 import Select from "primevue/select";
 import {ref, watch} from "vue";
 import {transactionFormat} from "@/Composables/index.js";
+import Checkbox from 'primevue/checkbox';
 // import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 
 const props = defineProps({
@@ -33,6 +34,7 @@ const form = useForm({
     wallet_id: props.wallet.id,
     amount: 0,
     wallet_address: '',
+    checkbox: false,
 })
 
 watch(walletOptions, (newWallet) => {
@@ -58,6 +60,8 @@ const submitForm = () => {
 const closeDialog = () => {
     emit('update:visible', false)
 }
+
+const isFormValid = computed(() => form.checkbox);
 </script>
 
 <template>
@@ -118,12 +122,10 @@ const closeDialog = () => {
                     <span class="self-stretch text-gray-500 text-xs">{{ walletOptions.length ? form.wallet_address : $t('public.loading_caption')}}</span>
                 </div>
             </div>
-            <!-- <div class="text-left w-full text-gray-500 text-xs">{{ $t('public.agreement_text') }}
-                <TermsAndCondition
-                    :termsLabel="$t('public.warning_4_3')"
-                    :terms="terms"
-                />
-            </div> -->
+            <label class="flex items-center gap-2">
+                <Checkbox binary v-model="form.checkbox" class="w-4 h-4 flex-shrink-0" />
+                <span class="text-gray-500 text-xs">{{ $t('public.withdrawal_term_2') }}</span>
+            </label>
         </div>
         <div class="flex justify-end items-center pt-5 gap-4 self-stretch sm:pt-7">
             <Button

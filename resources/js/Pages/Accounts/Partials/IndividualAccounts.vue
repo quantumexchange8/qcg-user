@@ -7,6 +7,7 @@ import ActionButton from "@/Pages/Accounts/Partials/ActionButton.vue";
 import Empty from '@/Components/Empty.vue';
 import {generalFormat, transactionFormat} from "@/Composables/index.js";
 import {usePage} from "@inertiajs/vue3";
+import { useConfirm } from 'primevue/useconfirm';
 
 const isLoading = ref(false);
 const accounts = ref([]);
@@ -31,9 +32,69 @@ onMounted(() => {
     fetchLiveAccounts();
 });
 
+const confirm = useConfirm();
+const confirmationBox = (accountType, details) => {
+    // console.log("ClaimBonusConfirmation executed", formData);
+    const messages = {
+        withdrawal: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconChecks),
+            header: trans('public.withdrawal_request_submitted'),
+            message: trans('public.withdrawal_request_message'),
+            actionType: 'withdrawal',
+            acceptButton: trans('public.alright'),
+            action: () => {
+                window.location.reload();
+            },
+            content: () => h('div', { class: 'flex flex-col p-3 gap-3 bg-gray-50' }, [
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.date')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, dayjs(details.created_at).format('YYYY/MM/DD')),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.transaction_id')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.transaction_number),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.from_meta_login),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.requested_amount')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, `$ ${formatAmount(details.transaction_amount)}`),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.receiving_address')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.to_wallet_address),
+                ])
+            ])
+        },
+    };
+
+    const { group, color, icon, header, message, actionType, acceptButton, action, content } = messages[accountType];
+
+    confirm.require({
+        group,
+        color,
+        icon,
+        header,
+        message,
+        actionType,
+        acceptButton,
+        accept: action,
+        content: content()
+    });
+
+}
+
 watchEffect(() => {
     if (usePage().props.toast !== null) {
         fetchLiveAccounts();
+    }
+
+    if (usePage().props.notification) {
+        confirmationBox(usePage().props.notification.type, usePage().props.notification.details);
     }
 });
 </script>

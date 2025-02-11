@@ -208,21 +208,8 @@ class AccountController extends Controller
                             ? $now->diffInDays($expiryDate) 
                             : -$expiryDate->diffInDays($now));
                     }
-    
-                    // if ($account->promotion_type === 'deposit') {
-                    //     $achievedAmount = $account->transactions
-                    //         ->where('transaction_type', 'deposit')
-                    //         ->where('created_at', '<', $expiryDate)
-                    //         ->sum('amount');
 
-                    //     if ($account->bonus_amount_type === 'percentage_of_deposit') {
-                    //         $achievedAmount = ($achievedAmount * $account->bonus_amount / 100);
-                    //     }
-                    //         // achievedAmount = 1100 targetAmount = 1000 claimed_amount = 600
-                    //     $claimAmount = min($achievedAmount, $targetAmount) - ($account->claimed_amount ?? 0);
-                    // }
-
-                    if ($account->achieved_amount > 0 && ($account->is_claimed == 'claimable')) {
+                    if ($account->claimable_amount > 0 && $account->is_claimed == 'claimable') {
                         $claimable_status = true;
                     }
                 }
@@ -251,15 +238,12 @@ class AccountController extends Controller
                     'applicable_deposit' => $account->applicable_deposit,
                     'credit_withdraw_policy' => $account->credit_withdraw_policy,
                     'credit_withdraw_date_period' => $account->credit_withdraw_date_period,
-                    // 'claimed_amount' => $account->claimed_amount,
                     'is_claimed' => $account->is_claimed,
                     'created_at' => $account->created_at,
-                    // 'achieved_amount' => $achievedAmount,
                     'achieved_amount' => $account->achieved_amount,
                     'expiry_date' => $expiryDate,
                     'days_left' => $daysLeft,
                     'claimable_status' => $claimable_status,
-                    // 'claimable_amount' => $claimAmount,
                     'claimable_amount' => $account->claimable_amount,
                 ];
             });
@@ -310,23 +294,13 @@ class AccountController extends Controller
                 'status' => 'processing',
             ]);
 
-            if ($tradingAccount->achieved_amount == $tradingAccount->target_amount || $tradingAccount->applicable_deposit == 'first_deposit_only') {
-                $tradingAccount->update([
-                    'is_claimed' => 'completed',
-                ]);
-            }
-            else {
-                $tradingAccount->update([
-                    'is_claimed' => 'claimed',
-                ]);
-            }
+            $tradingAccount->update([
+                'is_claimed' => 'pending',
+            ]);
 
             return redirect()->back()->with('notification', [
-                'show_confirm_dialog' => true,
-                'form_data' => [
-                    'meta_login' => $request->meta_login,
-                    'bonus_amount' => $request->amount,
-                ]
+                'type' => 'bonus',
+                'details' => $transaction,
             ]);
         } catch (\Exception $e) {
                 return back()->with('toast', [
@@ -920,16 +894,19 @@ class AccountController extends Controller
                         && $tradingAccount->promotion_type == 'deposit' && ($tradingAccount->applicable_deposit !== 'first_deposit_only' || $achievedAmount == 0)) {
                         if ($tradingAccount->bonus_amount_type === 'percentage_of_deposit') {
                             $bonus_amount = ($transaction->amount * $tradingAccount->bonus_amount / 100);
-                                
-                            if ($transaction->amount >= $tradingAccount->min_threshold) {
+
+                            if ($transaction->amount >= $tradingAccount->min_threshold || 
+                            ($tradingAccount->achieved_amount * 100 /  $tradingAccount->bonus_amount) >= $tradingAccount->min_threshold) {
                                 // achievedAmount = 600 target_amount = 1000 bonus_amount = 600 , remaining should be 400
                                 $remainingAmount = $tradingAccount->target_amount - $achievedAmount;
                                 if ($bonus_amount > $remainingAmount) {
                                     $bonus_amount = $remainingAmount;
                                 }
                                 $tradingAccount->claimable_amount = $tradingAccount->claimable_amount + $bonus_amount;
-                                $tradingAccount->is_claimed = 'claimable';
                                 $tradingAccount->achieved_amount = $achievedAmount + $bonus_amount;
+                                if ($tradingAccount->is_claimed !== 'pending') {
+                                    $tradingAccount->is_claimed = 'claimable';
+                                }
                             }
                         }
                         else{
@@ -939,7 +916,9 @@ class AccountController extends Controller
                             if ($achievedAmount + $bonus_amount >= $tradingAccount->min_threshold) {
                                 $bonus_amount = $remainingAmount;
                                 $tradingAccount->claimable_amount = $tradingAccount->bonus_amount;
-                                $tradingAccount->is_claimed = 'claimable';
+                                if ($tradingAccount->is_claimed !== 'pending') {
+                                    $tradingAccount->is_claimed = 'claimable';
+                                }
                             }
                             $tradingAccount->achieved_amount = $achievedAmount + $bonus_amount;
                         }
