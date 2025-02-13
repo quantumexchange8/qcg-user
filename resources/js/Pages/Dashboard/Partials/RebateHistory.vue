@@ -40,13 +40,11 @@ const rebate = ref();
 const today = new Date();
 
 // Define minDate and maxDate
-const minDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
 const maxDate = ref(today);
-const selectedDate = ref([minDate.value, maxDate.value]);
+const selectedDate = ref();
 
 const getResults = async (description = '', dateRanges = null) => {
     loading.value = true;
-
     try {
         const params = new URLSearchParams();
 
@@ -72,7 +70,7 @@ const getResults = async (description = '', dateRanges = null) => {
     }
 };
 
-getResults(selectedDescription.value, selectedDate.value);
+getResults(selectedDescription.value, null);
 
 watch(
     [selectedDescription, selectedDate],
