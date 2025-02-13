@@ -88,7 +88,8 @@ watch(
         } else if (dateRange === null) {
             getResults(descriptionValue, null);
         } else {
-            console.warn('Invalid date range format:', dateRange);
+            getResults(descriptionValue, null);
+            // console.warn('Invalid date range format:', dateRange);
         }
     }, 300)
 );
