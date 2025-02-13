@@ -451,4 +451,7 @@ return [
     'pending' => '待處理',
     'completed' => '已完成',
     'expired' => '已過期',
+    'account_to_account' => '帳戶到帳戶',
+    'credit_bonus' => '信用獎金',
+    'cash_bonus' => '現金獎金',
 ];

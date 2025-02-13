@@ -19,6 +19,7 @@ use App\Models\TradingAccount;
 use App\Models\Transaction;
 use App\Models\SettingLeverage;
 use App\Models\Wallet;
+use App\Models\UserAccountTypeVisibility;
 use App\Services\CTraderService;
 use App\Services\RunningNumberService;
 use App\Services\DropdownOptionService;
@@ -50,15 +51,28 @@ class AccountController extends Controller
             ->get()
             ->map(function ($accountType) use ($locale) {
                 $translations = json_decode($accountType->descriptions, true);
+
+                if ($accountType->visible_to === 'selected_members') {
+
+                    $userHasVisibility = UserAccountTypeVisibility::where('account_type_id', $accountType->id)
+                        ->where('user_id', Auth::id())
+                        ->exists();
+
+                    if (!$userHasVisibility) {
+                        return null; 
+                    }
+                }
                 return [
                     'id' => $accountType->id,
                     'name' => $accountType->name,
                     'slug' => $accountType->slug,
                     'account_group' => $accountType->account_group,
                     'leverage' => $accountType->leverage,
-                    'descriptions' => $translations[$locale],
+                    'descriptions' => $translations,
                 ];
-            });
+            })
+            ->filter() 
+            ->values(); 
 
         return response()->json([
             'leverages' => (new DropdownOptionService())->getLeveragesOptions(),
@@ -307,7 +321,7 @@ class AccountController extends Controller
                 'is_claimed' => 'pending',
             ]);
 
-            return redirect()->back()->with('notification', [
+            return back()->with('notification', [
                 'type' => 'bonus',
                 'details' => $transaction,
             ]);
@@ -602,7 +616,7 @@ class AccountController extends Controller
         // disable trade
 
         // Set notification data in the session
-        return redirect()->back()->with('notification', [
+        return back()->with('notification', [
             'details' => $transaction,
             'type' => 'withdrawal',
             // 'withdrawal_type' => 'rebate' this not put show meta_login put rebate show Rebate put bonus show Bonus

@@ -36,4 +36,9 @@ class AccountType extends Model
     {
         return $this->hasMany(TradingAccount::class, 'account_type_id', 'id');
     }
+
+    public function userAccountTypeVisibilities()
+    {
+        return $this->hasMany(UserAccountTypeVisibility::class);
+    }
 }

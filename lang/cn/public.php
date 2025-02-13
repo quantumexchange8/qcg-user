@@ -451,4 +451,7 @@ return [
     'pending' => '待处理',
     'completed' => '已完成',
     'expired' => '已过期',
+    'account_to_account' => '账户到账户',
+    'credit_bonus' => '信用奖金',
+    'cash_bonus' => '现金奖金',
 ];

@@ -46,7 +46,7 @@ const confirmationBox = (accountType, details) => {
             actionType: 'withdrawal',
             acceptButton: trans('public.alright'),
             action: () => {
-                window.location.reload();
+                confirm.close();
             },
             content: () => h('div', { class: 'flex flex-col p-3 gap-3 bg-gray-50' }, [
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
@@ -94,8 +94,10 @@ watchEffect(() => {
         fetchLiveAccounts();
     }
 
-    if (usePage().props.notification) {
+    if (usePage().props.notification !== null) {
         confirmationBox(usePage().props.notification.type, usePage().props.notification.details);
+        fetchLiveAccounts();
+        usePage().props.notification = null;
     }
 });
 </script>

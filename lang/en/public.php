@@ -451,4 +451,7 @@ return [
     'pending' => 'Pending',
     'completed' => 'Completed',
     'expired' => 'Expired',
+    'account_to_account' => 'Account to Account',
+    'credit_bonus' => 'Credit Bonus',
+    'cash_bonus' => 'Cash Bonus',
 ];

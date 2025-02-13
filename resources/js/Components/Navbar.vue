@@ -136,7 +136,7 @@ const downloadQrCode = () => {
                 <IconQrcode size="20" stroke-width="1.5" />
             </Button>
             <Link
-                class="w-12 h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="hidden w-12 h-12 p-3.5 md:flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('logout')"
                 method="post"
                 as="button"
