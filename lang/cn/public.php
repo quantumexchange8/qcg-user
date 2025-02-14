@@ -454,4 +454,7 @@ return [
     'account_to_account' => '账户到账户',
     'credit_bonus' => '信用奖金',
     'cash_bonus' => '现金奖金',
+    'month_placeholder' => '选择月份',
+    'months_selected' => '个选择的月份',
+    'select_all' => '全选',
 ];

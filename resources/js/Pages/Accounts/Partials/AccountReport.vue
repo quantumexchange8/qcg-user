@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
-import Datepicker from 'primevue/datepicker';
+import MultiSelect from "primevue/multiselect";
 import Select from "primevue/select";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -21,7 +21,6 @@ const props = defineProps({
 });
 
 const transactions = ref(null);
-const selectedDate = ref();
 const selectedOption = ref('all');
 const loading = ref(false);
 const visible = ref(false);
@@ -35,16 +34,37 @@ const transferOptions = [
   { name: wTrans('public.transfer'), value: 'transfer' }
 ];
 
-const getAccountReport = async (filterDate = null, selectedOption = null) => {
-    if (loading.value) return;
+const months = ref([]);
+const selectedMonths = ref([]);
+const getCurrentMonthYear = () => {
+    const date = new Date();
+    return `01 ${dayjs(date).format('MMMM YYYY')}`;
+};
+
+const getTransactionMonths = async () => {
+    try {
+        const response = await axios.get('/getTransactionMonths');
+        months.value = response.data.months;
+
+        if (months.value.length) {
+            selectedMonths.value = [getCurrentMonthYear()];
+        }
+    } catch (error) {
+        console.error('Error transaction months:', error);
+    }
+};
+
+getTransactionMonths()
+
+const getAccountReport = async (selectedMonths = [], selectedOption = null) => {
     loading.value = true;
 
     try {
         let url = `/accounts/getAccountReport?meta_login=${props.account.meta_login}`;
 
-        if (filterDate) {
-            const [startDate, endDate] = filterDate;
-            url += `&startDate=${dayjs(startDate).format('YYYY-MM-DD')}&endDate=${dayjs(endDate).format('YYYY-MM-DD')}`;
+        if (selectedMonths && selectedMonths.length > 0) {
+            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
+            url += `&selectedMonths=${selectedMonthString}`;
         }
 
         if (selectedOption) {
@@ -61,39 +81,15 @@ const getAccountReport = async (filterDate = null, selectedOption = null) => {
     }
 };
 
-const today = dayjs();
-const ninetyDaysAgo = today.subtract(90, 'day');
 
-selectedDate.value = [ninetyDaysAgo.toDate(), today.toDate()];
-
-getAccountReport(selectedDate.value, selectedOption.value);
-
-
-watch(selectedDate, (newDateRange) => {
-    if (Array.isArray(newDateRange)) {
-        const [startDate, endDate] = newDateRange;
-
-        if (startDate && endDate) {
-            getAccountReport([startDate, endDate], selectedOption.value);
-        } else if (startDate || endDate) {
-            getAccountReport([startDate || endDate, endDate || startDate], selectedOption.value);
-        } else {
-            getAccountReport(null, selectedOption.value);
-        }
-    } else if (newDateRange === null) {
-        getAccountReport(null, selectedOption.value);
-    } else {
-        console.warn('Invalid date range format:', newDateRange);
-    }
+watch(selectedMonths, (newMonths) => {
+    getAccountReport(newMonths, selectedOption.value);
 });
 
 watch(selectedOption, (newOption) => {
-    getAccountReport(selectedDate.value, newOption);
+    getAccountReport(selectedMonths.value, newOption);
 });
 
-const clearDate = () => {
-    selectedDate.value = null;
-};
 
 const openDialog = (rowData) => {
     visible.value = true;
@@ -125,7 +121,7 @@ function copyToClipboard(text) {
 </script>
 
 <template>
-    <div class="pt-6">
+    <div>
         <DataTable
             :value="transactions"
             paginator
@@ -141,24 +137,34 @@ function copyToClipboard(text) {
         >
             <template #header>
                 <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-3 mb-8">
-                    <div class="relative w-full">
-                        <Datepicker
-                            v-model="selectedDate"
-                            selectionMode="range"
-                            dateFormat="yy/mm/dd"
-                            showIcon
-                            iconDisplay="input"
-                            :placeholder="$t('public.date_placeholder')"
-                            class="w-full font-normal"
-                        />
-                        <div
-                            v-if="selectedDate && selectedDate.length > 0"
-                            class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
-                            @click="clearDate"
-                        >
-                            <IconX size="20" />
-                        </div>
-                    </div>
+                    <MultiSelect
+                        v-model="selectedMonths"
+                        :options="months"
+                        :placeholder="$t('public.month_placeholder')"
+                        :maxSelectedLabels="1"
+                        :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
+                        class="w-full md:w-60 font-normal"
+                    >
+                        <template #header>
+                            <div class="absolute flex left-10 top-2">
+                                {{ $t('public.select_all') }}
+                            </div>
+                        </template>
+                        <template #option="{option}">
+                            <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                        </template>
+                        <template #value>
+                            <span v-if="selectedMonths.length === 1">
+                                {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
+                            </span>
+                            <span v-else-if="selectedMonths.length > 1">
+                                {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                            </span>
+                            <span v-else>
+                                {{ $t('public.month_placeholder') }}
+                            </span>
+                        </template>
+                    </MultiSelect>
                     <Select
                         v-model="selectedOption"
                         :options="transferOptions"

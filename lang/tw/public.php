@@ -454,4 +454,7 @@ return [
     'account_to_account' => '帳戶到帳戶',
     'credit_bonus' => '信用獎金',
     'cash_bonus' => '現金獎金',
+    'month_placeholder' => '個選擇月份',
+    'months_selected' => '選擇的月份',
+    'select_all' => '全選',
 ];
