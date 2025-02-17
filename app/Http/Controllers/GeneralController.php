@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use App\Models\TeamSettlement;
 use App\Models\TradingAccount;
 use App\Models\SettingLeverage;
+use App\Models\TradeRebateSummary;
 use App\Services\CTraderService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -126,6 +127,36 @@ class GeneralController extends Controller
         $firstTransaction = Transaction::where('user_id', Auth::id())
             ->oldest()
             ->value('created_at'); // Get only the first transaction date
+
+        $months = collect();
+
+        if ($firstTransaction) {
+            $firstMonth = Carbon::parse($firstTransaction)->startOfMonth();
+            $currentMonth = Carbon::now()->startOfMonth();
+
+            // Generate all months from first transaction to current month
+            while ($firstMonth <= $currentMonth) {
+                $months->push('01 ' . $firstMonth->format('F Y'));
+                $firstMonth->addMonth();
+            }
+
+            $months = $months->reverse()->values();
+        }
+
+        if ($returnAsArray) {
+            return $months;
+        }
+
+        return response()->json([
+            'months' => $months,
+        ]);
+    }
+
+    public function getTradeMonths($returnAsArray = false)
+    {
+        $firstTransaction = TradeRebateSummary::where('user_id', Auth::id())
+            ->oldest()
+            ->value('execute_at'); // Get only the first transaction date
 
         $months = collect();
 

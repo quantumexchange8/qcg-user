@@ -4,6 +4,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import RebateDetailsTable from '@/Pages/Report/Partials/RebateDetailsTable.vue';
 import Chart from 'primevue/chart';
 import { trans, wTrans } from "laravel-vue-i18n";
+import dayjs from 'dayjs'
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -11,16 +12,16 @@ const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 const rebateBreakdown = ref([]);
 const totalVolume = ref(0);
 const totalRebate = ref(0);
-const dateRange = ref([]);
+const months = ref([]);
 
 // Function to fetch rebate summary data
-const getResults = async (dateRange) => {
+const getResults = async (months) => {
     let url = `/report/getRebateBreakdown`;
 
     // Append date range to the URL if it's not null
-    if (dateRange) {
-        const [startDate, endDate] = dateRange;
-        url += `?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}`;
+    if (months) {
+        const selectedMonthString = months.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
+        url += `?selectedMonths=${selectedMonthString}`;
     }
 
     try {
@@ -37,19 +38,19 @@ const getResults = async (dateRange) => {
 };
 
 // Watch for changes in the dateRange and fetch rebate summary data
-watch(dateRange, (newDateRange) => {
-    if (newDateRange === null || newDateRange === undefined) {
+watch(months, (newMonths) => {
+    if (newMonths === null || newMonths === undefined) {
         // Handle null or undefined newDateRange
         getResults(null);
     } else {
-        getResults(newDateRange);
+        getResults(newMonths);
     }
 });
 
 // Handle the update-date event from RebateListingTable
-const handleUpdateDate = (newDateRange) => {
+const handleUpdateMonth = (newMonths) => {
     // console.log('Date Range Received:', newDateRange);
-    dateRange.value = newDateRange;
+    months.value = newMonths;
 };
 
 // Function to calculate percentage of each rebate
@@ -189,6 +190,6 @@ const chartData = computed(() => {
                 </div>
             </div>
         </div>
-        <RebateDetailsTable  @update-date="handleUpdateDate"/>
+        <RebateDetailsTable  @update-month="handleUpdateMonth"/>
     </div>
 </template>

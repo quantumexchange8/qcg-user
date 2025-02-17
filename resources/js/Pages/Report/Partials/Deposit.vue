@@ -1,39 +1,39 @@
 <script setup>
-import { ref, onMounted, watch, watchEffect, computed } from "vue";
+import { ref, watch } from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import ColumnGroup from 'primevue/columngroup';
 import Row from 'primevue/row';
-import {FilterMatchMode} from "@primevue/core/api";
 import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
+import dayjs from "dayjs";
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
 const props = defineProps({
     selectedType: String,
-    selectedDate: Array,
+    selectedMonths: Array,
     filters: Object,
 });
 
 const selectedType = ref(props.selectedType);
-const selectedDate = ref(props.selectedDate);
+const selectedMonths = ref(props.selectedMonths);
 const transactions = ref();
 const groupTotalDeposit = ref(0);
 const dt = ref();
 const filteredValue = ref();
 const loading = ref(false);
 
-const getResults = async (selectedDate = null) => {
+const getResults = async (selectedMonths = []) => {
     loading.value = true;
     try {
         let url = `/report/getGroupTransaction?type=${selectedType.value}`;
 
         // Append date range to the URL if it's not null
-        if (selectedDate) {
-            const [startDate, endDate] = selectedDate;
-            url += `&startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}`;
+        if (selectedMonths && selectedMonths.length > 0) {
+            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
+            url += `&selectedMonths=${selectedMonthString}`;
         }
 
         const response = await axios.get(url);
@@ -47,25 +47,10 @@ const getResults = async (selectedDate = null) => {
 };
 
 // Watch for changes in selectedDate
-watch(() => props.selectedDate, (newDateRange) => {
-
-    selectedDate.value = newDateRange;
-    if (Array.isArray(newDateRange)) {
-        const [startDate, endDate] = newDateRange;
-        if (startDate && endDate) {
-            getResults([startDate, endDate]);
-        } else if (startDate || endDate) {
-            getResults([startDate || endDate, endDate || startDate]);
-        } else {
-            getResults(null);
-        }
-    } else if (newDateRange === null) {
-        // If newDateRange is null, treat it as an empty range
-        getResults(null);
-    } else {
-        console.warn('Invalid date range format:', newDateRange);
-    }
-}, { immediate: true });
+watch(() => props.selectedMonths, (newMonths) => {
+    selectedMonths.value = newMonths;
+    getResults(newMonths);
+});
 
 const emit = defineEmits(['updateFilteredValue']);
 
@@ -81,14 +66,6 @@ watch(transactions, (newTransactions) => {
         emit('updateFilteredValue', []);
     }
 });
-
-onMounted(() => {
-    if(selectedDate.value === null){
-        getResults(null);
-    } else{
-        getResults(selectedDate.value);
-    }
-})
 
 </script>
 
