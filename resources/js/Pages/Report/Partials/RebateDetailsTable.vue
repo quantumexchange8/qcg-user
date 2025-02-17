@@ -304,10 +304,10 @@ const openDialog = (rowData) => {
         </div>
 
         <div class="flex flex-col justify-center items-center py-4 gap-3 self-stretch border-b border-gray-200 md:border-none">
-            <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
+            <!-- <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.date') }}</span>
-                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ `${formatDate(selectedDate?.[0] ?? '2024/01/01')}&nbsp;-&nbsp;${formatDate(selectedDate?.[1] ?? today)}` }}</span>
-            </div>
+                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ `${formatDate(selectedDate?.[0] ?? '2024/01/01')}&nbsp;-&nbsp;${formatDate(selectedDate?.[1] ?? dayjs())}` }}</span>
+            </div> -->
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.account') }}</span>
                 <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ data.meta_login }}</span>
