@@ -122,7 +122,6 @@ class NetworkController extends Controller
     public function getFilterData()
     {
         return response()->json([
-            'uplines' => (new DropdownOptionService())->getUplines(),
             'maxLevel' => $this->calculateLevel($this->getMaxHierarchy()),
         ]);
     }

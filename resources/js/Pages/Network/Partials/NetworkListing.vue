@@ -47,7 +47,6 @@ const getResults = async () => {
 const getFilterData = async () => {
     try {
         const uplineResponse = await axios.get('/network/getFilterData');
-        uplines.value = uplineResponse.data.uplines;
         maxLevel.value = uplineResponse.data.maxLevel;
         createLevelOptions();
     } catch (error) {
@@ -109,7 +108,6 @@ const exportXLSX = () => {
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-    upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
     level: { value: null, matchMode: FilterMatchMode.EQUALS },
     role: { value: null, matchMode: FilterMatchMode.EQUALS },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
@@ -120,10 +118,9 @@ const rowClicked = (id_number) => {
 }
 
 // overlay panel
-const uplines = ref()
+
 const maxLevel = ref(0)
 const levels = ref([])
-const upline_id = ref(null)
 const level = ref(null)
 const lvl = computed(() => trans('public.level'));
 const roles = [
@@ -140,11 +137,7 @@ const createLevelOptions = () => {
     }
 }
 
-watch([upline_id, level], ([newUplineId, newLevel]) => {
-    if (upline_id.value !== null) {
-        filters.value['upline_id'].value = newUplineId
-    }
-
+watch([level], ([newLevel]) => {
     if (level.value !== null) {
         filters.value['level'].value = newLevel
     }
@@ -154,13 +147,11 @@ const clearFilter = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
         name: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        upline_id: { value: null, matchMode: FilterMatchMode.EQUALS },
         level: { value: null, matchMode: FilterMatchMode.EQUALS },
         role: { value: null, matchMode: FilterMatchMode.EQUALS },
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
 
-    upline_id.value = null;
     level.value = null;
     filteredValue = null;
 };
@@ -228,17 +219,6 @@ watchEffect(() => {
                         optionLabel="name"
                         optionValue="value"
                         :placeholder="$t('public.filter_by_role')"
-                        class="w-full xl:w-60 font-normal"
-                        scroll-height="236px"
-                    />
-                    <Select
-                        v-model="upline_id"
-                        :options="uplines"
-                        filter
-                        :filterFields="['name']"
-                        optionLabel="name"
-                        optionValue="value"
-                        :placeholder="$t('public.filter_by_upline')"
                         class="w-full xl:w-60 font-normal"
                         scroll-height="236px"
                     />
