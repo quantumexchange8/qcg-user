@@ -454,4 +454,7 @@ return [
     'account_to_account' => 'Account to Account',
     'credit_bonus' => 'Credit Bonus',
     'cash_bonus' => 'Cash Bonus',
+    'month_placeholder' => 'Select Months',
+    'months_selected' => 'Months Selected',
+    'select_all' => 'Select All',
 ];

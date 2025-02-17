@@ -15,9 +15,11 @@ use Illuminate\Http\Request;
 use App\Models\TeamSettlement;
 use App\Models\TradingAccount;
 use App\Models\SettingLeverage;
+use App\Models\TradeRebateSummary;
 use App\Services\CTraderService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class GeneralController extends Controller
 {
@@ -122,18 +124,53 @@ class GeneralController extends Controller
 
     public function getTransactionMonths($returnAsArray = false)
     {
-        $transactionDates = Transaction::pluck('created_at');
-        $months = $transactionDates
-            ->map(function ($date) {
-                return Carbon::parse($date)->format('F Y');
-            })
-            ->unique()
-            ->values();
+        $firstTransaction = Transaction::where('user_id', Auth::id())
+            ->oldest()
+            ->value('created_at'); // Get only the first transaction date
 
-        // Add the current month at the end if it's not already in the list
-        $currentMonth = Carbon::now()->format('F Y');
-        if (!$months->contains($currentMonth)) {
-            $months->push($currentMonth);
+        $months = collect();
+
+        if ($firstTransaction) {
+            $firstMonth = Carbon::parse($firstTransaction)->startOfMonth();
+            $currentMonth = Carbon::now()->startOfMonth();
+
+            // Generate all months from first transaction to current month
+            while ($firstMonth <= $currentMonth) {
+                $months->push('01 ' . $firstMonth->format('F Y'));
+                $firstMonth->addMonth();
+            }
+
+            $months = $months->reverse()->values();
+        }
+
+        if ($returnAsArray) {
+            return $months;
+        }
+
+        return response()->json([
+            'months' => $months,
+        ]);
+    }
+
+    public function getTradeMonths($returnAsArray = false)
+    {
+        $firstTransaction = TradeRebateSummary::where('user_id', Auth::id())
+            ->oldest()
+            ->value('execute_at'); // Get only the first transaction date
+
+        $months = collect();
+
+        if ($firstTransaction) {
+            $firstMonth = Carbon::parse($firstTransaction)->startOfMonth();
+            $currentMonth = Carbon::now()->startOfMonth();
+
+            // Generate all months from first transaction to current month
+            while ($firstMonth <= $currentMonth) {
+                $months->push('01 ' . $firstMonth->format('F Y'));
+                $firstMonth->addMonth();
+            }
+
+            $months = $months->reverse()->values();
         }
 
         if ($returnAsArray) {

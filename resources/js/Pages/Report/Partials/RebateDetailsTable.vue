@@ -10,8 +10,9 @@ import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
 import {IconSearch, IconX, IconDownload} from '@tabler/icons-vue';
-import DatePicker from 'primevue/datepicker';
+import MultiSelect from "primevue/multiselect";
 import { trans, wTrans } from "laravel-vue-i18n";
+import dayjs from 'dayjs'
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -22,27 +23,38 @@ const loading = ref(false);
 const expandedRows = ref({});
 const filteredValue = ref();
 
-// Get current date
-const today = new Date();
+const months = ref([]);
+const selectedMonths = ref([]);
+const getCurrentMonthYear = () => {
+    const date = new Date();
+    return `01 ${dayjs(date).format('MMMM YYYY')}`;
+};
 
-// Define minDate as the start of the current month and maxDate as today
-const minDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
-const maxDate = ref(today);
+const getTransactionMonths = async () => {
+    try {
+        const response = await axios.get('/getTransactionMonths');
+        months.value = response.data.months;
 
-// Reactive variable for selected date range
-const selectedDate = ref([minDate.value, maxDate.value]);
+        if (months.value.length) {
+            selectedMonths.value = [getCurrentMonthYear()];
+        }
+    } catch (error) {
+        console.error('Error transaction months:', error);
+    }
+};
 
-const getResults = async (selectedDate = null) => {
+getTransactionMonths()
+
+const getResults = async (selectedMonths = []) => {
     loading.value = true;
-
     try {
         let response;
         let url = `/report/getRebateDetails`;
 
         // Append date range to the URL if it's not null
-        if (selectedDate) {
-            const [startDate, endDate] = selectedDate;
-            url += `?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}`;
+        if (selectedMonths && selectedMonths.length > 0) {
+            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
+            url += `?selectedMonths=${selectedMonthString}`;
         }
 
         response = await axios.get(url);
@@ -106,33 +118,11 @@ const handleFilter = (e) => {
     filteredValue.value = e.filteredValue;
 };
 
-const clearDate = () => {
-    selectedDate.value = null;
-};
+const emit = defineEmits(['update-month']);
 
-const emit = defineEmits(['update-date']);
-
-watch(selectedDate, (newDateRange) => {
-    if (Array.isArray(newDateRange)) {
-        const [startDate, endDate] = newDateRange;
-
-        if (startDate && endDate) {
-            getResults([startDate, endDate]);
-            emit('update-date', [startDate, endDate]);
-        } else if (startDate || endDate) {
-            getResults([startDate || endDate, endDate || startDate]);
-            emit('update-date', [startDate || endDate, endDate || startDate]);
-        } else if (!(startDate && endDate)) {
-            getResults(null);
-            emit('update-date', null);
-        }
-    } else if (newDateRange === null) {
-        getResults(null);
-        emit('update-date', null); 
-    }
-    else {
-        console.warn('Invalid date range format:', newDateRange);
-    }
+watch(selectedMonths, (newMonths) => {
+    getResults(newMonths);
+    emit('update-month', newMonths);
 }, { immediate: true });
 
 const filters = ref({
@@ -156,26 +146,34 @@ const openDialog = (rowData) => {
 <template>
     <div class="flex flex-col justify-center items-center px-3 py-5 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
         <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
-            <div class="relative w-full md:w-[272px]">
-                <DatePicker
-                    v-model="selectedDate"
-                    selectionMode="range"
-                    :manualInput="false"
-                    :maxDate="maxDate"
-                    dateFormat="dd/mm/yy"
-                    showIcon
-                    iconDisplay="input"
-                    placeholder="dd/mm/yyyy - dd/mm/yyyy"
-                    class="w-full md:w-[272px]"
-                />
-                <div
-                    v-if="selectedDate && selectedDate.length > 0"
-                    class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
-                    @click="clearDate"
-                >
-                    <IconX size="20" />
-                </div>
-            </div>
+            <MultiSelect
+                v-model="selectedMonths"
+                :options="months"
+                :placeholder="$t('public.month_placeholder')"
+                :maxSelectedLabels="1"
+                :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
+                class="w-full md:w-[272px] font-normal"
+            >
+                <template #header>
+                    <div class="absolute flex left-10 top-2">
+                        {{ $t('public.select_all') }}
+                    </div>
+                </template>
+                <template #option="{option}">
+                    <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                </template>
+                <template #value>
+                    <span v-if="selectedMonths.length === 1">
+                        {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
+                    </span>
+                    <span v-else-if="selectedMonths.length > 1">
+                        {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                    </span>
+                    <span v-else>
+                        {{ $t('public.month_placeholder') }}
+                    </span>
+                </template>
+            </MultiSelect>
             <div class="w-full flex justify-end gap-5">
                 <div class="relative w-full md:w-60">
                     <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">

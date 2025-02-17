@@ -336,9 +336,16 @@ class AccountController extends Controller
     public function getAccountReport(Request $request)
     {
         $meta_login = $request->query('meta_login');
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
         $type = $request->query('type');
+        $selectedMonths = $request->query('selectedMonths');
+        $selectedMonthsArray = !empty($selectedMonths) ? explode(',', $selectedMonths) : [];
+        
+        if (empty($selectedMonthsArray)) {
+            // If selectedMonths is empty, return an empty result
+            return response()->json([
+                'transactions' => [],
+            ]);
+        }
 
         $query = Transaction::query()->where('status', 'successful');
 
@@ -349,13 +356,18 @@ class AccountController extends Controller
             });
         }
 
-        if ($startDate && $endDate) {
-            $start_date = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
-            $end_date = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+        if (!empty($selectedMonthsArray)) {
+            $query->where(function ($q) use ($selectedMonthsArray) {
+                foreach ($selectedMonthsArray as $range) {
+                    [$month, $year] = explode('/', $range);
+                    $startDate = "$year-$month-01";
+                    $endDate = date("Y-m-t 23:59:59", strtotime($startDate)); // Last day of the month
 
-            $query->whereBetween('created_at', [$start_date, $end_date]);
+                    // Add a condition to match transactions for this specific month-year
+                    $q->orWhereBetween('created_at', [$startDate, $endDate]);
+                }
+            });
         }
-
         // Apply type filter
         if ($type && $type !== 'all') {
             // Filter based on specific transaction types directly

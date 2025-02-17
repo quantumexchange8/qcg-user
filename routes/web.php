@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccountController;
@@ -61,6 +62,9 @@ Route::post('deposit_callback', [AccountController::class, 'depositCallback'])->
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
+
+    Route::get('/getTransactionMonths', [GeneralController::class, 'getTransactionMonths'])->name('getTransactionMonths');
+    Route::get('/getTradeMonths', [GeneralController::class, 'getTradeMonths'])->name('getTradeMonths');
 
     /**
      * ==============================

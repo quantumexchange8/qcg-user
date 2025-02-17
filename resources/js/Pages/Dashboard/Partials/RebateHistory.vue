@@ -5,16 +5,14 @@ import Button from "@/Components/Button.vue";
 import { computed, ref, watch } from "vue";
 import { IconX, IconReport, IconDownload } from "@tabler/icons-vue";
 import { transactionFormat } from "@/Composables/index.js";
-import DatePicker from 'primevue/datepicker';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import debounce from "lodash/debounce.js";
 import Select from 'primevue/select';
 import dayjs from 'dayjs'
 import Loader from "@/Components/Loader.vue";
 import Empty from "@/Components/Empty.vue";
 import { trans, wTrans } from "laravel-vue-i18n";
-import StatusBadge from '@/Components/StatusBadge.vue';
+import MultiSelect from "primevue/multiselect";
 
 const visible = ref(false);
 const visible2 = ref(false);
@@ -37,13 +35,29 @@ const selectedDescription = ref(descriptions[0].value);
 const dt = ref();
 const rebate = ref();
 
-const today = new Date();
+const months = ref([]);
+const selectedMonths = ref([]);
+const getCurrentMonthYear = () => {
+    const date = new Date();
+    return `01 ${dayjs(date).format('MMMM YYYY')}`;
+};
 
-// Define minDate and maxDate
-const maxDate = ref(today);
-const selectedDate = ref();
+const getTransactionMonths = async () => {
+    try {
+        const response = await axios.get('/getTransactionMonths');
+        months.value = response.data.months;
 
-const getResults = async (description = '', dateRanges = null) => {
+        if (months.value.length) {
+            selectedMonths.value = [getCurrentMonthYear()];
+        }
+    } catch (error) {
+        console.error('Error transaction months:', error);
+    }
+};
+
+getTransactionMonths()
+
+const getResults = async (description = '', selectedMonths = []) => {
     loading.value = true;
     try {
         const params = new URLSearchParams();
@@ -52,12 +66,12 @@ const getResults = async (description = '', dateRanges = null) => {
             params.append('description', description);
         }
 
-        if (dateRanges) {
-            const [startDate, endDate] = dateRanges;
-            params.append('startDate', dayjs(startDate).format('YYYY-MM-DD'));
-            params.append('endDate', dayjs(endDate).format('YYYY-MM-DD'));
+         // Convert the array to a comma-separated string if not empty
+         if (selectedMonths && selectedMonths.length > 0) {
+            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
+            params.append('selectedMonths', selectedMonthString);
         }
-        
+
         // console.log(description)
         const response = await axios.get('/dashboard/getRebateTransactions', { params });
         // console.log('Params:', params.toString());
@@ -70,48 +84,14 @@ const getResults = async (description = '', dateRanges = null) => {
     }
 };
 
-getResults(selectedDescription.value, null);
+watch(selectedMonths, (newMonths) => {
+    getResults(selectedDescription.value, newMonths);
+});
 
-watch(
-    [selectedDescription, selectedDate],
-    debounce(([descriptionValue, dateRange]) => {
-        if (Array.isArray(dateRange)) {
-            const [startDate, endDate] = dateRange;
+watch(selectedDescription, (descriptionValue) => {
+    getResults(descriptionValue, selectedMonths.value);
+});
 
-            if (startDate && endDate) {
-                getResults(descriptionValue, [startDate, endDate]);
-            } else if (startDate || endDate) {
-                getResults(descriptionValue, [startDate || endDate, endDate || startDate]);
-            } else {
-                getResults(descriptionValue, null);
-            }
-        } else if (dateRange === null) {
-            getResults(descriptionValue, null);
-        } else {
-            getResults(descriptionValue, null);
-            // console.warn('Invalid date range format:', dateRange);
-        }
-    }, 300)
-);
-
-const clearDate = () => {
-    selectedDate.value = null;
-};
-
-// const getStatusColor = (status) => {
-//   switch(status.toLowerCase()) {
-//     case 'successful':
-//       return '#22C55E'; // Green
-//     case 'processing':
-//       return '#0EA5E9'; // Blue
-//     case 'failed':
-//       return '#DC2626'; // Red
-//     case 'rejected':
-//       return '#DC2626'; // Red
-//     default:
-//       return 'transparent'; // Default or undefined status
-//   }
-// };
 
 const getAmountTextColor = (transactionType) => {
     if (['rebate_payout', 'rebate_in'].includes(transactionType)) {
@@ -148,7 +128,7 @@ const openDialog = (rowData) => {
         :header="$t('public.rebate_history')"
         class="dialog-xs md:dialog-md"
     >
-        <div class="pt-6">
+        <div>
             <DataTable
                 :value="rebate"
                 removableSort
@@ -165,26 +145,34 @@ const openDialog = (rowData) => {
                 <template #header>
                     <div class="flex flex-col items-center gap-4 mb-4 md:mb-8">
                         <div class="flex flex-col items-center gap-5 self-stretch md:flex-row">
-                            <div class="relative w-full md:w-60">
-                                <DatePicker 
-                                    v-model="selectedDate"
-                                    selectionMode="range"
-                                    :manualInput="false"
-                                    :maxDate="maxDate"
-                                    dateFormat="dd/mm/yy"
-                                    showIcon
-                                    iconDisplay="input"
-                                    :placeholder="$t('public.select_date')"
-                                    class="font-normal w-full md:w-60"
-                                />
-                                <div
-                                    v-if="selectedDate && selectedDate.length > 0"
-                                    class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
-                                    @click="clearDate"
-                                >
-                                    <IconX size="20" />
-                                </div>
-                            </div>
+                            <MultiSelect
+                                v-model="selectedMonths"
+                                :options="months"
+                                :placeholder="$t('public.month_placeholder')"
+                                :maxSelectedLabels="1"
+                                :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
+                                class="w-full md:w-60 font-normal"
+                            >
+                                <template #header>
+                                    <div class="absolute flex left-10 top-2">
+                                        {{ $t('public.select_all') }}
+                                    </div>
+                                </template>
+                                <template #option="{option}">
+                                    <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                                </template>
+                                <template #value>
+                                    <span v-if="selectedMonths.length === 1">
+                                        {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
+                                    </span>
+                                    <span v-else-if="selectedMonths.length > 1">
+                                        {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                                    </span>
+                                    <span v-else>
+                                        {{ $t('public.month_placeholder') }}
+                                    </span>
+                                </template>
+                            </MultiSelect>
 
                             <Select 
                                 v-model="selectedDescription"
