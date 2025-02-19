@@ -12,7 +12,6 @@ import dayjs from 'dayjs'
 import Loader from "@/Components/Loader.vue";
 import Empty from "@/Components/Empty.vue";
 import { trans, wTrans } from "laravel-vue-i18n";
-import MultiSelect from "primevue/multiselect";
 
 const visible = ref(false);
 const visible2 = ref(false);
@@ -36,19 +35,21 @@ const dt = ref();
 const rebate = ref();
 
 const months = ref([]);
-const selectedMonths = ref([]);
+const selectedMonth = ref('');
+
 const getCurrentMonthYear = () => {
     const date = new Date();
     return `01 ${dayjs(date).format('MMMM YYYY')}`;
 };
 
+// Fetch settlement months from API
 const getTransactionMonths = async () => {
     try {
         const response = await axios.get('/getTransactionMonths');
-        months.value = response.data.months;
+        months.value = ['select_all', ...response.data.months];
 
         if (months.value.length) {
-            selectedMonths.value = [getCurrentMonthYear()];
+            selectedMonth.value = [getCurrentMonthYear()];
         }
     } catch (error) {
         console.error('Error transaction months:', error);
@@ -57,7 +58,7 @@ const getTransactionMonths = async () => {
 
 getTransactionMonths()
 
-const getResults = async (description = '', selectedMonths = []) => {
+const getResults = async (description = '', selectedMonth = '') => {
     loading.value = true;
     try {
         const params = new URLSearchParams();
@@ -66,10 +67,12 @@ const getResults = async (description = '', selectedMonths = []) => {
             params.append('description', description);
         }
 
-         // Convert the array to a comma-separated string if not empty
-         if (selectedMonths && selectedMonths.length > 0) {
-            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
-            params.append('selectedMonths', selectedMonthString);
+        if (selectedMonth) {
+            const formattedMonth = selectedMonth === 'select_all' 
+                ? 'select_all' 
+                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+
+            params.append('selectedMonth', formattedMonth);
         }
 
         // console.log(description)
@@ -84,12 +87,12 @@ const getResults = async (description = '', selectedMonths = []) => {
     }
 };
 
-watch(selectedMonths, (newMonths) => {
-    getResults(selectedDescription.value, newMonths);
+watch(selectedMonth, (newMonth) => {
+    getResults(selectedDescription.value, newMonth);
 });
 
 watch(selectedDescription, (descriptionValue) => {
-    getResults(descriptionValue, selectedMonths.value);
+    getResults(descriptionValue, selectedMonth.value);
 });
 
 
@@ -145,35 +148,36 @@ const openDialog = (rowData) => {
                 <template #header>
                     <div class="flex flex-col items-center gap-4 mb-4 md:mb-8">
                         <div class="flex flex-col items-center gap-5 self-stretch md:flex-row">
-                            <MultiSelect
-                                v-model="selectedMonths"
-                                :options="months"
+                            <Select 
+                                v-model="selectedMonth" 
+                                :options="months" 
                                 :placeholder="$t('public.month_placeholder')"
-                                :maxSelectedLabels="1"
-                                :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
-                                class="w-full md:w-60 font-normal"
+                                class="w-full md:w-60 font-normal truncate" scroll-height="236px" 
                             >
-                                <template #header>
-                                    <div class="absolute flex left-10 top-2">
-                                        {{ $t('public.select_all') }}
-                                    </div>
-                                </template>
                                 <template #option="{option}">
-                                    <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                                    <span class="text-sm">
+                                        <template v-if="option === 'select_all'">
+                                            {{ $t('public.select_all') }}
+                                        </template>
+                                        <template v-else>
+                                            {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
+                                        </template>
+                                    </span>
                                 </template>
                                 <template #value>
-                                    <span v-if="selectedMonths.length === 1">
-                                        {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
-                                    </span>
-                                    <span v-else-if="selectedMonths.length > 1">
-                                        {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                                    <span v-if="selectedMonth">
+                                        <template v-if="selectedMonth === 'select_all'">
+                                            {{ $t('public.select_all') }}
+                                        </template>
+                                        <template v-else>
+                                            {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
+                                        </template>
                                     </span>
                                     <span v-else>
                                         {{ $t('public.month_placeholder') }}
                                     </span>
                                 </template>
-                            </MultiSelect>
-
+                            </Select>
                             <Select 
                                 v-model="selectedDescription"
                                 :options="descriptions"

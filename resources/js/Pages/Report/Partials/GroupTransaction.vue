@@ -14,7 +14,7 @@ import {FilterMatchMode} from "@primevue/core/api";
 import {IconSearch, IconX, IconDownload} from '@tabler/icons-vue';
 import InputText from 'primevue/inputtext';
 import Button from '@/Components/Button.vue';
-import MultiSelect from "primevue/multiselect";
+import Select from "primevue/select";
 
 const { formatAmount } = transactionFormat();
 
@@ -28,26 +28,28 @@ const selectedType = ref('deposit');
 const activeIndex = ref(tabs.value.findIndex(tab => tab.type === selectedType.value));
 
 const months = ref([]);
-const selectedMonths = ref([]);
+const selectedMonth = ref('');
+
 const getCurrentMonthYear = () => {
     const date = new Date();
     return `01 ${dayjs(date).format('MMMM YYYY')}`;
 };
 
-const getTransactionMonths = async () => {
+// Fetch settlement months from API
+const getTradeMonths = async () => {
     try {
-        const response = await axios.get('/getTransactionMonths');
-        months.value = response.data.months;
+        const response = await axios.get('/getTradeMonths');
+        months.value = ['select_all', ...response.data.months];
 
         if (months.value.length) {
-            selectedMonths.value = [getCurrentMonthYear()];
+            selectedMonth.value = [getCurrentMonthYear()];
         }
     } catch (error) {
-        console.error('Error transaction months:', error);
+        console.error('Error trade months:', error);
     }
 };
 
-getTransactionMonths()
+getTradeMonths()
 
 const exportXLSX = () => {
     // Retrieve the array from the reactive proxy
@@ -147,39 +149,41 @@ const handleFilteredValue = (filteredData) => {
             </div>
         </div>
 
-        <MultiSelect
-            v-model="selectedMonths"
-            :options="months"
+        <Select 
+            v-model="selectedMonth" 
+            :options="months" 
             :placeholder="$t('public.month_placeholder')"
-            :maxSelectedLabels="1"
-            :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
-            class="w-full md:w-[272px] font-normal"
+            class="w-full md:w-[272px] font-normal truncate" scroll-height="236px" 
         >
-            <template #header>
-                <div class="absolute flex left-10 top-2">
-                    {{ $t('public.select_all') }}
-                </div>
-            </template>
             <template #option="{option}">
-                <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                <span class="text-sm">
+                    <template v-if="option === 'select_all'">
+                        {{ $t('public.select_all') }}
+                    </template>
+                    <template v-else>
+                        {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
+                    </template>
+                </span>
             </template>
             <template #value>
-                <span v-if="selectedMonths.length === 1">
-                    {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
-                </span>
-                <span v-else-if="selectedMonths.length > 1">
-                    {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                <span v-if="selectedMonth">
+                    <template v-if="selectedMonth === 'select_all'">
+                        {{ $t('public.select_all') }}
+                    </template>
+                    <template v-else>
+                        {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
+                    </template>
                 </span>
                 <span v-else>
                     {{ $t('public.month_placeholder') }}
                 </span>
             </template>
-        </MultiSelect>
+        </Select>
 
         <Tabs v-model:value="activeIndex" class="w-full">
             <TabPanels>
                 <TabPanel :key="activeIndex" :value="activeIndex">
-                    <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" :filters="filters" :selectedType="tabs[activeIndex].type" :selectedMonths="selectedMonths" v-if="tabs[activeIndex].component" @updateFilteredValue="handleFilteredValue"/>
+                    <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" :filters="filters" :selectedType="tabs[activeIndex].type" :selectedMonth="selectedMonth" v-if="tabs[activeIndex].component" @updateFilteredValue="handleFilteredValue"/>
                 </TabPanel>
             </TabPanels>
         </Tabs>

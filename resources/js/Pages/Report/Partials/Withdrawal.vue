@@ -13,27 +13,32 @@ const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
 const props = defineProps({
     selectedType: String,
-    selectedMonths: Array,
+    selectedMonth: {
+        type: [Array, String], // Allows both Array and String types
+        default: () => '', // Default value as an empty array
+    },
     filters: Object,
 });
 
 const selectedType = ref(props.selectedType);
-const selectedMonths = ref(props.selectedMonths);
+const selectedMonth = ref(props.selectedMonth);
 const transactions = ref();
 const groupTotalWithdrawal = ref(0);
 const dt = ref();
 const filteredValue = ref();
 const loading = ref(false);
 
-const getResults = async (selectedMonths = []) => {
+const getResults = async (selectedMonth = '') => {
     loading.value = true;
     try {
         let url = `/report/getGroupTransaction?type=${selectedType.value}`;
 
-        // Append date range to the URL if it's not null
-        if (selectedMonths && selectedMonths.length > 0) {
-            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
-            url += `&selectedMonths=${selectedMonthString}`;
+        if (selectedMonth) {
+            const formattedMonth = selectedMonth === 'select_all' 
+                ? 'select_all' 
+                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+
+            url += `&selectedMonth=${formattedMonth}`;
         }
 
         const response = await axios.get(url);
@@ -47,10 +52,10 @@ const getResults = async (selectedMonths = []) => {
 };
 
 // Watch for changes in selectedDate
-watch(() => props.selectedMonths, (newMonths) => {
-    selectedMonths.value = newMonths;
-    getResults(selectedMonths.value);
-}, { immediate: true });
+watch(() => props.selectedMonth, (newMonth) => {
+    selectedMonth.value = newMonth;
+    getResults(newMonth);
+});
 
 const emit = defineEmits(['updateFilteredValue']);
 

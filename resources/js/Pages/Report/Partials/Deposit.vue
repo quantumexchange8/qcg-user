@@ -13,27 +13,32 @@ const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
 const props = defineProps({
     selectedType: String,
-    selectedMonths: Array,
+    selectedMonth: {
+        type: [Array, String], // Allows both Array and String types
+        default: () => '', // Default value as an empty array
+    },
     filters: Object,
 });
 
 const selectedType = ref(props.selectedType);
-const selectedMonths = ref(props.selectedMonths);
+const selectedMonth = ref(props.selectedMonth);
 const transactions = ref();
 const groupTotalDeposit = ref(0);
 const dt = ref();
 const filteredValue = ref();
 const loading = ref(false);
 
-const getResults = async (selectedMonths = []) => {
+const getResults = async (selectedMonth = '') => {
     loading.value = true;
     try {
         let url = `/report/getGroupTransaction?type=${selectedType.value}`;
 
-        // Append date range to the URL if it's not null
-        if (selectedMonths && selectedMonths.length > 0) {
-            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
-            url += `&selectedMonths=${selectedMonthString}`;
+        if (selectedMonth) {
+            const formattedMonth = selectedMonth === 'select_all' 
+                ? 'select_all' 
+                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+
+            url += `&selectedMonth=${formattedMonth}`;
         }
 
         const response = await axios.get(url);
@@ -47,10 +52,40 @@ const getResults = async (selectedMonths = []) => {
 };
 
 // Watch for changes in selectedDate
-watch(() => props.selectedMonths, (newMonths) => {
-    selectedMonths.value = newMonths;
-    getResults(newMonths);
+watch(() => props.selectedMonth, (newMonth) => {
+    selectedMonth.value = newMonth;
+    getResults(newMonth);
 });
+
+// watch(props.filters, () => {
+//     recalculateTotals();
+// }, { deep: true });
+
+// const recalculateTotals = () => {
+//     const globalFilterValue = props.filters.global?.value?.toLowerCase();
+//     const filtered = transactions.value.filter(transaction => {
+//         const matchesGlobalFilter = globalFilterValue 
+//             ? [
+//                 transaction.name,
+//                 transaction.email,
+//             ].some(field => {
+//                 // Convert field to string and check if it includes the global filter value
+//                 const fieldValue = field !== undefined && field !== null ? field.toString() : '';
+//                 return fieldValue.toLowerCase().includes(globalFilterValue);
+//             }) 
+//             : true; // If no global filter is set, match all
+
+//         // Apply individual field filters (name, email, status)
+//         const matchesNameFilter = !props.filters.global?.value || transaction.name.includes(props.filters.global.value);
+//         const matchesEmailFilter = !props.filters.global?.value || transaction.email.includes(props.filters.global.value);
+
+//         // Only return transactions that match both global and specific filters
+//         return matchesGlobalFilter && matchesNameFilter && matchesEmailFilter;
+//     });
+
+//     // Calculate the total for successful transactions
+//     groupTotalDeposit.value = filtered.reduce((acc, item) => acc + parseFloat(item.transaction_amount || 0), 0);
+// };
 
 const emit = defineEmits(['updateFilteredValue']);
 

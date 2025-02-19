@@ -154,9 +154,12 @@ class GeneralController extends Controller
 
     public function getTradeMonths($returnAsArray = false)
     {
-        $firstTransaction = TradeRebateSummary::where('user_id', Auth::id())
-            ->oldest()
-            ->value('execute_at'); // Get only the first transaction date
+        $firstTransaction = TradeRebateSummary::where(function ($query) {
+            $query->where('upline_user_id', Auth::id())
+                ->orWhere('user_id', Auth::id());
+        })
+        ->oldest()
+        ->value('execute_at'); // Get only the first transaction date
 
         $months = collect();
 
@@ -184,18 +187,23 @@ class GeneralController extends Controller
 
     public function getIncentiveMonths($returnAsArray = false)
     {
-        $incentiveDates = LeaderboardBonus::pluck('created_at');
-        $months = $incentiveDates
-            ->map(function ($date) {
-                return Carbon::parse($date)->format('F Y');
-            })
-            ->unique()
-            ->values();
+        $incentiveDates = LeaderboardBonus::where('user_id', Auth::id())
+            ->oldest()
+            ->value('created_at'); // Get only the first transaction date
 
-        // Add the current month at the end if it's not already in the list
-        $currentMonth = Carbon::now()->format('F Y');
-        if (!$months->contains($currentMonth)) {
-            $months->push($currentMonth);
+        $months = collect();
+
+        if ($incentiveDates) {
+            $firstMonth = Carbon::parse($incentiveDates)->startOfMonth();
+            $currentMonth = Carbon::now()->startOfMonth();
+
+            // Generate all months from first transaction to current month
+            while ($firstMonth <= $currentMonth) {
+                $months->push('01 ' . $firstMonth->format('F Y'));
+                $firstMonth->addMonth();
+            }
+
+            $months = $months->reverse()->values();
         }
 
         if ($returnAsArray) {

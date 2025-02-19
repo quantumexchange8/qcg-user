@@ -10,7 +10,7 @@ import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
 import {IconSearch, IconX, IconDownload} from '@tabler/icons-vue';
-import MultiSelect from "primevue/multiselect";
+import Select from "primevue/select";
 import { trans, wTrans } from "laravel-vue-i18n";
 import dayjs from 'dayjs'
 
@@ -24,37 +24,41 @@ const expandedRows = ref({});
 const filteredValue = ref();
 
 const months = ref([]);
-const selectedMonths = ref([]);
+const selectedMonth = ref('');
+
 const getCurrentMonthYear = () => {
     const date = new Date();
     return `01 ${dayjs(date).format('MMMM YYYY')}`;
 };
 
+// Fetch settlement months from API
 const getTransactionMonths = async () => {
     try {
         const response = await axios.get('/getTransactionMonths');
-        months.value = response.data.months;
+        months.value = ['select_all', ...response.data.months];
 
         if (months.value.length) {
-            selectedMonths.value = [getCurrentMonthYear()];
+            selectedMonth.value = [getCurrentMonthYear()];
         }
     } catch (error) {
-        console.error('Error transaction months:', error);
+        console.error('Error trade months:', error);
     }
 };
 
 getTransactionMonths()
 
-const getResults = async (selectedMonths = []) => {
+const getResults = async (selectedMonth = '') => {
     loading.value = true;
     try {
         let response;
         let url = `/report/getRebateDetails`;
 
-        // Append date range to the URL if it's not null
-        if (selectedMonths && selectedMonths.length > 0) {
-            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
-            url += `?selectedMonths=${selectedMonthString}`;
+        if (selectedMonth) {
+            const formattedMonth = selectedMonth === 'select_all' 
+                ? 'select_all' 
+                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+
+            url += `?selectedMonth=${formattedMonth}`;
         }
 
         response = await axios.get(url);
@@ -120,10 +124,10 @@ const handleFilter = (e) => {
 
 const emit = defineEmits(['update-month']);
 
-watch(selectedMonths, (newMonths) => {
-    getResults(newMonths);
-    emit('update-month', newMonths);
-}, { immediate: true });
+watch(selectedMonth, (newMonth) => {
+    getResults(newMonth);
+    emit('update-month', newMonth);
+});
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -146,34 +150,36 @@ const openDialog = (rowData) => {
 <template>
     <div class="flex flex-col justify-center items-center px-3 py-5 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
         <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
-            <MultiSelect
-                v-model="selectedMonths"
-                :options="months"
+            <Select 
+                v-model="selectedMonth" 
+                :options="months" 
                 :placeholder="$t('public.month_placeholder')"
-                :maxSelectedLabels="1"
-                :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
-                class="w-full md:w-[272px] font-normal"
+                class="w-full md:w-[272px] font-normal truncate" scroll-height="236px" 
             >
-                <template #header>
-                    <div class="absolute flex left-10 top-2">
-                        {{ $t('public.select_all') }}
-                    </div>
-                </template>
                 <template #option="{option}">
-                    <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                    <span class="text-sm">
+                        <template v-if="option === 'select_all'">
+                            {{ $t('public.select_all') }}
+                        </template>
+                        <template v-else>
+                            {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
+                        </template>
+                    </span>
                 </template>
                 <template #value>
-                    <span v-if="selectedMonths.length === 1">
-                        {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
-                    </span>
-                    <span v-else-if="selectedMonths.length > 1">
-                        {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                    <span v-if="selectedMonth">
+                        <template v-if="selectedMonth === 'select_all'">
+                            {{ $t('public.select_all') }}
+                        </template>
+                        <template v-else>
+                            {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
+                        </template>
                     </span>
                     <span v-else>
                         {{ $t('public.month_placeholder') }}
                     </span>
                 </template>
-            </MultiSelect>
+            </Select>
             <div class="w-full flex justify-end gap-5">
                 <div class="relative w-full md:w-60">
                     <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
@@ -278,7 +284,7 @@ const openDialog = (rowData) => {
                                     {{ slotProps.data.name }}
                                 </div>
                                 <div class="text-gray-500 text-xs">
-                                    {{ `${slotProps.data.meta_login}&nbsp;|&nbsp;${slotProps.data.volume}&nbsp;Ł` }}
+                                    {{ `${slotProps.data.meta_login}&nbsp;|&nbsp;${formatAmount(slotProps.data.volume)}&nbsp;Ł` }}
                                 </div>
                             </div>
                             <div class="overflow-hidden text-right text-ellipsis font-semibold">
@@ -306,8 +312,8 @@ const openDialog = (rowData) => {
         <div class="flex flex-col justify-center items-center py-4 gap-3 self-stretch border-b border-gray-200 md:border-none">
             <!-- <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.date') }}</span>
-                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ `${formatDate(selectedDate?.[0] ?? '2024/01/01')}&nbsp;-&nbsp;${formatDate(selectedDate?.[1] ?? dayjs())}` }}</span>
-            </div> -->
+                <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ selectedMonth === 'select_all' ? $t('public.all') : `${$t(`public.${dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM')}`)} ${dayjs(selectedMonth, 'DD MMMM YYYY').format('YYYY')}` }}</span>
+            </div>
             <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.account') }}</span>
                 <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ data.meta_login }}</span>

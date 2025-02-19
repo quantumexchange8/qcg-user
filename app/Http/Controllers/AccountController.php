@@ -337,17 +337,21 @@ class AccountController extends Controller
     {
         $meta_login = $request->query('meta_login');
         $type = $request->query('type');
-        $selectedMonths = $request->query('selectedMonths');
-        $selectedMonthsArray = !empty($selectedMonths) ? explode(',', $selectedMonths) : [];
-        
-        if (empty($selectedMonthsArray)) {
-            // If selectedMonths is empty, return an empty result
-            return response()->json([
-                'transactions' => [],
-            ]);
+        $monthYear = $request->input('selectedMonth');
+
+        if ($monthYear === 'select_all') {
+            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+            $endDate = Carbon::now()->endOfDay();
+        } else {
+            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+
+            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
         }
 
-        $query = Transaction::query()->where('status', 'successful');
+        $query = Transaction::query()
+                ->where('status', 'successful')
+                ->whereBetween('created_at', [$startDate, $endDate]);
 
         if ($meta_login) {
             $query->where(function($subQuery) use ($meta_login) {
@@ -356,18 +360,6 @@ class AccountController extends Controller
             });
         }
 
-        if (!empty($selectedMonthsArray)) {
-            $query->where(function ($q) use ($selectedMonthsArray) {
-                foreach ($selectedMonthsArray as $range) {
-                    [$month, $year] = explode('/', $range);
-                    $startDate = "$year-$month-01";
-                    $endDate = date("Y-m-t 23:59:59", strtotime($startDate)); // Last day of the month
-
-                    // Add a condition to match transactions for this specific month-year
-                    $q->orWhereBetween('created_at', [$startDate, $endDate]);
-                }
-            });
-        }
         // Apply type filter
         if ($type && $type !== 'all') {
             // Filter based on specific transaction types directly

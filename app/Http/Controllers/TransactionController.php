@@ -47,27 +47,20 @@ class TransactionController extends Controller
         $id = Auth::id();
         $query = Transaction::where('user_id', $id);
 
-        $selectedMonths = $request->query('selectedMonths');
-        $selectedMonthsArray = !empty($selectedMonths) ? explode(',', $selectedMonths) : [];
-        
-        if (empty($selectedMonthsArray)) {
-            // If selectedMonths is empty, return an empty result
-            return response()->json([
-                'transactions' => [],
-            ]);
-        }
-        if (!empty($selectedMonthsArray)) {
-            $query->where(function ($q) use ($selectedMonthsArray) {
-                foreach ($selectedMonthsArray as $range) {
-                    [$month, $year] = explode('/', $range);
-                    $startDate = "$year-$month-01";
-                    $endDate = date("Y-m-t 23:59:59", strtotime($startDate)); // Last day of the month
+        $monthYear = $request->input('selectedMonth');
 
-                    // Add a condition to match transactions for this specific month-year
-                    $q->orWhereBetween('created_at', [$startDate, $endDate]);
-                }
-            });
+        if ($monthYear === 'select_all') {
+            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+            $endDate = Carbon::now()->endOfDay();
+        } else {
+            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+
+            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
         }
+
+        $query->whereBetween('created_at', [$startDate, $endDate]);
+        
         if ($request->filled('type')) {
             $type = $request->input('type');
             $query->where('transaction_type', $type);
@@ -277,18 +270,22 @@ class TransactionController extends Controller
 
     public function getRebateTransactions(Request $request)
     {
-        $selectedMonths = $request->query('selectedMonths');
         $description = $request->query('description');
-        $selectedMonthsArray = !empty($selectedMonths) ? explode(',', $selectedMonths) : [];
-        
-        if (empty($selectedMonthsArray)) {
-            // If selectedMonths is empty, return an empty result
-            return response()->json([
-                'transactions' => [],
-            ]);
+        $monthYear = $request->input('selectedMonth');
+
+        if ($monthYear === 'select_all') {
+            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+            $endDate = Carbon::now()->endOfDay();
+        } else {
+            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+
+            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
         }
 
-        $query = Transaction::where(['category' => 'rebate_wallet', 'user_id' => Auth::id()])->where('status', 'successful');
+        $query = Transaction::where(['category' => 'rebate_wallet', 'user_id' => Auth::id()])
+                ->where('status', 'successful')
+                ->whereBetween('created_at', [$startDate, $endDate]);
 
         if ($description && $description !== 'all') {
             if ($description == 'rebate_payout'){
@@ -303,19 +300,6 @@ class TransactionController extends Controller
             elseif ($description == 'withdrawal'){
                 $query->where('transaction_type', 'withdrawal');
             }
-        }
-
-        if (!empty($selectedMonthsArray)) {
-            $query->where(function ($q) use ($selectedMonthsArray) {
-                foreach ($selectedMonthsArray as $range) {
-                    [$month, $year] = explode('/', $range);
-                    $startDate = "$year-$month-01";
-                    $endDate = date("Y-m-t 23:59:59", strtotime($startDate)); // Last day of the month
-
-                    // Add a condition to match transactions for this specific month-year
-                    $q->orWhereBetween('created_at', [$startDate, $endDate]);
-                }
-            });
         }
 
         $transactions = $query
