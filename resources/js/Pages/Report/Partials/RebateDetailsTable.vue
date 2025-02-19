@@ -310,7 +310,7 @@ const openDialog = (rowData) => {
         </div>
 
         <div class="flex flex-col justify-center items-center py-4 gap-3 self-stretch border-b border-gray-200 md:border-none">
-            <!-- <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
+            <div class="min-w-[100px] flex gap-1 flex-grow items-center self-stretch">
                 <span class="self-stretch text-gray-500 text-xs font-medium w-[88px] md:w-[140px]">{{ $t('public.date') }}</span>
                 <span class="self-stretch text-gray-950 text-sm font-medium flex-grow">{{ selectedMonth === 'select_all' ? $t('public.all') : `${$t(`public.${dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM')}`)} ${dayjs(selectedMonth, 'DD MMMM YYYY').format('YYYY')}` }}</span>
             </div>
