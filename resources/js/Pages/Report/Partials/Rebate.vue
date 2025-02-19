@@ -12,16 +12,18 @@ const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 const rebateBreakdown = ref([]);
 const totalVolume = ref(0);
 const totalRebate = ref(0);
-const months = ref([]);
+const month = ref([]);
 
 // Function to fetch rebate summary data
-const getResults = async (months) => {
+const getResults = async (month) => {
     let url = `/report/getRebateBreakdown`;
 
-    // Append date range to the URL if it's not null
-    if (months) {
-        const selectedMonthString = months.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
-        url += `?selectedMonths=${selectedMonthString}`;
+    if (month) {
+        const formattedMonth = month === 'select_all' 
+            ? 'select_all' 
+            : dayjs(month, 'DD MMMM YYYY').format('MMMM YYYY');
+
+        url += `?selectedMonth=${formattedMonth}`;
     }
 
     try {
@@ -38,19 +40,19 @@ const getResults = async (months) => {
 };
 
 // Watch for changes in the dateRange and fetch rebate summary data
-watch(months, (newMonths) => {
-    if (newMonths === null || newMonths === undefined) {
+watch(month, (newMonth) => {
+    if (newMonth === null || newMonth === undefined) {
         // Handle null or undefined newDateRange
         getResults(null);
     } else {
-        getResults(newMonths);
+        getResults(newMonth);
     }
 });
 
 // Handle the update-date event from RebateListingTable
-const handleUpdateMonth = (newMonths) => {
+const handleUpdateMonth = (newMonth) => {
     // console.log('Date Range Received:', newDateRange);
-    months.value = newMonths;
+    month.value = newMonth;
 };
 
 // Function to calculate percentage of each rebate

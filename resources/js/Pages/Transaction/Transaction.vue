@@ -10,7 +10,6 @@ import InputText from "primevue/inputtext";
 import Column from "primevue/column";
 import Button from '@/Components/Button.vue';
 import Select from "primevue/select";
-import MultiSelect from "primevue/multiselect";
 import { FilterMatchMode } from '@primevue/core/api';
 import Empty from "@/Components/Empty.vue";
 import { transactionFormat } from "@/Composables/index.js";
@@ -32,19 +31,21 @@ const dt = ref(null);
 const transactions = ref();
 
 const months = ref([]);
-const selectedMonths = ref([]);
+const selectedMonth = ref('');
+
 const getCurrentMonthYear = () => {
     const date = new Date();
     return `01 ${dayjs(date).format('MMMM YYYY')}`;
 };
 
+// Fetch settlement months from API
 const getTransactionMonths = async () => {
     try {
         const response = await axios.get('/getTransactionMonths');
-        months.value = response.data.months;
+        months.value = ['select_all', ...response.data.months];
 
         if (months.value.length) {
-            selectedMonths.value = [getCurrentMonthYear()];
+            selectedMonth.value = [getCurrentMonthYear()];
         }
     } catch (error) {
         console.error('Error transaction months:', error);
@@ -87,7 +88,7 @@ const getStatusColor = (status) => {
   }
 };
 
-const getResults = async (search = '', type = '', status = '', selectedMonths = []) => {
+const getResults = async (search = '', type = '', status = '', selectedMonth = '') => {
     loading.value = true;
 
     try {
@@ -105,9 +106,12 @@ const getResults = async (search = '', type = '', status = '', selectedMonths = 
             params.append('status', status);
         }
 
-        if (selectedMonths && selectedMonths.length > 0) {
-            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
-            params.append('selectedMonths', selectedMonthString);
+        if (selectedMonth) {
+            const formattedMonth = selectedMonth === 'select_all' 
+                ? 'select_all' 
+                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+
+            params.append('selectedMonth', formattedMonth);
         }
 
         const response = await axios.get('/transaction/getTransactionHistory', { params });
@@ -123,9 +127,9 @@ const getResults = async (search = '', type = '', status = '', selectedMonths = 
 
 
 watch(
-    [search, transactionType, status, selectedMonths],
-    debounce(([searchValue, typeValue, statusValue, newMonths]) => {
-        getResults(searchValue, typeValue, statusValue, newMonths);
+    [search, transactionType, status, selectedMonth],
+    debounce(([searchValue, typeValue, statusValue, newMonth]) => {
+        getResults(searchValue, typeValue, statusValue, newMonth);
     }, 300)
 );
 
@@ -193,9 +197,6 @@ const exportXLSX = () => {
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    transaction_number: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    sector: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
     transactionType: { value: null, matchMode: FilterMatchMode.EQUALS },
     status: { value: null, matchMode: FilterMatchMode.EQUALS },
 });
@@ -207,14 +208,11 @@ const clearFilterGlobal = () => {
 const clearFilter = () => {
     filters.value = {
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        transaction_number: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        sector: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        transaction_amount: { value: null, matchMode: FilterMatchMode.EQUALS },
         transactionType: { value: null, matchMode: FilterMatchMode.EQUALS },
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
 
-    selectedDate.value = null;
+    selectedMonth.value = [getCurrentMonthYear()];
     transactionType.value = null;
     status.value = null;
     filteredValue = null;
@@ -222,10 +220,6 @@ const clearFilter = () => {
 
 const handleFilter = (e) => {
     filteredValue.value = e.filteredValue;
-};
-
-const clearDate = () => {
-    selectedDate.value = null;
 };
 
 // dialog
@@ -286,7 +280,7 @@ const openDialog = (rowData) => {
                     :rowsPerPageOptions="[10, 20, 50, 100]"
                     paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                     :currentPageReportTemplate="$t('public.paginator_caption')"
-                    :globalFilterFields="['transaction_number', 'sector', 'transaction_amount']"
+                    :globalFilterFields="['transaction_number', 'category', 'from_meta_login', 'to_meta_login']"
                     ref="dt"
                     :loading="loading"
                     selectionMode="single"
@@ -296,34 +290,36 @@ const openDialog = (rowData) => {
                     <template #header>
                         <div class="flex flex-col justify-between items-center pb-5 gap-3 self-stretch md:flex-row md:pb-6">
                             <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-5">
-                                <MultiSelect
-                                    v-model="selectedMonths"
-                                    :options="months"
+                                <Select 
+                                    v-model="selectedMonth" 
+                                    :options="months" 
                                     :placeholder="$t('public.month_placeholder')"
-                                    :maxSelectedLabels="1"
-                                    :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
-                                    class="w-full md:w-60 font-normal"
+                                    class="w-full md:w-60 font-normal truncate" scroll-height="236px" 
                                 >
-                                    <template #header>
-                                        <div class="absolute flex left-10 top-2">
-                                            {{ $t('public.select_all') }}
-                                        </div>
-                                    </template>
                                     <template #option="{option}">
-                                        <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                                        <span class="text-sm">
+                                            <template v-if="option === 'select_all'">
+                                                {{ $t('public.select_all') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
+                                            </template>
+                                        </span>
                                     </template>
                                     <template #value>
-                                        <span v-if="selectedMonths.length === 1">
-                                            {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
-                                        </span>
-                                        <span v-else-if="selectedMonths.length > 1">
-                                            {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                                        <span v-if="selectedMonth">
+                                            <template v-if="selectedMonth === 'select_all'">
+                                                {{ $t('public.select_all') }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
+                                            </template>
                                         </span>
                                         <span v-else>
                                             {{ $t('public.month_placeholder') }}
                                         </span>
                                     </template>
-                                </MultiSelect>
+                                </Select>
 
                                 <Select
                                     v-model="transactionType"

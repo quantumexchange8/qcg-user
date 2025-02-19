@@ -1,6 +1,5 @@
 <script setup>
 import { ref, watch } from 'vue';
-import MultiSelect from "primevue/multiselect";
 import Select from "primevue/select";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -35,19 +34,21 @@ const transferOptions = [
 ];
 
 const months = ref([]);
-const selectedMonths = ref([]);
+const selectedMonth = ref('');
+
 const getCurrentMonthYear = () => {
     const date = new Date();
     return `01 ${dayjs(date).format('MMMM YYYY')}`;
 };
 
+// Fetch settlement months from API
 const getTransactionMonths = async () => {
     try {
         const response = await axios.get('/getTransactionMonths');
-        months.value = response.data.months;
+        months.value = ['select_all', ...response.data.months];
 
         if (months.value.length) {
-            selectedMonths.value = [getCurrentMonthYear()];
+            selectedMonth.value = [getCurrentMonthYear()];
         }
     } catch (error) {
         console.error('Error transaction months:', error);
@@ -56,15 +57,18 @@ const getTransactionMonths = async () => {
 
 getTransactionMonths()
 
-const getAccountReport = async (selectedMonths = [], selectedOption = null) => {
+const getAccountReport = async (selectedMonth = '', selectedOption = null) => {
     loading.value = true;
 
     try {
         let url = `/accounts/getAccountReport?meta_login=${props.account.meta_login}`;
 
-        if (selectedMonths && selectedMonths.length > 0) {
-            const selectedMonthString = selectedMonths.map(month => dayjs(month, '01 MMMM YYYY').format('MM/YYYY')).join(',');
-            url += `&selectedMonths=${selectedMonthString}`;
+        if (selectedMonth) {
+            const formattedMonth = selectedMonth === 'select_all' 
+                ? 'select_all' 
+                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+
+            url += `&selectedMonth=${formattedMonth}`;
         }
 
         if (selectedOption) {
@@ -82,12 +86,12 @@ const getAccountReport = async (selectedMonths = [], selectedOption = null) => {
 };
 
 
-watch(selectedMonths, (newMonths) => {
-    getAccountReport(newMonths, selectedOption.value);
+watch(selectedMonth, (newMonth) => {
+    getAccountReport(newMonth, selectedOption.value);
 });
 
 watch(selectedOption, (newOption) => {
-    getAccountReport(selectedMonths.value, newOption);
+    getAccountReport(selectedMonth.value, newOption);
 });
 
 
@@ -137,34 +141,36 @@ function copyToClipboard(text) {
         >
             <template #header>
                 <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-3 mb-8">
-                    <MultiSelect
-                        v-model="selectedMonths"
-                        :options="months"
+                    <Select 
+                        v-model="selectedMonth" 
+                        :options="months" 
                         :placeholder="$t('public.month_placeholder')"
-                        :maxSelectedLabels="1"
-                        :selectedItemsLabel="`${selectedMonths.length} ${$t('public.months_selected')}`"
-                        class="w-full md:w-60 font-normal"
+                        class="w-full md:w-60 font-normal truncate" scroll-height="236px" 
                     >
-                        <template #header>
-                            <div class="absolute flex left-10 top-2">
-                                {{ $t('public.select_all') }}
-                            </div>
-                        </template>
                         <template #option="{option}">
-                            <span class="text-sm">{{ option.replace(/^\d+\s/, '') }}</span>
+                            <span class="text-sm">
+                                <template v-if="option === 'select_all'">
+                                    {{ $t('public.select_all') }}
+                                </template>
+                                <template v-else>
+                                    {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
+                                </template>
+                            </span>
                         </template>
                         <template #value>
-                            <span v-if="selectedMonths.length === 1">
-                                {{ dayjs(selectedMonths[0]).format('MMMM YYYY') }}
-                            </span>
-                            <span v-else-if="selectedMonths.length > 1">
-                                {{ selectedMonths.length }} {{ $t('public.months_selected') }}
+                            <span v-if="selectedMonth">
+                                <template v-if="selectedMonth === 'select_all'">
+                                    {{ $t('public.select_all') }}
+                                </template>
+                                <template v-else>
+                                    {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
+                                </template>
                             </span>
                             <span v-else>
                                 {{ $t('public.month_placeholder') }}
                             </span>
                         </template>
-                    </MultiSelect>
+                    </Select>
                     <Select
                         v-model="selectedOption"
                         :options="transferOptions"
