@@ -11,6 +11,7 @@ use App\Models\TradingAccount;
 use Illuminate\Http\Request;
 use App\Models\UserPostInteraction;
 use App\Models\TradeBrokerHistory;
+use App\Models\TradeRebateSummary;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -50,12 +51,18 @@ class DashboardController extends Controller
         $group_total_asset = TradingAccount::whereIn('user_id', $groupIds)
             ->sum('equity');
 
-        $group_total_trade_lots = 0.00;
-        // $group_total_trade_lots = TradeBrokerHistory::with('trading_account.ofUser')
-        //     ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
-        //         $query->whereIn('id', $groupIds); 
-        //     })
-        //     ->sum('trade_lots');
+        if ($user->role === 'agent') {
+            $group_total_trade_lots = TradeRebateSummary::where('upline_user_id', $user->id)
+                ->whereNotNull('execute_at')
+                ->sum('volume');
+        } else {
+            $group_total_trade_lots = TradeRebateSummary::where('user_id', $user->id)
+                ->whereNotNull('execute_at')
+                ->select('meta_login', 'closed_time', 'symbol_group_id', 'volume')
+                ->distinct()
+                ->get()
+                ->sum('volume');
+        }
 
         $group_total_trade_volume = 0.00;
         // $group_total_trade_volume = TradeBrokerHistory::with('trading_account.ofUser')

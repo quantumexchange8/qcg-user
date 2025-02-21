@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from "@/Layouts/Authenticated.vue";
-import {ref, h} from "vue";
+import {watch, ref, h} from "vue";
 import Tabs from 'primevue/tabs';
 import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
@@ -9,7 +9,9 @@ import TabPanel from 'primevue/tabpanel';
 import { wTrans } from "laravel-vue-i18n";
 import Rebate from "./Partials/Rebate.vue";
 import GroupTransaction from "./Partials/GroupTransaction.vue";
+import { usePage, router } from '@inertiajs/vue3';
 
+const page = usePage();
 const tabs = ref([
     {   
         title: wTrans('public.rebate'),
@@ -23,13 +25,35 @@ const tabs = ref([
     },
 ]);
 
-const selectedType = ref('rebate');
+// Function to get query parameter value
+const getQueryParam = (key) => {
+    return new URL(window.location.href).searchParams.get(key);
+};
+
+// Set initial tab from URL
+const selectedType = ref(getQueryParam('tab') || 'rebate');
 const activeIndex = ref(tabs.value.findIndex(tab => tab.type === selectedType.value));
 
-function updateType(event) {
+// Watch for URL changes and update active tab
+watch(
+    () => window.location.search, 
+    () => {
+        const newTab = getQueryParam('tab');
+        if (newTab) {
+            selectedType.value = newTab;
+            activeIndex.value = tabs.value.findIndex(tab => tab.type === newTab);
+        }
+    },
+    { immediate: true }
+);
+
+// Update the URL when the tab changes
+const updateType = (event) => {
     const selectedTab = tabs.value[event.index];
     selectedType.value = selectedTab.type;
-}
+
+    history.pushState({}, '', `/report?tab=${selectedTab.type}`);
+};
 </script>
 
 <template>
@@ -47,7 +71,7 @@ function updateType(event) {
             </Tab>
             </TabList>
             <TabPanels>
-                <TabPanel :key="activeIndex" :value="activeIndex">
+                <TabPanel v-for="(tab, index) in tabs" :key="index" :value="index">
                     <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" v-if="tabs[activeIndex].component"/>
                 </TabPanel>
             </TabPanels>

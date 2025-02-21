@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import Button from '@/Components/Button.vue';
-import {usePage} from "@inertiajs/vue3";
+import {usePage, router} from "@inertiajs/vue3";
 import {transactionFormat} from "@/Composables/index.js";
 import {computed, ref, watchEffect} from "vue";
 import {
@@ -12,7 +12,7 @@ import {
     TradeLotIcon,
     TradeVolumeIcon,
 } from '@/Components/Icons/outline.jsx';
-import {IconReport} from '@tabler/icons-vue';
+import {IconReport, IconDots} from '@tabler/icons-vue';
 import {trans} from "laravel-vue-i18n";
 import RebateWalletAction from "@/Pages/Dashboard/Partials/RebateWalletAction.vue";
 import RebateEarn from "@/Pages/Dashboard/Partials/RebateEarn.vue";
@@ -43,44 +43,66 @@ const dataOverviews = computed(() => [
         total: groupTotalDeposit.value,
         label: user.role === 'member' ? trans('public.total_deposit') : trans('public.group_total_deposit'),
         borderColor: 'border-green',
-        type: 'total_deposit'
+        type: 'total_deposit',
+        route: user.role === 'member' ? 'transaction' : 'report',
+        query: 'group_transaction',
     },
     {
         icon: WithdrawalIcon,
         total: groupTotalWithdrawal.value,
         label: user.role === 'member' ? trans('public.total_withdrawal') : trans('public.group_total_withdrawal'),
         borderColor: 'border-pink',
-        type: 'total_withdrawal'
+        type: 'total_withdrawal',
+        route: user.role === 'member' ? 'transaction' : 'report',
+        query : 'group_transaction',
     },
     {
         icon: NetBalanceIcon,
         total: groupTotalNetBalance.value,
         label: user.role === 'member' ? trans('public.total_net_balance') : trans('public.group_total_net_balance'),
         borderColor: 'border-[#FEDC32]',
-        type: 'total_net_balance'
+        type: 'total_net_balance',
+        route: '',
     },
     {
         icon: NetAssetIcon,
         total: groupTotalAsset.value,
         label: user.role === 'member' ? trans('public.total_asset') : trans('public.group_total_asset'),
         borderColor: 'border-indigo',
-        type: 'total_asset'
+        type: 'total_asset',
+        route: '',
     },
     {
         icon: TradeLotIcon,
         total: groupTotalTradeLot.value,
         label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
         borderColor: 'border-green',
-        type: 'total_trade_lots'
+        type: 'total_trade_lots',
+        route: user.role === 'member' ? '' : 'report',
     },
     {
         icon: TradeVolumeIcon,
         total: groupTotalTradeVolume.value,
         label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
         borderColor: 'border-green',
-        type: 'total_trade_volume'
+        type: 'total_trade_volume',
+        route: '',
     },
 ]);
+
+// Function to navigate with query parameters
+const navigateWithQueryParams = (route, query) => {
+    router.visit(route, {
+        method: 'get',
+        data: { tab: query },
+        preserveState: true, 
+        replace: true, // Prevents duplicate history entries
+    });
+};
+
+const isClickable = (route) => {
+    return !!route;
+};
 
 const getDashboardData = async () => {
     try {
@@ -130,23 +152,29 @@ watchEffect(() => {
                         class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-2"
                     >
                         <div
-                            class="flex flex-row justify-between items-center gap-2 p-2 md:px-6 md:py-4 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
-                            :class="item.borderColor"
+                            class="flex flex-col justify-center p-2 md:px-6 md:py-4 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
+                            :class="item.borderColor, { 'cursor-pointer !pb-0': isClickable(item.route) }"
                             v-for="(item, index) in dataOverviews"
                             :key="index"
+                            @click="isClickable(item.route) ? navigateWithQueryParams(item.route, item.query) : null"
                         >
-                            <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
-                            <div class="flex flex-col items-end truncate">
-                                <span class="text-gray-500 text-xxs md:text-sm text-right w-full truncate">{{ item.label }}</span>
-                                <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
-                                    {{ formatAmount(item.total, 0) }}
+                            <div class="flex flex-row justify-between items-center gap-2">
+                                <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
+                                <div class="flex flex-col items-end truncate">
+                                    <span class="text-gray-500 text-xxs md:text-sm text-right w-full truncate">{{ item.label }}</span>
+                                    <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
+                                        {{ formatAmount(item.total, 0) }}
+                                    </div>
+                                    <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
+                                        {{ formatAmount(item.total) }} Ł
+                                    </div>
+                                    <div v-else class="text-gray-950 md:text-lg font-semibold w-full text-right truncate">
+                                        $ {{ formatAmount(item.total) }}
+                                    </div>
                                 </div>
-                                <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
-                                    {{ formatAmount(item.total) }} Ł
-                                </div>
-                                <div v-else class="text-gray-950 md:text-lg font-semibold w-full text-right truncate">
-                                    $ {{ formatAmount(item.total) }}
-                                </div>
+                            </div>
+                            <div v-if="item.route" class="w-full flex justify-center items-center px-2 gap-2 self-stretch">
+                                <IconDots class="w-4 h-4 text-gray-400" />
                             </div>
                         </div>
                     </div>
