@@ -36,20 +36,20 @@ const getCurrentMonthYear = () => {
 };
 
 // Fetch settlement months from API
-const getTradeMonths = async () => {
+const getTransactionMonths = async () => {
     try {
-        const response = await axios.get('/getTradeMonths');
+        const response = await axios.get('/getTransactionMonths');
         months.value = ['select_all', ...response.data.months];
 
         if (months.value.length) {
             selectedMonth.value = [getCurrentMonthYear()];
         }
     } catch (error) {
-        console.error('Error trade months:', error);
+        console.error('Error transaction months:', error);
     }
 };
 
-getTradeMonths()
+getTransactionMonths()
 
 const exportXLSX = () => {
     // Retrieve the array from the reactive proxy

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import ColumnGroup from 'primevue/columngroup';
@@ -72,6 +72,11 @@ watch(transactions, (newTransactions) => {
     }
 });
 
+onMounted(() => {
+    if (props.selectedMonth) {
+        getResults(props.selectedMonth);
+    }
+});
 </script>
 
 <template>
