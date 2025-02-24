@@ -470,5 +470,5 @@ return [
     "October" => "10月",
     "November" => "11月",
     "December" => "12月",
-    'personal_trade_points' => '個人交易點數',
+    'personal_trade_points' => '個人交易積分',
 ];
