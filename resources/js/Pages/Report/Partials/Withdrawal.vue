@@ -12,7 +12,6 @@ import dayjs from "dayjs";
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
 const props = defineProps({
-    selectedType: String,
     selectedMonth: {
         type: [Array, String], // Allows both Array and String types
         default: () => '', // Default value as an empty array
@@ -20,7 +19,7 @@ const props = defineProps({
     filters: Object,
 });
 
-const selectedType = ref(props.selectedType);
+const selectedType = ref('withdrawal');
 const selectedMonth = ref(props.selectedMonth);
 const transactions = ref();
 const groupTotalWithdrawal = ref(0);

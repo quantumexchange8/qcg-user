@@ -32,13 +32,13 @@ class TransactionController extends Controller
             ->sum('amount');
 
         $totalWithdrawal = Transaction::where('user_id', $id)
-        ->where('transaction_type', 'withdrawal')
-        ->where('status', 'successful')
-        ->sum('amount');
+            ->where('transaction_type', 'withdrawal')
+            ->where('status', 'successful')
+            ->sum('amount');
 
         return Inertia::render('Transaction/Transaction', [
-            'totalDeposit' => $totalDeposit,
-            'totalWithdrawal' => $totalWithdrawal,
+            'totalDeposit' => (float) $totalDeposit,
+            'totalWithdrawal' => (float) $totalWithdrawal,
         ]);
     }
 

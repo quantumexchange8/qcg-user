@@ -49,9 +49,8 @@ watch(
 
 // Update the URL when the tab changes
 const updateType = (event) => {
-    const selectedTab = tabs.value[event.index];
+    const selectedTab = tabs.value[event];
     selectedType.value = selectedTab.type;
-
     history.pushState({}, '', `/report?tab=${selectedTab.type}`);
 };
 </script>
@@ -59,7 +58,7 @@ const updateType = (event) => {
 <template>
     <AuthenticatedLayout :title="$t('public.sidebar.report')">
         <Tabs v-model:value="activeIndex" class="w-full gap-5"
-        @tab-change="updateType"
+             @update:value="updateType"
         >
             <TabList>
                 <Tab 
@@ -72,7 +71,7 @@ const updateType = (event) => {
             </TabList>
             <TabPanels>
                 <TabPanel v-for="(tab, index) in tabs" :key="index" :value="index">
-                    <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" v-if="tabs[activeIndex].component"/>
+                    <component :is="tab.component" v-if="activeIndex === index" />
                 </TabPanel>
             </TabPanels>
         </Tabs>

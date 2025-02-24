@@ -21,8 +21,8 @@ import {DepositIcon, WithdrawalIcon} from '@/Components/Icons/outline.jsx';
 
 const { formatAmount } = transactionFormat();
 const props = defineProps({
-    totalDeposit: String,
-    totalWithdrawal: String,
+    totalDeposit: Number,
+    totalWithdrawal: Number,
 })
 
 const visible = ref(false);
@@ -54,7 +54,12 @@ const getTransactionMonths = async () => {
 
 getTransactionMonths()
 
-const transactionType = ref('');
+// Function to get query parameter value
+const getQueryParam = (key) => {
+    return new URL(window.location.href).searchParams.get(key);
+};
+
+const transactionType = ref(getQueryParam('type') || '');
 const status = ref('');
 const search = ref('');
 const filteredValue = ref();
@@ -64,6 +69,18 @@ const transactionTypeOption = [
     { name: wTrans('public.deposit'), value: 'deposit' },
     { name: wTrans('public.withdrawal'), value: 'withdrawal' }
 ];
+
+// Watch for URL changes and update active tab
+watch(
+    () => window.location.search, 
+    () => {
+        const newType = getQueryParam('type');
+        if (newType) {
+            transactionType.value = newType;
+        }
+    },
+    { immediate: true }
+);
 
 // Define the status options
 const statusOption = [

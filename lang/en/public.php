@@ -470,4 +470,5 @@ return [
     "October" => "October",
     "November" => "November",
     "December" => "December",
+    'personal_trade_points' => 'Personal Trade Points',
 ];

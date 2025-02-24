@@ -43,7 +43,7 @@ const dataOverviews = computed(() => [
         total: groupTotalDeposit.value,
         label: user.role === 'member' ? trans('public.total_deposit') : trans('public.group_total_deposit'),
         borderColor: 'border-green',
-        type: 'total_deposit',
+        type: 'deposit',
         route: user.role === 'member' ? 'transaction' : 'report',
         query: 'group_transaction',
     },
@@ -52,16 +52,33 @@ const dataOverviews = computed(() => [
         total: groupTotalWithdrawal.value,
         label: user.role === 'member' ? trans('public.total_withdrawal') : trans('public.group_total_withdrawal'),
         borderColor: 'border-pink',
-        type: 'total_withdrawal',
+        type: 'withdrawal',
         route: user.role === 'member' ? 'transaction' : 'report',
         query : 'group_transaction',
+    },
+    {
+        icon: TradeLotIcon,
+        total: groupTotalTradeLot.value,
+        label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
+        borderColor: 'border-green',
+        type: 'trade_lots',
+        route: user.role === 'member' ? '' : 'report',
+    },
+    {
+        icon: TradeVolumeIcon,
+        total: groupTotalTradeVolume.value,
+        // label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
+        label: user.role === 'member' ? trans('public.personal_trade_points') : trans('public.personal_trade_points'),
+        borderColor: 'border-green',
+        type: 'trade_volume',
+        route: '',
     },
     {
         icon: NetBalanceIcon,
         total: groupTotalNetBalance.value,
         label: user.role === 'member' ? trans('public.total_net_balance') : trans('public.group_total_net_balance'),
         borderColor: 'border-[#FEDC32]',
-        type: 'total_net_balance',
+        type: 'net_balance',
         route: '',
     },
     {
@@ -69,35 +86,29 @@ const dataOverviews = computed(() => [
         total: groupTotalAsset.value,
         label: user.role === 'member' ? trans('public.total_asset') : trans('public.group_total_asset'),
         borderColor: 'border-indigo',
-        type: 'total_asset',
-        route: '',
-    },
-    {
-        icon: TradeLotIcon,
-        total: groupTotalTradeLot.value,
-        label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
-        borderColor: 'border-green',
-        type: 'total_trade_lots',
-        route: user.role === 'member' ? '' : 'report',
-    },
-    {
-        icon: TradeVolumeIcon,
-        total: groupTotalTradeVolume.value,
-        label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
-        borderColor: 'border-green',
-        type: 'total_trade_volume',
+        type: 'asset',
         route: '',
     },
 ]);
 
 // Function to navigate with query parameters
-const navigateWithQueryParams = (route, query) => {
-    router.visit(route, {
-        method: 'get',
-        data: { tab: query },
-        preserveState: true, 
-        replace: true, // Prevents duplicate history entries
-    });
+const navigateWithQueryParams = (route, query, subquery) => {
+    if (user.role === 'member') {
+        router.visit(route, {
+            method: 'get',
+            data: { type: subquery },
+            preserveState: true, 
+            replace: true, // Prevents duplicate history entries
+        });
+    }
+    else {
+        router.visit(route, {
+            method: 'get',
+            data: { tab: query , type: subquery},
+            preserveState: true, 
+            replace: true, // Prevents duplicate history entries
+        });
+    }
 };
 
 const isClickable = (route) => {
@@ -156,16 +167,16 @@ watchEffect(() => {
                             :class="item.borderColor, { 'cursor-pointer !pb-0': isClickable(item.route) }"
                             v-for="(item, index) in dataOverviews"
                             :key="index"
-                            @click="isClickable(item.route) ? navigateWithQueryParams(item.route, item.query) : null"
+                            @click="isClickable(item.route) ? navigateWithQueryParams(item.route, item.query, item.type) : null"
                         >
                             <div class="flex flex-row justify-between items-center gap-2">
                                 <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
                                 <div class="flex flex-col items-end truncate">
                                     <span class="text-gray-500 text-xxs md:text-sm text-right w-full truncate">{{ item.label }}</span>
-                                    <div v-if="item.type === 'total_trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
+                                    <div v-if="item.type === 'trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
                                         {{ formatAmount(item.total, 0) }}
                                     </div>
-                                    <div v-else-if="item.type === 'total_trade_lots'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
+                                    <div v-else-if="item.type === 'trade_lots'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
                                         {{ formatAmount(item.total) }} Ł
                                     </div>
                                     <div v-else class="text-gray-950 md:text-lg font-semibold w-full text-right truncate">

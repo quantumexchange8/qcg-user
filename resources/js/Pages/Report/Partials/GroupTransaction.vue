@@ -23,8 +23,13 @@ const tabs = ref([
     { title: wTrans('withdrawal'), component: h(Withdrawal), type: 'withdrawal' },
 ]);
 
+// Function to get query parameter value
+const getQueryParam = (key) => {
+    return new URL(window.location.href).searchParams.get(key);
+};
+
 const filteredValue = ref();
-const selectedType = ref('deposit');
+const selectedType = ref(getQueryParam('type') || 'deposit');
 const activeIndex = ref(tabs.value.findIndex(tab => tab.type === selectedType.value));
 
 const months = ref([]);
@@ -111,12 +116,31 @@ const handleFilteredValue = (filteredData) => {
     filteredValue.value = filteredData
 };
 
+// Watch for URL changes and update active tab
+watch(
+    () => window.location.search, 
+    () => {
+        const newTab = getQueryParam('type');
+        if (newTab) {
+            selectedType.value = newTab;
+            activeIndex.value = tabs.value.findIndex(tab => tab.type === newTab);
+        }
+    },
+    { immediate: true }
+);
+
+// Update the URL when the tab changes
+const updateType = (event) => {
+    const selectedTab = tabs.value[event];
+    selectedType.value = selectedTab.type;
+    history.pushState({}, '', `/report?tab=group_transaction&type=${selectedTab.type}`);
+};
 </script>
 <template>
     <div class="flex flex-col justify-center items-start py-5 px-3 gap-3 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
         <div class="w-full flex flex-col md:flex-row justify-between items-center self-stretch gap-3 md:gap-0">
             <div class="w-full md:w-auto flex items-center">
-                <Tabs v-model:value="activeIndex" class="w-full">
+                <Tabs v-model:value="activeIndex" class="w-full" @update:value="updateType">
                     <TabList>
                         <Tab v-for="(tab, index) in tabs" :key="tab.title" :value="index">
                             {{ $t('public.' + tab.title) }}
@@ -182,8 +206,8 @@ const handleFilteredValue = (filteredData) => {
 
         <Tabs v-model:value="activeIndex" class="w-full">
             <TabPanels>
-                <TabPanel :key="activeIndex" :value="activeIndex">
-                    <component :is="tabs[activeIndex].component" :key="tabs[activeIndex].type" :filters="filters" :selectedType="tabs[activeIndex].type" :selectedMonth="selectedMonth" v-if="tabs[activeIndex].component" @updateFilteredValue="handleFilteredValue"/>
+                <TabPanel v-for="(tab, index) in tabs" :key="index" :value="index">
+                    <component :is="tab.component" v-if="activeIndex === index" :filters="filters" :selectedMonth="selectedMonth"  @updateFilteredValue="handleFilteredValue"/>
                 </TabPanel>
             </TabPanels>
         </Tabs>
