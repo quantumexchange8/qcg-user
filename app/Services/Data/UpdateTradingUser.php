@@ -6,6 +6,7 @@ use App\Models\AccountType;
 use App\Models\TradingUser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UpdateTradingUser
 {

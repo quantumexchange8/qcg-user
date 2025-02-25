@@ -184,7 +184,7 @@ class AccountController extends Controller
                 $q->where('category', $accountType);
             })
             ->get();
-        (new CTraderService)->getGroups();
+        // (new CTraderService)->getGroups();
         try {
             foreach ($trading_accounts as $trading_account) {
                 (new CTraderService)->getUserInfo($trading_account->meta_login);
