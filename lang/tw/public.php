@@ -471,4 +471,5 @@ return [
     "November" => "11月",
     "December" => "12月",
     'personal_trade_points' => '個人交易積分',
+    'transfer_amount' => '轉賬金額',
 ];

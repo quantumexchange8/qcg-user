@@ -471,4 +471,5 @@ return [
     "November" => "November",
     "December" => "December",
     'personal_trade_points' => 'Personal Trade Points',
+    "transfer_amount" => "Transfer Amount",
 ];

@@ -117,6 +117,14 @@ const handleApproval = (data) => {
                 </div>
                 <div class="flex md:items-center gap-1 self-stretch">
                     <div class="w-[140px] md:w-full text-gray-500 text-xs md:text-sm font-medium">
+                        {{ $t('public.transfer_amount') }}
+                    </div>
+                    <div class="text-primary text-sm md:text-base md:w-full font-medium">
+                        $ {{ formatAmount(transaction.transaction_amount ?? 0) }}
+                    </div>
+                </div>
+                <div class="flex md:items-center gap-1 self-stretch">
+                    <div class="w-[140px] md:w-full text-gray-500 text-xs md:text-sm font-medium">
                         {{ $t('public.requested_date') }}
                     </div>
                     <div class="text-gray-950 text-sm md:text-base md:w-full font-medium">

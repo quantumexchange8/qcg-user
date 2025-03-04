@@ -66,6 +66,7 @@ const closeDialog = (dialogName) => {
 
 const depositForm = useForm({
     meta_login: props.account.meta_login,
+    amount: props.account.amount,
     checkbox1: false,
     checkbox2: false,
 });
@@ -157,6 +158,23 @@ const isTransferFormValid = computed(() => {
                 <span class="text-xs text-center text-gray-500">{{ props.account.meta_login }} - {{ $t('public.current_account_balance') }}</span>
                 <span class="text-lg text-center font-bold text-gray-950">$ {{ formatAmount(props.account.balance) }}</span>
             </div>
+            <div class="flex flex-col items-start gap-1 self-stretch">
+                <InputLabel for="amount" :value="$t('public.amount')" />
+                <InputNumber
+                    v-model="depositForm.amount"
+                    inputId="amount"
+                    prefix="$ "
+                    class="w-full"
+                    placeholder="$ 0.00"
+                    :min="0"
+                    :step="100"
+                    :minFractionDigits="2"
+                    fluid
+                    autofocus
+                    :invalid="!!depositForm.errors.amount"
+                />
+                <InputError :message="depositForm.errors.amount" />
+            </div>
             <div class="flex flex-row gap-3 items-start">
                 <div><IconInfoCircle size="24" color="#030712" stroke-width="2"/></div>
                 <div class="flex flex-col gap-1">
@@ -166,7 +184,7 @@ const isTransferFormValid = computed(() => {
             </div>
         </div>
         <div class="flex flex-col gap-2">
-            <label class="flex items-center gap-2">
+            <label class="flex items-start gap-2">
                 <Checkbox binary v-model="depositForm.checkbox1" class="w-5 h-5 flex-shrink-0" />
                 <span class="text-xs text-error-600 font-medium">{{ $t('public.deposit_term_1') }}</span>
             </label>

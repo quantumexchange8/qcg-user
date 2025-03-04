@@ -59,7 +59,7 @@ class AccountController extends Controller
                         ->exists();
 
                     if (!$userHasVisibility) {
-                        return null; 
+                        return null;
                     }
                 }
                 return [
@@ -71,8 +71,8 @@ class AccountController extends Controller
                     'descriptions' => $translations,
                 ];
             })
-            ->filter() 
-            ->values(); 
+            ->filter()
+            ->values();
 
         return response()->json([
             'leverages' => (new DropdownOptionService())->getLeveragesOptions(),
@@ -211,16 +211,16 @@ class AccountController extends Controller
 
                 if($account->accountType->category === 'promotion') {
                     if ($account->promotion_period_type === 'specific_date_range') {
-                        $expiryDate = Carbon::parse($account->promotion_period); 
+                        $expiryDate = Carbon::parse($account->promotion_period);
                     } elseif ($account->promotion_period_type === 'from_account_opening') {
                         $expiryDate = Carbon::parse($account->created_at)
                             ->addDays((int) $account->promotion_period);
                     }
-    
+
                     if ($expiryDate) {
                         $now = Carbon::now();
-                        $daysLeft = intval($expiryDate->greaterThan($now) 
-                            ? $now->diffInDays($expiryDate) 
+                        $daysLeft = intval($expiryDate->greaterThan($now)
+                            ? $now->diffInDays($expiryDate)
                             : -$expiryDate->diffInDays($now));
                     }
 
@@ -403,27 +403,35 @@ class AccountController extends Controller
 
     public function deposit_to_account(Request $request)
     {
-        $request->validate([
+        Validator::make($request->all(), [
             'meta_login' => ['required', 'exists:trading_accounts,meta_login'],
+            'amount' => ['required', 'numeric', 'min:1'],
             'checkbox1' => 'accepted',
             'checkbox2' => 'accepted',
-        ]);
+        ])->setAttributeNames([
+            'meta_login' => trans('public.account_no'),
+            'amount' => trans('public.amount'),
+            'checkbox1' => trans('public.terms_and_conditions'),
+            'checkbox2' => trans('public.terms_and_conditions'),
+        ])->validate();
 
         $user = Auth::user();
 
         $transaction = Transaction::where('transaction_type', 'deposit')
             ->where('to_meta_login', $request->meta_login)
             ->whereNull('comment')
+            ->where('amount', $request->amount)
             ->where('status', 'processing')
             ->first();
 
-        if (empty($transaction)) {
+        if (!$transaction) {
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'category' => 'trading_account',
                 'transaction_type' => 'deposit',
                 'to_meta_login' => $request->meta_login,
                 'transaction_number' => RunningNumberService::getID('transaction'),
+                'amount' => $request->amount,
                 'status' => 'processing',
             ]);
         }
@@ -437,13 +445,14 @@ class AccountController extends Controller
             $selectedPayout = $payoutSetting['staging'];
         }
 
-        $vCode = md5($selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
+        $vCode = md5($transaction->amount . $selectedPayout['appId'] . $transaction->transaction_number . $selectedPayout['merchantId'] . $selectedPayout['ttKey']);
 
         $params = [
             'userName' => $user->first_name,
             'userEmail' => $user->email,
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
+            'amount' => $transaction->amount,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
             'locale' => app()->getLocale(),
@@ -852,6 +861,7 @@ class AccountController extends Controller
             "txn_hash" => $data['txID'],
             "transaction_number" => $data['transaction_number'],
             "amount" => $data['transfer_amount'],
+            "transfer_amount_type" => $data['transfer_amount_type'] ?? null,
             "status" => $data["status"],
             "remarks" => 'System Approval',
         ];
@@ -873,18 +883,30 @@ class AccountController extends Controller
         $status = $result['status'] == 'success' ? 'successful' : 'failed';
 
         if ($result['token'] === $dataToHash) {
-            //proceed approval
             $transaction->update([
                 'from_wallet_address' => $result['from_wallet_address'],
                 'to_wallet_address' => $result['to_wallet_address'],
                 'txn_hash' => $result['txn_hash'],
-                'amount' => round($result['amount'], 2),
                 'transaction_charges' => 0,
-                'transaction_amount' => round($result['amount'], 2),
                 'status' => $status,
                 'remarks' => $result['remarks'],
                 'approved_at' => now()
             ]);
+
+            if ($result['transfer_amount_type'] == 'invalid') {
+                $transaction->update([
+                    'transaction_amount' => $result['amount'],
+                    'status' => 'processing',
+                ]);
+            } else {
+                $transaction->update([
+                    'amount' => $result['amount'],
+                    'transaction_amount' => $result['amount'],
+                    'status' => $status,
+                    'remarks' => $result['remarks'],
+                    'approved_at' => now()
+                ]);
+            }
 
             if ($transaction->status == 'successful' && $transaction->transaction_type == 'deposit') {
                 try {
@@ -914,17 +936,17 @@ class AccountController extends Controller
                     $claimable_status = false;
                     $bonus_amount = 0;
                     $achievedAmount = $tradingAccount->achieved_amount ?? 0;
-                    $targetAmount = ($tradingAccount->bonus_amount_type === 'specified_amount') 
-                                ? $tradingAccount->min_threshold 
+                    $targetAmount = ($tradingAccount->bonus_amount_type === 'specified_amount')
+                                ? $tradingAccount->min_threshold
                                 : $tradingAccount->target_amount;
 
                     Log::info('Promotion detected');
-                    if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || ($targetAmount !== null && $achievedAmount >= $targetAmount)) 
+                    if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || ($targetAmount !== null && $achievedAmount >= $targetAmount))
                         && $tradingAccount->promotion_type == 'deposit' && ($tradingAccount->applicable_deposit !== 'first_deposit_only' || $achievedAmount == 0)) {
                         if ($tradingAccount->bonus_amount_type === 'percentage_of_deposit') {
                             $bonus_amount = ($transaction->amount * $tradingAccount->bonus_amount / 100);
 
-                            if ($transaction->amount >= $tradingAccount->min_threshold || 
+                            if ($transaction->amount >= $tradingAccount->min_threshold ||
                             ($tradingAccount->achieved_amount * 100 /  $tradingAccount->bonus_amount) >= $tradingAccount->min_threshold) {
                                 // achievedAmount = 600 target_amount = 1000 bonus_amount = 600 , remaining should be 400
                                 $remainingAmount = $tradingAccount->target_amount - $achievedAmount;
