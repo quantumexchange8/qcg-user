@@ -15,6 +15,7 @@ import {
     IconTrophy,
     IconDownload,
     IconUserCircle,
+    IconGift,
 } from '@tabler/icons-vue';
 
 const user = usePage().props.auth.user;
@@ -79,6 +80,17 @@ const user = usePage().props.auth.user;
         >
             <template #icon>
                 <IconReport :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+         <!-- Rewards -->
+        <SidebarLink
+            :title="$t('public.sidebar.rewards')"
+            :href="route('rewards')"
+            :active="route().current('rewards')"
+        >
+            <template #icon>
+                <IconGift :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
 

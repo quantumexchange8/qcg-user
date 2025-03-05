@@ -46,6 +46,7 @@ return [
         'network' => "网络",
         'transaction' => "交易",
         'report' => "报告",
+        'rewards' => "Rewards",
         'rebate_setting' => "返利设置",
         'leaderboard' => "排行榜",
         'download_center' => "下载中心",

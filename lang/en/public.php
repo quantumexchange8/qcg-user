@@ -46,6 +46,7 @@ return [
         'network' => "Network",
         'transaction' => "Transaction",
         'report' => "Report",
+        'rewards' => "Rewards",
         'rebate_setting' => "Rebate Setting",
         'leaderboard' => "Leaderboard",
         'download_center' => "Download Center",
@@ -472,4 +473,9 @@ return [
     "December" => "December",
     'personal_trade_points' => 'Personal Trade Points',
     "transfer_amount" => "Transfer Amount",
+    'rewards' => 'Rewards',
+    'view_all' => 'View All',
+    'redeem' => 'Redeem',
+    'no_expiry_date' => 'No Expiry Date',
+    'rewards_catalog_n_redemption' => 'Rewards Catalog & Redemption',
 ];

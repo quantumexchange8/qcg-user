@@ -13,6 +13,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\NetworkController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RewardController;
 use App\Http\Controllers\RebateSettingController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\DownloadCenterController;
@@ -159,10 +160,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/getGroupTransaction', [ReportController::class, 'getGroupTransaction'])->name('report.getGroupTransaction');
         Route::get('/getRebateBreakdown', [ReportController::class, 'getRebateBreakdown'])->name('report.getRebateBreakdown');
         Route::get('/getRebateDetails', [ReportController::class, 'getRebateDetails'])->name('report.getRebateDetails');
-        // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-        // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
-        // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
+
+    /**
+     * ==============================
+     *           Rewards
+     * ==============================
+     */
+    Route::prefix('rewards')->group(function () {
+        Route::get('/', [RewardController::class, 'index'])->name('rewards');
+
+        Route::get('/getTradePoints', [RewardController::class, 'getTradePoints'])->name('rewards.getTradePoints');
+        // Route::get('/getPointHistory', [RewardController::class, 'getPointHistory'])->name('rewards.getPointHistory');
+
+        Route::get('/getRewardsData', [RewardController::class, 'getRewardsData'])->name('rewards.getRewardsData');
+        // Route::post('/redeemRewards', [RewardController::class, 'redeemRewards'])->name('rewards.redeemRewards');
+
+    });
+
     /**
      * ==============================
      *         Rebate Setting
