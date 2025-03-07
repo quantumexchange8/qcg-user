@@ -43,14 +43,14 @@ getResults();
                         </div>
                         <div class="flex flex-col">
                             <span class="text-2xl font-semibold text-gray-950">0.00</span>
-                            <span class="text-sm text-gray-500">Personal Trade Points (tp)</span>
+                            <span class="text-sm text-gray-500">{{ $t('public.personal_trade_points') }} (tp)</span>
                         </div>
                     </div>
                     <div class="h-[1px] bg-gray-200" />
                     <div class="flex flex-col gap-4">
                         <div class="flex flex-col gap-1">
-                            <span class="font-semibold text-gray-950">How to collect trade points?</span>
-                            <span class="text-sm text-gray-500">Every lot you trade across each category adds to your Trade Points.The more you trade, the more points you earn! 🚀</span>
+                            <span class="font-semibold text-gray-950">{{ $t('public.trade_points_msg1') }}</span>
+                            <span class="text-sm text-gray-500">{{ $t('public.trade_points_msg2') }}</span>
                         </div>
                         <div class="flex flex-col gap-2">
                             <div v-for="(item, index) in tradePoints" :key="index" class="flex items-center gap-5 self-stretch">
@@ -68,7 +68,7 @@ getResults();
                 <!-- points history -->
                 <div class="bg-white shadow-card rounded-lg px-6 pt-6 pb-3 flex flex-col gap-2 self-stretch">
                     <div class="flex flex-row items-center justify-between">
-                        <span class="font-bold text-gray-950">Points History</span>
+                        <span class="font-bold text-gray-950">{{ $t('public.points_history') }}</span>
                         <Button
                             type="button"
                             variant="gray-outlined"
@@ -81,7 +81,7 @@ getResults();
                         class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
                     >
                         <div class="flex flex-col">
-                            <span class="text-sm text-gray-950 font-medium">Earned</span>
+                            <span class="text-sm text-gray-950 font-medium">{{ $t('public.earned') }}</span>
                             <span class="text-xs text-gray-500">2020/01/01</span>
                         </div>
                         <span class="text-sm text-gray-950 font-medium">+0.00 tp</span>

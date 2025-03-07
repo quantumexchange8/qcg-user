@@ -9,7 +9,7 @@ import Button from "@/Components/Button.vue";
             <div class="flex flex-col justify-center items-center px-4 pt-[60px] pb-6 gap-8 bg-white rounded shadow-dialog w-[90vw] md:w-[500px] md:px-6">
                 <div class="flex flex-col items-center gap-2 self-stretch">
                     <span class="self-stretch text-gray-950 text-center font-bold md:text-lg">{{ message.header }}</span>
-                    <span class="self-stretch text-gray-700 text-center text-sm">{{ message.message }}</span>
+                    <span class="self-stretch text-gray-700 text-center text-sm" v-html="message.message"></span>
                     <span class="self-stretch text-gray-700 text-center text-sm">
                         {{ message.text }}
                         <span class="self-stretch text-gray-950 text-sm font-semibold">{{ message.dynamicText }}</span>
@@ -32,6 +32,7 @@ import Button from "@/Components/Button.vue";
                         {{ message.cancelButton }}
                     </Button>
                     <Button
+                        v-if="message.acceptButton" 
                         type="button"
                         :variant="`${message.color}-flat`"
                         @click="acceptCallback"

@@ -7,16 +7,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\Country;
 use App\Models\Reward;
 use App\Models\TradeRebateSummary;
 use App\Models\SymbolGroup;
 use App\Models\Transaction;
+use App\Models\RewardRedemption;
+use App\Models\TradePointHistory;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class RewardController extends Controller
 {
     public function index()
     {
         return Inertia::render('Rewards/Rewards');
+    }
+
+    public function getCountryPhones()
+    {
+        $countries = Country::select('name', 'phone_code')->get();
+
+        return response()->json([
+            'countries' => $countries,
+        ]);
     }
 
     public function getTradePoints()
@@ -87,19 +101,15 @@ class RewardController extends Controller
 
     }
 
-    public function getRewardsData()
+    public function getRewardsData(Request $request)
     {
         $query = Reward::query();
 
-        // if ($request->filter == 'most_redeemed') {
-        //     $query->orderByDesc('trade_point_required');
-        // } elseif ($request->filter == 'cash_rewards_only') {
-        //     $query->where('type', 'cash_rewards');
-        // } elseif ($request->filter == 'physical_rewards_only') {
-        //     $query->where('type', 'physical_rewards');
-        // } else {
-        //     $query->orderBy('trade_point_required');
-        // }
+        if ($request->filter == 'cash_rewards_only') {
+            $query->where('type', 'cash_rewards');
+        } elseif ($request->filter == 'physical_rewards_only') {
+            $query->where('type', 'physical_rewards');
+        }
 
         $rewards = $query->get()
             ->map(function ($reward) {
@@ -129,6 +139,45 @@ class RewardController extends Controller
 
     public function redeemRewards(Request $request)
     {
-        
+        if ($request->reward_type == 'cash_rewards') {
+            Validator::make($request->all(), [
+                'meta_login' => 'required',
+            ])->setAttributeNames([
+                'meta_login' => trans('public.receiving_account'),
+            ])->validate();
+        } else {
+            Validator::make($request->all(), [
+                'recipient_name' => 'required',
+                'dial_code' => 'required',
+                'phone' => 'required',
+                'phone_number' => 'required',
+                'address' => 'required',
+            ])->setAttributeNames([
+                'recipient_name' => trans('public.recipient_name'),
+                'dial_code' => trans('public.dial_code'),
+                'phone' => trans('public.phone_number'),
+                'phone_number' => trans('public.phone_number'),
+                'address' => trans('public.address'),
+            ])->validate();
+        }
+
+        // $transaction = RewardRedemption::create([
+        //     'user_id' => Auth::id(),
+        //     'category' => 'bonus',
+        //     'transaction_type' => $request->bonus_type,
+        //     'to_meta_login' => $tradingAccount->meta_login,
+        //     'transaction_number' => RunningNumberService::getID('transaction'),
+        //     'amount' => $claim_amount,
+        //     'transaction_charges' => 0,
+        //     'transaction_amount' => $claim_amount,
+        //     'status' => 'processing',
+        // ]);
+
+
+        return redirect()->back()->with('notification', [
+            // 'details' => $transaction,
+            // 'type' => 'withdrawal',
+            // 'withdrawal_type' => $transaction->category == 'rebate_wallet' ? 'rebate' : 'bonus'
+        ]);
     }
 }

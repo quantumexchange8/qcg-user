@@ -1,39 +1,42 @@
 <script setup>
-import { usePage } from "@inertiajs/vue3";
+import { usePage, router } from "@inertiajs/vue3";
 import Button from "@/Components/Button.vue";
 import Select from "primevue/select";
-import { IconPlus } from "@tabler/icons-vue";
+import { IconGift, IconChecks } from "@tabler/icons-vue";
 import {
     PointIcon
 } from '@/Components/Icons/outline.jsx';
-import { ref, watch, watchEffect } from "vue";
+import { ref, watch, watchEffect, computed, h } from "vue";
 import {useLangObserver} from "@/Composables/localeObserver.js";
 import { transactionFormat } from "@/Composables/index.js";
+import { trans, wTrans } from "laravel-vue-i18n";
+import { useConfirm } from "primevue/useconfirm";
+import CashRewardContent from "./CashRewardContent.vue";
+import PhysicalRewardContent from "./PhysicalRewardContent.vue";
 
 const {locale} = useLangObserver();
-// const selectedReward = ref('least_trade_point');
 const { formatAmount, formatDate, formatDateTime } = transactionFormat();
 
-const rewardFilters = ref([
-    { name: 'Least Trade Point', value: 'least_trade_point' },
-    { name: 'Most Redeemed', value: 'most_redeemed' },
-    { name: 'Cash Rewards Only', value: 'cash_rewards_only' },
-    { name: 'Physical Rewards Only', value: 'physical_rewards_only' },
+const selectedReward = ref('all_rewards');
+const rewardFilters = computed(() => [
+    { name: trans('public.all_rewards'), value: 'all_rewards' },
+    { name: trans('public.cash_rewards_only'), value: 'cash_rewards_only' },
+    { name: trans('public.physical_rewards_only'), value: 'physical_rewards_only' },
 ]);
 
 const rewards = ref([]);
 const loading = ref(false);
 
-const getRewardData = async () => {
+const getRewardData = async (selectedReward = '') => {
     if (loading.value) return;
     loading.value = true;
 
     try {
         let url = `rewards/getRewardsData`;
 
-        // if (selectedReward) {
-        //     url += `?filter=${selectedReward}`;
-        // }
+        if (selectedReward) {
+            url += `?filter=${selectedReward}`;
+        }
 
         const response = await axios.get(url);
         rewards.value = response.data.rewards;
@@ -44,64 +47,184 @@ const getRewardData = async () => {
     }
 };
 
-getRewardData();
+getRewardData(selectedReward.value);
 
-// watch(selectedReward, (newReward) => {
-//     getRewardData(newReward);
-// });
+const formattedExpiryDate = (expiry_date) => {
+    return expiry_date
+        ? `${trans('public.available_until')} ${formatDateTime(expiry_date)}`
+        : trans('public.no_expiry_date');
+};
 
+watch(selectedReward, (newReward) => {
+    getRewardData(newReward);
+});
 
-// watchEffect(() => {
-//     if (usePage().props.toast !== null) {
-//         getRewardData();
-//     }
-// });
+const confirm = useConfirm();
+
+const requireConfirmation = (action_type, reward) => {
+
+    const messages = {
+        redeem_cash_rewards: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconGift),
+            header: trans('public.redeem_rewards'),
+            message: trans('public.redeem_cash_rewards_caption', {reward_name: `${reward.name[locale.value]}`, reward_points: `${reward.trade_point_required}`}),
+            cancelButton: null,
+            acceptButton: null,
+            content: () => 
+                h(CashRewardContent, {
+                    reward_id: reward.reward_id,
+                    'onUpdate:visible': () => {
+                        confirm.close();
+                    },
+                })
+        },
+        redeem_physical_rewards: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconGift),
+            header: trans('public.redeem_rewards'),
+            message: trans('public.redeem_physical_rewards_caption', {reward_name: `${reward.name[locale.value]}`, reward_points: `${reward.trade_point_required}`}),
+            cancelButton: null,
+            acceptButton: null,
+            content: () => 
+                h(PhysicalRewardContent, {
+                    'onUpdate:visible': () => {
+                        confirm.close();
+                    },
+                })
+        },
+        redeem_cash_success: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconChecks),
+            header: trans('public.redemption_successful'),
+            message: trans('public.redemption_successful_caption'),
+            acceptButton: trans('public.alright'),
+            action: () => {
+                confirm.close();
+            },
+            content: () => h('div', { class: 'flex flex-col p-3 gap-3 bg-gray-50' }, [
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.date')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, dayjs(details.created_at).format('YYYY/MM/DD')),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.to_meta_login),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.requested_bonus')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, `$ ${formatAmount(details.transaction_amount)}`),
+                ])
+            ])
+        },
+        redeem_physical_success: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconChecks),
+            header: trans('public.redemption_successful'),
+            message: trans('public.redemption_successful_caption'),
+            acceptButton: trans('public.alright'),
+            action: () => {
+                confirm.close();
+            },
+            content: () => h('div', { class: 'flex flex-col p-3 gap-3 bg-gray-50' }, [
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.date')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, dayjs(details.created_at).format('YYYY/MM/DD')),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.to_meta_login),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.requested_bonus')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, `$ ${formatAmount(details.transaction_amount)}`),
+                ])
+            ])
+        },
+    };
+
+    const { group, color, icon, header, message, cancelButton, acceptButton, action, content } = messages[action_type];
+
+    confirm.require({
+        group,
+        color,
+        icon,
+        header,
+        message,
+        cancelButton,
+        acceptButton,
+        accept: action,
+        content: content()
+    });
+};
+
+const rewardRedemption = (reward) => {
+    if (reward.type === 'cash_rewards') {
+        requireConfirmation('redeem_cash_rewards', reward)
+    } else {
+        requireConfirmation('redeem_physical_rewards', reward)
+    }
+}
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        getRewardData(selectedReward.value);
+    }
+
+    // if (usePage().props.notification !== null) {
+    //     requireConfirmation(usePage().props.notification.type, usePage().props.notification.details);
+    //     fetchLiveAccounts();
+    //     usePage().props.notification = null;
+    // }
+});
 </script>
 
 <template>
-
     <div class="flex flex-col justify-center items-center p-6 gap-5 self-stretch rounded-lg bg-white shadow-card">
-        <div class="w-full flex flex-row items-center justify-between">
+        <div class="w-full flex flex-col md:flex-row gap-3 items-start justify-between">
             <span class="text-gray-950 font-bold">{{ $t('public.rewards_catalog_n_redemption') }}</span>
-            <!-- <Select 
+            <Select 
                 v-model="selectedReward" 
                 :options="rewardFilters" 
                 optionLabel="name" 
                 optionValue="value"
                 :placeholder="$t('public.reward_placeholder')"
-                class="w-full md:w-60 font-normal truncate" scroll-height="236px" 
-            /> -->
+                class="font-normal truncate" scroll-height="236px" 
+            />
         </div>
-        <div class="grid gap-3 md:gap-5 w-full grid-cols-1 md:grid-cols-2 2xl:grid-cols-3">
+        <div class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4">
             <div v-for="(item, index) in rewards" :key="index"
                 class="flex flex-col gap-2 justify-center px-3 md:px-4 py-3 rounded w-full shadow-card bg-white border border-gray-100"
             >
-                <img :src="item.reward_thumbnail" alt="reward_image" class="h-[186px] md:h-[225px] xl:h-[321px]"/>
+                <img :src="item.reward_thumbnail" alt="reward_image" class="h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
                 <div class="flex flex-col gap-3 w-full py-2">
                     <div class="flex flex-col gap-2">
                         <div class="flex flex-row justify-between">
-                            <span class="text-sm text-gray-500">{{ item.code }}</span>
-                            <span class="flex flex-row gap-1 text-sm text-warning-500 font-medium items-center">
+                            <span class="text-xs md:text-sm text-gray-500">{{ item.code }}</span>
+                            <span class="flex flex-row gap-1 text-xs md:text-sm text-warning-500 font-medium items-center">
                                 <PointIcon class="w-4 h-4"/>
                                 <span>{{ item.trade_point_required }} tp</span>
                             </span>
                         </div>
-                        <span class="text-gray-950 font-semibold">{{ item.type === 'cash_rewards' ? '💰 ' : '🎁 '  }}{{ item.name[locale] }}</span>
+                        <span class="text-sm md:text-base text-gray-950 font-semibold line-clamp-2 h-[40px]">
+                            {{ item.type === 'cash_rewards' ? '💰 ' : '🎁 '  }}{{ item.name[locale] }}
+                        </span>
                     </div>
                     <div class="flex flex-col gap-[6px] items-center">
                         <Button
                             type="button"
                             variant="primary-flat"
                             class="w-full"
+                            @click="rewardRedemption(item)"
                         >
                             {{ $t('public.redeem') }}
                         </Button>
-                        <span class="text-gray-600 text-sm">
-                            {{
-                                item.expiry_date
-                                ? formatDateTime(item.expiry_date)
-                                : $t('public.no_expiry_date')
-                            }}
+                        <span class="text-gray-500 text-xxs md:text-xs truncate w-full">
+                            {{ formattedExpiryDate(item.expiry_date) }}
                         </span>
                     </div>
                 </div>
