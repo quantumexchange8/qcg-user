@@ -14,6 +14,9 @@ use App\Models\SymbolGroup;
 use App\Models\Transaction;
 use App\Models\RewardRedemption;
 use App\Models\TradePointHistory;
+use App\Models\User;
+use App\Models\Wallet;
+use App\Services\RunningNumberService;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -35,7 +38,10 @@ class RewardController extends Controller
 
     public function getTradePoints()
     {
-        $userId = Auth::id();
+        $user = Auth::user();
+        $total_points = $user->trade_points->balance;
+        $userId = $user->id;
+        // $userId = Auth::id();
 
         // Initialize query for rebate summary with date filtering
         $query = TradeRebateSummary::with('symbolGroup')
@@ -91,6 +97,7 @@ class RewardController extends Controller
         // Return the response with rebate summary, total volume, and total rebate
         return response()->json([
             'tradePoints' => $finalSummary,
+            'totalTradePoints' => $total_points,
             // 'totalVolume' => $totalVolume,
             // 'totalRebate' => $totalRebate,
         ]);
@@ -139,12 +146,48 @@ class RewardController extends Controller
 
     public function redeemRewards(Request $request)
     {
+        $user = Auth::user();
+        $wallet = $user->trade_points;
+
         if ($request->reward_type == 'cash_rewards') {
             Validator::make($request->all(), [
                 'meta_login' => 'required',
             ])->setAttributeNames([
                 'meta_login' => trans('public.receiving_account'),
             ])->validate();
+
+            $redemption = RewardRedemption::create([
+                'user_id' => $user->id,
+                'reward_id' => $request->reward_id,
+                'receiving_account' => $request->meta_login,
+                'status' => 'processing',
+            ]);    
+
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'category' => 'trade_points',
+                'transaction_type' => 'redemption',
+                'from_wallet_id' => $wallet->id,
+                'to_meta_login' => $request->meta_login,
+                'redemption_id' => $redemption->id,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'amount' => $redemption->reward->trade_point_required,
+                'transaction_charges' => 0,
+                'transaction_amount' => $redemption->reward->trade_point_required,
+                'status' => 'processing',
+            ]);
+
+            $wallet->update(['balance' => $wallet->balance - $transaction->amount]);
+
+            // return redirect()->back()->with('notification', [
+            //     'details' => $redemption,
+            //     'type' => 'redeem_cash_success',
+            // ]);
+
+            return redirect()->back()->with('toast', [
+                'title' => 'Successfully redeemed cash reward!',
+                'type' => 'success',
+            ]);
         } else {
             Validator::make($request->all(), [
                 'recipient_name' => 'required',
@@ -159,25 +202,44 @@ class RewardController extends Controller
                 'phone_number' => trans('public.phone_number'),
                 'address' => trans('public.address'),
             ])->validate();
+
+            $redemption = RewardRedemption::create([
+                'user_id' => $user->id,
+                'reward_id' => $request->reward_id,
+                'recipient_name' => $request->recipient_name,
+                'dial_code' => $request->dial_code,
+                'phone' => $request->phone,
+                'phone_number' => $request->phone_number,
+                'address' => $request->address,
+                'status' => 'processing',
+            ]);
+    
+            $transaction = Transaction::create([
+                'user_id' => $user->id,
+                'category' => 'trade_points',
+                'transaction_type' => 'redemption',
+                'from_wallet_id' => $wallet->id,
+                'to_meta_login' => $request->meta_login,
+                'redemption_id' => $redemption->id,
+                'transaction_number' => RunningNumberService::getID('transaction'),
+                'amount' => $redemption->reward->trade_point_required,
+                'transaction_charges' => 0,
+                'transaction_amount' => $redemption->reward->trade_point_required,
+                'status' => 'processing',
+            ]);
+
+            $wallet->update(['balance' => $wallet->balance - $transaction->amount]);
+
+            // return redirect()->back()->with('notification', [
+            //     'details' => $redemption,
+            //     'type' => 'redeem_physical_success',
+            // ]);
+
+            return redirect()->back()->with('toast', [
+                'title' => 'Successfully redeemed cash reward!',
+                'type' => 'success',
+            ]);
         }
 
-        // $transaction = RewardRedemption::create([
-        //     'user_id' => Auth::id(),
-        //     'category' => 'bonus',
-        //     'transaction_type' => $request->bonus_type,
-        //     'to_meta_login' => $tradingAccount->meta_login,
-        //     'transaction_number' => RunningNumberService::getID('transaction'),
-        //     'amount' => $claim_amount,
-        //     'transaction_charges' => 0,
-        //     'transaction_amount' => $claim_amount,
-        //     'status' => 'processing',
-        // ]);
-
-
-        return redirect()->back()->with('notification', [
-            // 'details' => $transaction,
-            // 'type' => 'withdrawal',
-            // 'withdrawal_type' => $transaction->category == 'rebate_wallet' ? 'rebate' : 'bonus'
-        ]);
     }
 }

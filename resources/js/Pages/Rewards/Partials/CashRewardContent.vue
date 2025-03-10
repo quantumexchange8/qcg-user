@@ -34,10 +34,11 @@ const cashForm = useForm({
 });
 
 const submitForm = () => {
+    closeDialog();
     cashForm.post(route('rewards.redeemRewards'), {
-        onError: (errors) => {
-            console.log(errors); // Handle validation errors
-        },
+        // onError: (errors) => {
+        //     console.log(errors); // Handle validation errors
+        // },
         onSuccess: () => {
             closeDialog();
         }

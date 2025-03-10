@@ -13,6 +13,11 @@ import { trans, wTrans } from "laravel-vue-i18n";
 import { useConfirm } from "primevue/useconfirm";
 import CashRewardContent from "./CashRewardContent.vue";
 import PhysicalRewardContent from "./PhysicalRewardContent.vue";
+import dayjs from "dayjs";
+
+const props = defineProps({
+    trade_points: Number,
+});
 
 const {locale} = useLangObserver();
 const { formatAmount, formatDate, formatDateTime } = transactionFormat();
@@ -61,7 +66,7 @@ watch(selectedReward, (newReward) => {
 
 const confirm = useConfirm();
 
-const requireConfirmation = (action_type, reward) => {
+const requireConfirmation = (action_type, details) => {
 
     const messages = {
         redeem_cash_rewards: {
@@ -69,12 +74,12 @@ const requireConfirmation = (action_type, reward) => {
             color: 'primary',
             icon: h(IconGift),
             header: trans('public.redeem_rewards'),
-            message: trans('public.redeem_cash_rewards_caption', {reward_name: `${reward.name[locale.value]}`, reward_points: `${reward.trade_point_required}`}),
+            message: trans('public.redeem_cash_rewards_caption', {reward_name: `${details.name[locale.value]}`, reward_points: `${details.trade_point_required}`}),
             cancelButton: null,
             acceptButton: null,
             content: () => 
                 h(CashRewardContent, {
-                    reward_id: reward.reward_id,
+                    reward_id: details.reward_id,
                     'onUpdate:visible': () => {
                         confirm.close();
                     },
@@ -85,11 +90,12 @@ const requireConfirmation = (action_type, reward) => {
             color: 'primary',
             icon: h(IconGift),
             header: trans('public.redeem_rewards'),
-            message: trans('public.redeem_physical_rewards_caption', {reward_name: `${reward.name[locale.value]}`, reward_points: `${reward.trade_point_required}`}),
+            message: trans('public.redeem_physical_rewards_caption', {reward_name: `${details.name[locale.value]}`, reward_points: `${details.trade_point_required}`}),
             cancelButton: null,
             acceptButton: null,
             content: () => 
                 h(PhysicalRewardContent, {
+                    reward_id: details.reward_id,
                     'onUpdate:visible': () => {
                         confirm.close();
                     },
@@ -111,12 +117,20 @@ const requireConfirmation = (action_type, reward) => {
                     h('p', { class: 'text-sm font-medium text-gray-950' }, dayjs(details.created_at).format('YYYY/MM/DD')),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
-                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.to_meta_login),
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_code')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.code),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
-                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.requested_bonus')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, `$ ${formatAmount(details.transaction_amount)}`),
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_name')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.name[locale.value]),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.points_used')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.receiving_account),
                 ])
             ])
         },
@@ -136,12 +150,28 @@ const requireConfirmation = (action_type, reward) => {
                     h('p', { class: 'text-sm font-medium text-gray-950' }, dayjs(details.created_at).format('YYYY/MM/DD')),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
-                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.to_meta_login),
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_code')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.code),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
-                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.requested_bonus')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, `$ ${formatAmount(details.transaction_amount)}`),
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_name')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.name[locale.value]),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.points_used')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.recipient_name')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.recipient_name),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.phone_number')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.phone_number),
+                ]),
+                h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
+                    h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.provided_address')),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.address),
                 ])
             ])
         },
@@ -175,11 +205,11 @@ watchEffect(() => {
         getRewardData(selectedReward.value);
     }
 
-    // if (usePage().props.notification !== null) {
-    //     requireConfirmation(usePage().props.notification.type, usePage().props.notification.details);
-    //     fetchLiveAccounts();
-    //     usePage().props.notification = null;
-    // }
+    if (usePage().props.notification !== null) {
+        requireConfirmation(usePage().props.notification.type, usePage().props.notification.details);
+        getRewardData(selectedReward.value);
+        usePage().props.notification = null;
+    }
 });
 </script>
 
@@ -219,6 +249,7 @@ watchEffect(() => {
                             type="button"
                             variant="primary-flat"
                             class="w-full"
+                            :disabled="props.trade_points < item.trade_point_required"
                             @click="rewardRedemption(item)"
                         >
                             {{ $t('public.redeem') }}

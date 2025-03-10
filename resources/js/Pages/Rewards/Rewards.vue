@@ -1,10 +1,11 @@
 <script setup>
+import { usePage } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/Authenticated.vue";
 import { Vue3Lottie } from 'vue3-lottie';
 import OneStarBadge from '@/Components/Icons/OneStarBadge.json';
 import { transactionFormat } from "@/Composables/index.js";
 import Button from "@/Components/Button.vue";
-import {ref} from 'vue';
+import {ref, watchEffect} from 'vue';
 import RewardRedemption from "./Partials/RewardRedemption.vue";
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
@@ -20,7 +21,7 @@ const getResults = async () => {
 
         // Update the rebateSummary and totals
         tradePoints.value = response.data.tradePoints;
-        // totalTradePoints.value = response.data.totalTradePoints;
+        totalTradePoints.value = response.data.totalTradePoints;
     } catch (error) {
         console.error('Error fetching trade points:', error);
     }
@@ -28,6 +29,11 @@ const getResults = async () => {
 
 getResults();
 
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        getResults();
+    }
+});
 </script>
 
 <template>
@@ -42,7 +48,7 @@ getResults();
                             <Vue3Lottie :animationData="OneStarBadge" :loop="true" :autoplay="true" />
                         </div>
                         <div class="flex flex-col">
-                            <span class="text-2xl font-semibold text-gray-950">0.00</span>
+                            <span class="text-2xl font-semibold text-gray-950">{{ formatAmount(totalTradePoints ?? 0) }}</span>
                             <span class="text-sm text-gray-500">{{ $t('public.personal_trade_points') }} (tp)</span>
                         </div>
                     </div>
@@ -100,8 +106,9 @@ getResults();
                 </div>
             </div>
             <!-- rewards -->
-            <RewardRedemption />
-
+            <RewardRedemption 
+               :trade_points="totalTradePoints" 
+            />
 
         </div>
     </AuthenticatedLayout>

@@ -21,6 +21,7 @@ class Transaction extends Model implements HasMedia
         'from_meta_login',
         'to_meta_login',
         'ticket',
+        'redemption_id',
         'transaction_number',
         'payment_account_id',
         'from_wallet_address',
@@ -73,5 +74,10 @@ class Transaction extends Model implements HasMedia
     public function payment_account(): BelongsTo
     {
         return $this->belongsTo(PaymentAccount::class, 'payment_account_id', 'id');
+    }
+
+    public function redemption(): BelongsTo
+    {
+        return $this->belongsTo(RewardRedemption::class, 'redemption_id', 'id');
     }
 }

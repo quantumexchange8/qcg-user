@@ -45,6 +45,7 @@ const submitForm = () => {
         physicalForm.dial_code = selectedCountry.value.phone_code;
         physicalForm.phone_number = selectedCountry.value.phone_code + physicalForm.phone;
     }
+    closeDialog();
     physicalForm.post(route('rewards.redeemRewards'), {
         onError: (errors) => {
             console.log(errors); // Handle validation errors

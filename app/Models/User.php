@@ -122,6 +122,11 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->hasOne(Wallet::class, 'user_id', 'id')->where('type', 'incentive_wallet');
     }
 
+    public function trade_points(): HasOne
+    {
+        return $this->hasOne(Wallet::class, 'user_id', 'id')->where('type', 'trade_points');
+    }
+
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class, 'user_id', 'id');
