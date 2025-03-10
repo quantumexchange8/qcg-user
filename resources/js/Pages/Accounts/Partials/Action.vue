@@ -77,13 +77,13 @@ const items = ref([
             dialogType.value = 'missing_amount';
         },
     },
-    {
-        label: 'delete',
-        icon: h(IconTrashX),
-        command: () => {
-            requireAccountConfirmation('live');
-        },
-    },
+    // {
+    //     label: 'delete_account',
+    //     icon: h(IconTrashX),
+    //     command: () => {
+    //         requireAccountConfirmation('live');
+    //     },
+    // },
 ]);
 
 const filteredItems = computed(() => {
@@ -116,31 +116,31 @@ const confirm = useConfirm();
 const requireAccountConfirmation = (accountType) => {
     const accountNo = props.account.meta_login;
     const messages = {
-        live: {
-            group: 'headless',
-            color: 'error',
-            icon: h(IconTrashX),
-            header: trans('public.delete_account'),
-            message: trans('public.delete_account_message', { accountNo }),
-            cancelButton: trans('public.cancel'),
-            acceptButton: trans('public.delete'),
-            action: () => {
-                form.delete(route('accounts.delete_account'));
-            },
-        },
-        demo: {
-            group: 'headless',
-            color: 'error',
-            icon: h(IconTrashX),
-            header: trans('public.delete_demo_account'),
-            message: trans('public.delete_demo_account_message'),
-            cancelButton: trans('public.cancel'),
-            acceptButton: trans('public.delete'),
-            action: () => {
-                form.type = 'demo';
-                form.delete(route('accounts.delete_account'));
-            },
-        },
+        // live: {
+        //     group: 'headless',
+        //     color: 'error',
+        //     icon: h(IconTrashX),
+        //     header: trans('public.delete_account'),
+        //     message: trans('public.delete_account_message', { accountNo }),
+        //     cancelButton: trans('public.cancel'),
+        //     acceptButton: trans('public.delete'),
+        //     action: () => {
+        //         form.delete(route('accounts.delete_account'));
+        //     },
+        // },
+        // demo: {
+        //     group: 'headless',
+        //     color: 'error',
+        //     icon: h(IconTrashX),
+        //     header: trans('public.delete_demo_account'),
+        //     message: trans('public.delete_demo_account_message'),
+        //     cancelButton: trans('public.cancel'),
+        //     acceptButton: trans('public.delete'),
+        //     action: () => {
+        //         form.type = 'demo';
+        //         form.delete(route('accounts.delete_account'));
+        //     },
+        // },
         crypto: {
             group: 'headless',
             color: 'primary',
