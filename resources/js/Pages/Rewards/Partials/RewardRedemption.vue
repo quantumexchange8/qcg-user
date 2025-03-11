@@ -14,6 +14,7 @@ import { useConfirm } from "primevue/useconfirm";
 import CashRewardContent from "./CashRewardContent.vue";
 import PhysicalRewardContent from "./PhysicalRewardContent.vue";
 import dayjs from "dayjs";
+import RedeemHistory from "./RedeemHistory.vue";
 
 const props = defineProps({
     trade_points: Number,
@@ -217,14 +218,17 @@ watchEffect(() => {
     <div class="flex flex-col justify-center items-center p-6 gap-5 self-stretch rounded-lg bg-white shadow-card">
         <div class="w-full flex flex-col md:flex-row gap-3 items-start justify-between">
             <span class="text-gray-950 font-bold">{{ $t('public.rewards_catalog_n_redemption') }}</span>
-            <Select 
-                v-model="selectedReward" 
-                :options="rewardFilters" 
-                optionLabel="name" 
-                optionValue="value"
-                :placeholder="$t('public.reward_placeholder')"
-                class="font-normal truncate" scroll-height="236px" 
-            />
+            <div class="flex flex-row gap-2">
+                <RedeemHistory />
+                <Select 
+                    v-model="selectedReward" 
+                    :options="rewardFilters" 
+                    optionLabel="name" 
+                    optionValue="value"
+                    :placeholder="$t('public.reward_placeholder')"
+                    class="font-normal truncate" scroll-height="236px" 
+                />
+            </div>
         </div>
         <div class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4">
             <div v-for="(item, index) in rewards" :key="index"

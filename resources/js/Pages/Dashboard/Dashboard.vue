@@ -33,7 +33,7 @@ const groupTotalWithdrawal = ref(0);
 const groupTotalNetBalance = ref(0);
 const groupTotalAsset = ref(0);
 const groupTotalTradeLot = ref(0);
-const groupTotalTradeVolume = ref(0);
+const groupTotalTradePoints = ref(0);
 const rebateWallet = ref();
 
 // data overview
@@ -66,7 +66,7 @@ const dataOverviews = computed(() => [
     },
     {
         icon: TradeVolumeIcon,
-        total: groupTotalTradeVolume.value,
+        total: groupTotalTradePoints.value,
         // label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
         label: user.role === 'member' ? trans('public.personal_trade_points') : trans('public.personal_trade_points'),
         borderColor: 'border-green',
@@ -124,7 +124,7 @@ const getDashboardData = async () => {
         groupTotalNetBalance.value = response.data.groupTotalNetBalance
         groupTotalAsset.value = response.data.groupTotalAsset
         groupTotalTradeLot.value = response.data.groupTotalTradeLot
-        groupTotalTradeVolume.value = response.data.groupTotalTradeVolume
+        groupTotalTradePoints.value = response.data.groupTotalTradePoints
     } catch (error) {
         console.error('Error pending counts:', error);
     }
@@ -174,7 +174,7 @@ watchEffect(() => {
                                 <div class="flex flex-col items-end truncate">
                                     <span class="text-gray-500 text-xxs md:text-sm text-right w-full truncate">{{ item.label }}</span>
                                     <div v-if="item.type === 'trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
-                                        {{ formatAmount(item.total, 0) }}
+                                        {{ formatAmount(item.total, 2) }}
                                     </div>
                                     <div v-else-if="item.type === 'trade_lots'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
                                         {{ formatAmount(item.total) }} Ł

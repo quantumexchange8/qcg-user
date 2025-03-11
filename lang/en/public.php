@@ -507,4 +507,12 @@ return [
     'rewards_code' => 'Rewards Code',
     'rewards_name' => 'Rewards Name',
     'points_used' => 'Points Used',
+    'empty_redeem_history_title' => 'No Reward Redemptions Found',
+    'empty_redeem_history_message' => 'There are no reward redemptions to display at the moment. Check back later for updates.',
+    'redemption_history' => 'Redemption History',
+    'redemption_details' => 'Redemption Details',
+    'processing_date' => 'Processing Date',
+    'provided_address' => 'Provided Address',
+    'code' => 'Code',
+    'tp_used' => 'TP Used',
 ];

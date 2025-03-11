@@ -131,7 +131,7 @@ class RewardController extends Controller
 
                 if ($reward->status == 'active') {
                     $current_status = 'redeem';
-                    if (!is_null($reward->maximum_redemption) && $reward->redemption_count >= $reward->maximum_redemption) {
+                    if (($reward->max_per_person ?? 1) <= $reward->redemption_count) {
                         $current_status = 'fully_redeemed';
                     }
                 } else {
@@ -205,10 +205,6 @@ class RewardController extends Controller
                 'type' => 'redeem_cash_success',
             ]);
 
-            // return redirect()->back()->with('toast', [
-            //     'title' => 'Successfully redeemed cash reward!',
-            //     'type' => 'success',
-            // ]);
         } else {
             Validator::make($request->all(), [
                 'recipient_name' => 'required',
@@ -258,11 +254,70 @@ class RewardController extends Controller
                 'type' => 'redeem_physical_success',
             ]);
 
-            // return redirect()->back()->with('toast', [
-            //     'title' => 'Successfully redeemed cash reward!',
-            //     'type' => 'success',
-            // ]);
+        }
+    }
+
+    public function getRedeemHistory(Request $request)
+    {
+        $description = $request->query('description');
+        $monthYear = $request->input('selectedMonth');
+
+        if ($monthYear === 'select_all') {
+            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+            $endDate = Carbon::now()->endOfDay();
+        } else {
+            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+
+            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
         }
 
+        $query = Transaction::with('redemption.reward')
+                ->where(['transaction_type' => 'redemption', 'user_id' => Auth::id()])
+                ->whereBetween('created_at', [$startDate, $endDate]);
+
+        if ($description && $description !== 'all') {
+            if ($description == 'processing'){
+                $query->where('status', 'processing');
+            }
+            elseif ($description == 'successful'){
+                $query->where('status', 'successful');
+            }
+            elseif ($description == 'rejected'){
+                $query->where('status', 'rejected');
+            }
+        }
+
+        $transactions = $query
+            ->latest()
+            ->get()
+            ->map(function ($transaction) {
+                $reward_name = json_decode($transaction->redemption->reward->name, true);
+
+                return [
+                    'category' => $transaction->category,
+                    'transaction_type' => $transaction->transaction_type,
+                    'transaction_number' => $transaction->transaction_number,
+                    'amount' => $transaction->amount,
+                    'transaction_charges' => $transaction->transaction_charges,
+                    'transaction_amount' => $transaction->transaction_amount,
+                    'status' => $transaction->status,
+                    'comment' => $transaction->comment,
+                    'remarks' => $transaction->remarks,
+                    'created_at' => $transaction->created_at,
+                    'approved_at' => $transaction->approved_at,
+                    'reward_type' => $transaction->redemption->reward->type,
+                    'reward_code' => $transaction->redemption->reward->code,
+                    'reward_name' => $reward_name,
+                    'receiving_account' => $transaction->redemption->receiving_account ?? null,
+                    'recipient_name' => $transaction->redemption->recipient_name ?? null,
+                    'phone_number' => $transaction->redemption->phone_number ?? null,
+                    'address' => $transaction->redemption->address ?? null,
+                ];
+            });
+
+        return response()->json([
+            'redeems' => $transactions,
+        ]);
     }
 }
