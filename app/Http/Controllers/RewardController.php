@@ -97,7 +97,7 @@ class RewardController extends Controller
         // Return the response with rebate summary, total volume, and total rebate
         return response()->json([
             'tradePoints' => $finalSummary,
-            'totalTradePoints' => $total_points,
+            'totalTradePoints' => (float) $total_points,
             // 'totalVolume' => $totalVolume,
             // 'totalRebate' => $totalRebate,
         ]);
@@ -198,15 +198,17 @@ class RewardController extends Controller
 
             $wallet->update(['balance' => $wallet->balance - $transaction->amount]);
 
-            // return redirect()->back()->with('notification', [
-            //     'details' => $redemption,
-            //     'type' => 'redeem_cash_success',
-            // ]);
+            $redemption->reward->name = json_decode($redemption->reward->name, true);
 
-            return redirect()->back()->with('toast', [
-                'title' => 'Successfully redeemed cash reward!',
-                'type' => 'success',
+            return redirect()->back()->with('notification', [
+                'details' => $redemption,
+                'type' => 'redeem_cash_success',
             ]);
+
+            // return redirect()->back()->with('toast', [
+            //     'title' => 'Successfully redeemed cash reward!',
+            //     'type' => 'success',
+            // ]);
         } else {
             Validator::make($request->all(), [
                 'recipient_name' => 'required',
@@ -249,15 +251,17 @@ class RewardController extends Controller
 
             $wallet->update(['balance' => $wallet->balance - $transaction->amount]);
 
-            // return redirect()->back()->with('notification', [
-            //     'details' => $redemption,
-            //     'type' => 'redeem_physical_success',
-            // ]);
+            $redemption->reward->name = json_decode($redemption->reward->name, true);
 
-            return redirect()->back()->with('toast', [
-                'title' => 'Successfully redeemed cash reward!',
-                'type' => 'success',
+            return redirect()->back()->with('notification', [
+                'details' => $redemption,
+                'type' => 'redeem_physical_success',
             ]);
+
+            // return redirect()->back()->with('toast', [
+            //     'title' => 'Successfully redeemed cash reward!',
+            //     'type' => 'success',
+            // ]);
         }
 
     }

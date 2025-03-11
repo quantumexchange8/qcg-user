@@ -69,7 +69,7 @@ const confirm = useConfirm();
 const requireConfirmation = (action_type, details) => {
 
     const messages = {
-        redeem_cash_rewards: {
+        redeem_cash_rewards: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconGift),
@@ -84,8 +84,8 @@ const requireConfirmation = (action_type, details) => {
                         confirm.close();
                     },
                 })
-        },
-        redeem_physical_rewards: {
+        }),
+        redeem_physical_rewards: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconGift),
@@ -100,8 +100,8 @@ const requireConfirmation = (action_type, details) => {
                         confirm.close();
                     },
                 })
-        },
-        redeem_cash_success: {
+        }),
+        redeem_cash_success: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconChecks),
@@ -122,19 +122,19 @@ const requireConfirmation = (action_type, details) => {
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_name')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.name[locale.value]),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, '💰 ' , details.reward.name[locale.value]),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.points_used')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required, 'tp'),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
                     h('p', { class: 'text-sm font-medium text-gray-950' }, details.receiving_account),
                 ])
             ])
-        },
-        redeem_physical_success: {
+        }),
+        redeem_physical_success: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconChecks),
@@ -155,11 +155,11 @@ const requireConfirmation = (action_type, details) => {
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_name')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.name[locale.value]),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, '🎁 ' , details.reward.name[locale.value]),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.points_used')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required, 'tp'),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.recipient_name')),
@@ -174,10 +174,10 @@ const requireConfirmation = (action_type, details) => {
                     h('p', { class: 'text-sm font-medium text-gray-950' }, details.address),
                 ])
             ])
-        },
+        }),
     };
 
-    const { group, color, icon, header, message, cancelButton, acceptButton, action, content } = messages[action_type];
+    const { group, color, icon, header, message, cancelButton, acceptButton, action, content } = messages[action_type]();
 
     confirm.require({
         group,
@@ -253,7 +253,6 @@ watchEffect(() => {
                             :disabled="props.trade_points < item.trade_point_required || item.current_status != 'redeem'"
                             @click="rewardRedemption(item)"
                         >
-                            <!-- {{ $t('public.redeem') }} -->
                             {{ $t(`public.${item.current_status}`) }}
                         </Button>
                         <span class="text-gray-500 text-xxs md:text-xs truncate w-full">

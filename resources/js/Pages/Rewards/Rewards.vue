@@ -33,6 +33,10 @@ watchEffect(() => {
     if (usePage().props.toast !== null) {
         getResults();
     }
+
+    if (usePage().props.notification !== null) {
+        getResults();
+    }
 });
 </script>
 

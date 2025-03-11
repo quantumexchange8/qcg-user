@@ -504,4 +504,7 @@ return [
     'phone' => 'Phone',
     'fully_redeemed' => 'Fully Redeemed',
     'coming_soon' => 'Coming Soon',
+    'rewards_code' => 'Rewards Code',
+    'rewards_name' => 'Rewards Name',
+    'points_used' => 'Points Used',
 ];
