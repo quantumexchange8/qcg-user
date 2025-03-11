@@ -230,8 +230,8 @@ watchEffect(() => {
             <div v-for="(item, index) in rewards" :key="index"
                 class="flex flex-col gap-2 justify-center px-3 md:px-4 py-3 rounded w-full shadow-card bg-white border border-gray-100"
             >
-                <img :src="item.reward_thumbnail" alt="reward_image" class="h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
-                <div class="flex flex-col gap-3 w-full py-2">
+                <img :src="item.reward_thumbnail" alt="reward_image" class="sm:h-[97.5px] smd:h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
+                <div class="flex flex-col gap-2 md:gap-3 w-full py-2">
                     <div class="flex flex-col gap-2">
                         <div class="flex flex-row justify-between">
                             <span class="text-xs md:text-sm text-gray-500">{{ item.code }}</span>
@@ -249,10 +249,12 @@ watchEffect(() => {
                             type="button"
                             variant="primary-flat"
                             class="w-full"
-                            :disabled="props.trade_points < item.trade_point_required"
+                            size="sm"
+                            :disabled="props.trade_points < item.trade_point_required || item.current_status != 'redeem'"
                             @click="rewardRedemption(item)"
                         >
-                            {{ $t('public.redeem') }}
+                            <!-- {{ $t('public.redeem') }} -->
+                            {{ $t(`public.${item.current_status}`) }}
                         </Button>
                         <span class="text-gray-500 text-xxs md:text-xs truncate w-full">
                             {{ formattedExpiryDate(item.expiry_date) }}

@@ -502,4 +502,6 @@ return [
     'receiving_account' => 'Receiving Account',
     'dial_code' => 'Dial Code',
     'phone' => 'Phone',
+    'fully_redeemed' => 'Fully Redeemed',
+    'coming_soon' => 'Coming Soon',
 ];

@@ -110,7 +110,11 @@ class RewardController extends Controller
 
     public function getRewardsData(Request $request)
     {
-        $query = Reward::query();
+        $userId = Auth::id();
+
+        $query = Reward::withCount(['redemption as redemption_count' => function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        }]);
 
         if ($request->filter == 'cash_rewards_only') {
             $query->where('type', 'cash_rewards');
@@ -123,6 +127,20 @@ class RewardController extends Controller
                 $name = json_decode($reward->name, true);
                 $reward_thumbnail = $reward->getFirstMediaUrl('reward_thumbnail');
 
+                $current_status = 'redeem';
+
+                if ($reward->status == 'active') {
+                    $current_status = 'redeem';
+                    if (!is_null($reward->maximum_redemption) && $reward->redemption_count >= $reward->maximum_redemption) {
+                        $current_status = 'fully_redeemed';
+                    }
+                } else {
+                    $current_status = 'coming_soon';
+                    if ($reward->expiry_date && Carbon::now()->greaterThan($reward->expiry_date)) {
+                        $current_status = 'expired';
+                    }
+                }
+
                 return [
                     'reward_id' => $reward->id,
                     'type' => $reward->type,
@@ -133,6 +151,7 @@ class RewardController extends Controller
                     'maximum_redemption' => $reward->maximum_redemption,
                     'autohide_after_expiry' => $reward->autohide_after_expiry,
                     'status' => $reward->status,
+                    'current_status' => $current_status,
                     'name' => $name,
                     'reward_thumbnail' => $reward_thumbnail,
                 ];

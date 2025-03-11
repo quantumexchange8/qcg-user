@@ -502,4 +502,6 @@ return [
     'receiving_account' => '收款帳戶',
     'dial_code' => '區號',
     'phone' => '電話',
+    'fully_redeemed' => '已全部兌換',
+    'coming_soon' => '即將推出',
 ];
