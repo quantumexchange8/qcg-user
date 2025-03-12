@@ -41,71 +41,88 @@ class RewardController extends Controller
         $user = Auth::user();
         $total_points = $user->trade_points->balance;
         $userId = $user->id;
-        // $userId = Auth::id();
 
         // Initialize query for rebate summary with date filtering
-        $query = TradeRebateSummary::with('symbolGroup')
-            ->where('upline_user_id', $userId)
-            ->whereNotNull('execute_at');
+        $query = TradePointHistory::with('symbolGroup')
+            ->where('user_id', $userId)
+            ->where('category', 'trade_lots');
 
         // Fetch rebate summary data
-        $rebateSummary = $query->get(['symbol_group_id', 'volume', 'rebate']);
-
-        // $rebateSummary = $query->get(['symbol_group_id', 'trade_points']);
+        $tradeSummary = $query->get(['symbol_group_id', 'trade_points']);
 
         // Retrieve all symbol groups with non-null display values
         $symbolGroups = SymbolGroup::whereNotNull('display')->pluck('display', 'id');
 
         // Aggregate rebate data in PHP
-        $rebateSummaryData = $rebateSummary->groupBy('symbol_group_id')->map(function ($items) {
+        $tradeSummaryData = $tradeSummary->groupBy('symbol_group_id')->map(function ($items) {
             return [
-                'volume' => $items->sum('volume'),
-                'rebate' => $items->sum('rebate'),
-
-                // '$trade_points' => $items->sum('trade_points'),
+                'trade_points' => $items->sum('trade_points'),
             ];
         });
 
         // Initialize final summary and totals
         $finalSummary = [];
-        $totalVolume = 0;
-        $totalRebate = 0;
-
-        // $totalTradePoints = 0;
 
         // Iterate over all symbol groups
         foreach ($symbolGroups as $id => $display) {
-            // Retrieve data or use default values
-            $data = $rebateSummaryData->get($id);
-
-            // $data = $rebateSummaryData->get($id, ['trade_points' => 0]);
+            $data = $tradeSummaryData->get($id, ['trade_points' => 0]);
 
             // Add to the final summary
             $finalSummary[] = [
                 'symbol_group' => $display,
-                'volume' => 0, //$data['volume'],
-                'rebate' => 0, //$data['rebate'],
-
-                // 'trade_points' => $data['trade_points'],
+                'trade_points' => $data['trade_points'],
             ];
-
-            // Accumulate totals
-            // $totalVolume += $data['volume'];
-            // $totalRebate += $data['rebate'];
         }
 
         // Return the response with rebate summary, total volume, and total rebate
         return response()->json([
             'tradePoints' => $finalSummary,
             'totalTradePoints' => (float) $total_points,
-            // 'totalVolume' => $totalVolume,
-            // 'totalRebate' => $totalRebate,
         ]);
     }
 
     public function getPointHistory()
     {
+        $userId = Auth::id();
 
+        // Get summed trade lots per day
+        $tradeLots = TradePointHistory::selectRaw('DATE(created_at) as date, SUM(trade_points) as total_trade_points')
+            ->where('user_id', $userId)
+            ->where('category', 'trade_lots')
+            ->groupBy('date')
+            ->get()
+            ->map(function ($tradeLot) {
+                return [
+                    'type' => 'trade_lots',
+                    'date' => $tradeLot->date,
+                    'amount' => $tradeLot->total_trade_points,
+                ];
+            });
+
+            Log::info($tradeLots);
+        
+        // Get individual redemption transactions
+        $redemptionTransactions = TradePointHistory::where('user_id', $userId)
+            ->where('category', 'redemption')
+            ->with('redemption.transaction') // Eager load the related transaction
+            ->get()
+            ->map(function ($transaction) {
+                return [
+                    'type' => 'redemption',
+                    'date' => $transaction->created_at->format('Y-m-d'),
+                    'amount' => $transaction->trade_points,
+                    'status' => $transaction->redemption->transaction->status ?? null,
+                    'approved_at' => $transaction->redemption->transaction->approved_at ?? null,
+                ];
+            });
+        
+            Log::info($redemptionTransactions);
+        // Merge and sort the results by date
+        $combined = collect($tradeLots)->merge($redemptionTransactions)->sortByDesc('date')->values();;
+        Log::info($combined);
+        return response()->json([
+            'pointHistory' => $combined,
+        ]);
     }
 
     public function getRewardsData(Request $request)
@@ -113,7 +130,10 @@ class RewardController extends Controller
         $userId = Auth::id();
 
         $query = Reward::withCount(['redemption as redemption_count' => function ($query) use ($userId) {
-            $query->where('user_id', $userId);
+            $query->where('user_id', $userId)
+                  ->whereHas('transaction', function ($q) {
+                      $q->where('status', '!=', 'rejected');
+                  });
         }]);
 
         if ($request->filter == 'cash_rewards_only') {
@@ -182,6 +202,13 @@ class RewardController extends Controller
                 'status' => 'processing',
             ]);    
 
+            $trade_point_history = TradePointHistory::create([
+                'user_id' => $user->id,
+                'category' => 'redemption',
+                'redemption_id' => $redemption->id,
+                'trade_points' => $redemption->reward->trade_point_required,
+            ]);
+
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'category' => 'trade_points',
@@ -229,6 +256,13 @@ class RewardController extends Controller
                 'phone_number' => $request->phone_number,
                 'address' => $request->address,
                 'status' => 'processing',
+            ]);
+
+            $trade_point_history = TradePointHistory::create([
+                'user_id' => $user->id,
+                'category' => 'redemption',
+                'redemption_id' => $redemption->id,
+                'trade_points' => $redemption->reward->trade_point_required,
             ]);
     
             $transaction = Transaction::create([

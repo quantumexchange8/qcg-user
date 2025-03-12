@@ -504,4 +504,5 @@ return [
     'phone' => '電話',
     'fully_redeemed' => '已全部兌換',
     'coming_soon' => '即將推出',
+    'point_history' => '積分歷史',
 ];

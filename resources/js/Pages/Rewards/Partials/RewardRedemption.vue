@@ -215,7 +215,7 @@ watchEffect(() => {
 </script>
 
 <template>
-    <div class="flex flex-col justify-center items-center p-6 gap-5 self-stretch rounded-lg bg-white shadow-card">
+    <div class="flex flex-col justify-center items-center p-3 md:p-6 gap-6 self-stretch rounded-lg bg-white shadow-card">
         <div class="w-full flex flex-col md:flex-row gap-3 items-start justify-between">
             <span class="text-gray-950 font-bold">{{ $t('public.rewards_catalog_n_redemption') }}</span>
             <div class="flex flex-row gap-2">
@@ -232,9 +232,9 @@ watchEffect(() => {
         </div>
         <div class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4">
             <div v-for="(item, index) in rewards" :key="index"
-                class="flex flex-col gap-2 justify-center px-3 md:px-4 py-3 rounded w-full shadow-card bg-white border border-gray-100"
+                class="flex flex-col gap-2 justify-center rounded w-full "
             >
-                <img :src="item.reward_thumbnail" alt="reward_image" class="sm:h-[97.5px] smd:h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
+                <img :src="item.reward_thumbnail" alt="reward_image" class="h-[97.5px] smd:h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
                 <div class="flex flex-col gap-2 md:gap-3 w-full py-2">
                     <div class="flex flex-col gap-2">
                         <div class="flex flex-row justify-between">
@@ -252,9 +252,9 @@ watchEffect(() => {
                         <Button
                             type="button"
                             variant="primary-flat"
-                            class="w-full"
+                            class="w-full !px-2"
                             size="sm"
-                            :disabled="props.trade_points < item.trade_point_required || item.current_status != 'redeem'"
+                            :disabled="(props.trade_points ?? 0) < item.trade_point_required || item.current_status != 'redeem'"
                             @click="rewardRedemption(item)"
                         >
                             {{ $t(`public.${item.current_status}`) }}

@@ -515,4 +515,5 @@ return [
     'provided_address' => 'Provided Address',
     'code' => 'Code',
     'tp_used' => 'TP Used',
+    'point_history' => 'Point History',
 ];
