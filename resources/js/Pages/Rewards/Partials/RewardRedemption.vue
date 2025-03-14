@@ -235,8 +235,8 @@ watchEffect(() => {
                 class="flex flex-col gap-2 justify-center rounded w-full "
             >
                 <img :src="item.reward_thumbnail" alt="reward_image" class="h-[97.5px] smd:h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
-                <div class="flex flex-col gap-2 md:gap-3 w-full py-2">
-                    <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-2 md:gap-3 w-full py-2 flex-1">
+                    <div class="flex flex-col gap-2 flex-1">
                         <div class="flex flex-row justify-between">
                             <span class="text-xs md:text-sm text-gray-500">{{ item.code }}</span>
                             <span class="flex flex-row gap-1 text-xs md:text-sm text-warning-500 font-medium items-center">
@@ -244,7 +244,7 @@ watchEffect(() => {
                                 <span>{{ item.trade_point_required }} tp</span>
                             </span>
                         </div>
-                        <span class="text-sm md:text-base text-gray-950 font-semibold line-clamp-2 h-[40px]">
+                        <span class="text-sm md:text-base text-gray-950 font-semibold flex items-center h-full">
                             {{ item.type === 'cash_rewards' ? '💰 ' : '🎁 '  }}{{ item.name[locale] }}
                         </span>
                     </div>

@@ -125,6 +125,7 @@ const openDialog = (rowData) => {
         modal
         :header="$t('public.redemption_history')"
         class="dialog-xs md:dialog-md"
+        :dismissableMask="true"
     >
         <div>
             <DataTable
@@ -221,7 +222,7 @@ const openDialog = (rowData) => {
                             <div class="flex items-center justify-between">
                                 <div class="flex flex-col items-start">
                                     <div class="text-sm font-semibold">
-                                        {{ $t(`public.${slotProps.data.reward_code}`) }}
+                                        {{ slotProps.data.reward_code }}
                                     </div>
                                     <div class="text-gray-500 text-xs">
                                         {{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}
