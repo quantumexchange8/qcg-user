@@ -34,7 +34,7 @@ const cashForm = useForm({
 });
 
 const submitForm = () => {
-    closeDialog();
+    cashForm.meta_login = selectedAccount.value.name;
     cashForm.post(route('rewards.redeemRewards'), {
         // onError: (errors) => {
         //     console.log(errors); // Handle validation errors

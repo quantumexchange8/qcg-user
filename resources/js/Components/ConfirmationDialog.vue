@@ -20,7 +20,7 @@ import Button from "@/Components/Button.vue";
                 <div v-if="message.content" class="self-stretch">
                     <component :is="message.content" />
                 </div>
-                <div class="grid grid-cols-2 justify-items-end items-center gap-4 self-stretch">
+                <div v-if="message.cancelButton || message.acceptButton" class="grid grid-cols-2 justify-items-end items-center gap-4 self-stretch">
                     <Button
                         v-if="message.cancelButton" 
                         type="button"

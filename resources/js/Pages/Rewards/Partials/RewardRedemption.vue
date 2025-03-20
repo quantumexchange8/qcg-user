@@ -14,6 +14,7 @@ import { useConfirm } from "primevue/useconfirm";
 import CashRewardContent from "./CashRewardContent.vue";
 import PhysicalRewardContent from "./PhysicalRewardContent.vue";
 import dayjs from "dayjs";
+import RedeemHistory from "./RedeemHistory.vue";
 
 const props = defineProps({
     trade_points: Number,
@@ -69,7 +70,7 @@ const confirm = useConfirm();
 const requireConfirmation = (action_type, details) => {
 
     const messages = {
-        redeem_cash_rewards: {
+        redeem_cash_rewards: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconGift),
@@ -84,8 +85,8 @@ const requireConfirmation = (action_type, details) => {
                         confirm.close();
                     },
                 })
-        },
-        redeem_physical_rewards: {
+        }),
+        redeem_physical_rewards: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconGift),
@@ -100,8 +101,8 @@ const requireConfirmation = (action_type, details) => {
                         confirm.close();
                     },
                 })
-        },
-        redeem_cash_success: {
+        }),
+        redeem_cash_success: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconChecks),
@@ -122,19 +123,19 @@ const requireConfirmation = (action_type, details) => {
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_name')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.name[locale.value]),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, '💰 ' , details.reward.name[locale.value]),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.points_used')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required, 'tp'),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.from')),
                     h('p', { class: 'text-sm font-medium text-gray-950' }, details.receiving_account),
                 ])
             ])
-        },
-        redeem_physical_success: {
+        }),
+        redeem_physical_success: () => ({
             group: 'headless',
             color: 'primary',
             icon: h(IconChecks),
@@ -155,11 +156,11 @@ const requireConfirmation = (action_type, details) => {
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.rewards_name')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.name[locale.value]),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, '🎁 ' , details.reward.name[locale.value]),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.points_used')),
-                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required),
+                    h('p', { class: 'text-sm font-medium text-gray-950' }, details.reward.trade_point_required, 'tp'),
                 ]),
                 h('div', { class: 'flex flex-col md:flex-row gap-1 flex-wrap' }, [
                     h('p', { class: 'text-sm text-gray-500 min-w-[140px]' }, trans('public.recipient_name')),
@@ -174,10 +175,10 @@ const requireConfirmation = (action_type, details) => {
                     h('p', { class: 'text-sm font-medium text-gray-950' }, details.address),
                 ])
             ])
-        },
+        }),
     };
 
-    const { group, color, icon, header, message, cancelButton, acceptButton, action, content } = messages[action_type];
+    const { group, color, icon, header, message, cancelButton, acceptButton, action, content } = messages[action_type]();
 
     confirm.require({
         group,
@@ -214,25 +215,28 @@ watchEffect(() => {
 </script>
 
 <template>
-    <div class="flex flex-col justify-center items-center p-6 gap-5 self-stretch rounded-lg bg-white shadow-card">
+    <div class="flex flex-col justify-center items-center p-3 md:p-6 gap-6 self-stretch rounded-lg bg-white shadow-card">
         <div class="w-full flex flex-col md:flex-row gap-3 items-start justify-between">
             <span class="text-gray-950 font-bold">{{ $t('public.rewards_catalog_n_redemption') }}</span>
-            <Select 
-                v-model="selectedReward" 
-                :options="rewardFilters" 
-                optionLabel="name" 
-                optionValue="value"
-                :placeholder="$t('public.reward_placeholder')"
-                class="font-normal truncate" scroll-height="236px" 
-            />
+            <div class="flex flex-row gap-2">
+                <RedeemHistory />
+                <Select 
+                    v-model="selectedReward" 
+                    :options="rewardFilters" 
+                    optionLabel="name" 
+                    optionValue="value"
+                    :placeholder="$t('public.reward_placeholder')"
+                    class="font-normal truncate" scroll-height="236px" 
+                />
+            </div>
         </div>
         <div class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-3 3xl:grid-cols-4">
             <div v-for="(item, index) in rewards" :key="index"
-                class="flex flex-col gap-2 justify-center px-3 md:px-4 py-3 rounded w-full shadow-card bg-white border border-gray-100"
+                class="flex flex-col gap-2 justify-center rounded w-full "
             >
-                <img :src="item.reward_thumbnail" alt="reward_image" class="h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
-                <div class="flex flex-col gap-3 w-full py-2">
-                    <div class="flex flex-col gap-2">
+                <img :src="item.reward_thumbnail" alt="reward_image" class="h-[97.5px] smd:h-[138.75px] md:h-[247px] xl:h-[223px] 3xl:h-[247px]"/>
+                <div class="flex flex-col gap-2 md:gap-3 w-full py-2 flex-1">
+                    <div class="flex flex-col gap-2 flex-1">
                         <div class="flex flex-row justify-between">
                             <span class="text-xs md:text-sm text-gray-500">{{ item.code }}</span>
                             <span class="flex flex-row gap-1 text-xs md:text-sm text-warning-500 font-medium items-center">
@@ -240,7 +244,7 @@ watchEffect(() => {
                                 <span>{{ item.trade_point_required }} tp</span>
                             </span>
                         </div>
-                        <span class="text-sm md:text-base text-gray-950 font-semibold line-clamp-2 h-[40px]">
+                        <span class="text-sm md:text-base text-gray-950 font-semibold flex items-center h-full">
                             {{ item.type === 'cash_rewards' ? '💰 ' : '🎁 '  }}{{ item.name[locale] }}
                         </span>
                     </div>
@@ -248,11 +252,12 @@ watchEffect(() => {
                         <Button
                             type="button"
                             variant="primary-flat"
-                            class="w-full"
-                            :disabled="props.trade_points < item.trade_point_required"
+                            class="w-full !px-2"
+                            size="sm"
+                            :disabled="(props.trade_points ?? 0) < item.trade_point_required || item.current_status != 'redeem'"
                             @click="rewardRedemption(item)"
                         >
-                            {{ $t('public.redeem') }}
+                            {{ $t(`public.${item.current_status}`) }}
                         </Button>
                         <span class="text-gray-500 text-xxs md:text-xs truncate w-full">
                             {{ formattedExpiryDate(item.expiry_date) }}

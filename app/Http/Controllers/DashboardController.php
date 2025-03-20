@@ -64,7 +64,9 @@ class DashboardController extends Controller
                 ->sum('volume');
         }
 
-        $group_total_trade_volume = 0.00;
+        $group_total_trade_points = Wallet::where('user_id', $user->id)
+        ->where('type', 'trade_points')
+        ->sum('balance');
         // $group_total_trade_volume = TradeBrokerHistory::with('trading_account.ofUser')
         //     ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
         //         $query->whereIn('id', $groupIds); 
@@ -79,7 +81,7 @@ class DashboardController extends Controller
             'groupTotalNetBalance' => $group_total_net_balance,
             'groupTotalAsset' => $group_total_asset,
             'groupTotalTradeLot' => $group_total_trade_lots,
-            'groupTotalTradeVolume' => $group_total_trade_volume,
+            'groupTotalTradePoints' => (float) $group_total_trade_points,
         ]);
     }
 

@@ -41,76 +41,100 @@ class RewardController extends Controller
         $user = Auth::user();
         $total_points = $user->trade_points->balance;
         $userId = $user->id;
-        // $userId = Auth::id();
 
         // Initialize query for rebate summary with date filtering
-        $query = TradeRebateSummary::with('symbolGroup')
-            ->where('upline_user_id', $userId)
-            ->whereNotNull('execute_at');
+        $query = TradePointHistory::with('symbolGroup')
+            ->where('user_id', $userId)
+            ->where('category', 'trade_lots');
 
         // Fetch rebate summary data
-        $rebateSummary = $query->get(['symbol_group_id', 'volume', 'rebate']);
-
-        // $rebateSummary = $query->get(['symbol_group_id', 'trade_points']);
+        $tradeSummary = $query->get(['symbol_group_id', 'trade_points']);
 
         // Retrieve all symbol groups with non-null display values
         $symbolGroups = SymbolGroup::whereNotNull('display')->pluck('display', 'id');
 
         // Aggregate rebate data in PHP
-        $rebateSummaryData = $rebateSummary->groupBy('symbol_group_id')->map(function ($items) {
+        $tradeSummaryData = $tradeSummary->groupBy('symbol_group_id')->map(function ($items) {
             return [
-                'volume' => $items->sum('volume'),
-                'rebate' => $items->sum('rebate'),
-
-                // '$trade_points' => $items->sum('trade_points'),
+                'trade_points' => $items->sum('trade_points'),
             ];
         });
 
         // Initialize final summary and totals
         $finalSummary = [];
-        $totalVolume = 0;
-        $totalRebate = 0;
-
-        // $totalTradePoints = 0;
 
         // Iterate over all symbol groups
         foreach ($symbolGroups as $id => $display) {
-            // Retrieve data or use default values
-            $data = $rebateSummaryData->get($id);
-
-            // $data = $rebateSummaryData->get($id, ['trade_points' => 0]);
+            $data = $tradeSummaryData->get($id, ['trade_points' => 0]);
 
             // Add to the final summary
             $finalSummary[] = [
                 'symbol_group' => $display,
-                'volume' => 0, //$data['volume'],
-                'rebate' => 0, //$data['rebate'],
-
-                // 'trade_points' => $data['trade_points'],
+                'trade_points' => $data['trade_points'],
             ];
-
-            // Accumulate totals
-            // $totalVolume += $data['volume'];
-            // $totalRebate += $data['rebate'];
         }
 
         // Return the response with rebate summary, total volume, and total rebate
         return response()->json([
             'tradePoints' => $finalSummary,
-            'totalTradePoints' => $total_points,
-            // 'totalVolume' => $totalVolume,
-            // 'totalRebate' => $totalRebate,
+            'totalTradePoints' => (float) $total_points,
         ]);
     }
 
     public function getPointHistory()
     {
+        $userId = Auth::id();
 
+        // Get summed trade lots per day
+        $tradeLots = TradePointHistory::selectRaw('DATE(created_at) as date, SUM(trade_points) as total_trade_points')
+            ->where('user_id', $userId)
+            ->where('category', 'trade_lots')
+            ->groupBy('date')
+            ->get()
+            ->map(function ($tradeLot) {
+                return [
+                    'type' => 'trade_lots',
+                    'date' => $tradeLot->date,
+                    'amount' => $tradeLot->total_trade_points,
+                ];
+            });
+
+            Log::info($tradeLots);
+        
+        // Get individual redemption transactions
+        $redemptionTransactions = TradePointHistory::where('user_id', $userId)
+            ->where('category', 'redemption')
+            ->with('redemption.transaction') // Eager load the related transaction
+            ->get()
+            ->map(function ($transaction) {
+                return [
+                    'type' => 'redemption',
+                    'date' => $transaction->created_at->format('Y-m-d'),
+                    'amount' => $transaction->trade_points,
+                    'status' => $transaction->redemption->transaction->status ?? null,
+                    'approved_at' => $transaction->redemption->transaction->approved_at ?? null,
+                ];
+            });
+        
+            Log::info($redemptionTransactions);
+        // Merge and sort the results by date
+        $combined = collect($tradeLots)->merge($redemptionTransactions)->sortByDesc('date')->values();;
+        Log::info($combined);
+        return response()->json([
+            'pointHistory' => $combined,
+        ]);
     }
 
     public function getRewardsData(Request $request)
     {
-        $query = Reward::query();
+        $userId = Auth::id();
+
+        $query = Reward::withCount(['redemption as redemption_count' => function ($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->whereHas('transaction', function ($q) {
+                      $q->where('status', '!=', 'rejected');
+                  });
+        }]);
 
         if ($request->filter == 'cash_rewards_only') {
             $query->where('type', 'cash_rewards');
@@ -123,6 +147,20 @@ class RewardController extends Controller
                 $name = json_decode($reward->name, true);
                 $reward_thumbnail = $reward->getFirstMediaUrl('reward_thumbnail');
 
+                $current_status = 'redeem';
+
+                if ($reward->status == 'active') {
+                    $current_status = 'redeem';
+                    if (($reward->max_per_person ?? 1) <= $reward->redemption_count) {
+                        $current_status = 'fully_redeemed';
+                    }
+                } else {
+                    $current_status = 'coming_soon';
+                    if ($reward->expiry_date && Carbon::now()->greaterThan($reward->expiry_date)) {
+                        $current_status = 'expired';
+                    }
+                }
+
                 return [
                     'reward_id' => $reward->id,
                     'type' => $reward->type,
@@ -133,6 +171,7 @@ class RewardController extends Controller
                     'maximum_redemption' => $reward->maximum_redemption,
                     'autohide_after_expiry' => $reward->autohide_after_expiry,
                     'status' => $reward->status,
+                    'current_status' => $current_status,
                     'name' => $name,
                     'reward_thumbnail' => $reward_thumbnail,
                 ];
@@ -163,6 +202,13 @@ class RewardController extends Controller
                 'status' => 'processing',
             ]);    
 
+            $trade_point_history = TradePointHistory::create([
+                'user_id' => $user->id,
+                'category' => 'redemption',
+                'redemption_id' => $redemption->id,
+                'trade_points' => $redemption->reward->trade_point_required,
+            ]);
+
             $transaction = Transaction::create([
                 'user_id' => $user->id,
                 'category' => 'trade_points',
@@ -179,15 +225,13 @@ class RewardController extends Controller
 
             $wallet->update(['balance' => $wallet->balance - $transaction->amount]);
 
-            // return redirect()->back()->with('notification', [
-            //     'details' => $redemption,
-            //     'type' => 'redeem_cash_success',
-            // ]);
+            $redemption->reward->name = json_decode($redemption->reward->name, true);
 
-            return redirect()->back()->with('toast', [
-                'title' => 'Successfully redeemed cash reward!',
-                'type' => 'success',
+            return redirect()->back()->with('notification', [
+                'details' => $redemption,
+                'type' => 'redeem_cash_success',
             ]);
+
         } else {
             Validator::make($request->all(), [
                 'recipient_name' => 'required',
@@ -213,6 +257,13 @@ class RewardController extends Controller
                 'address' => $request->address,
                 'status' => 'processing',
             ]);
+
+            $trade_point_history = TradePointHistory::create([
+                'user_id' => $user->id,
+                'category' => 'redemption',
+                'redemption_id' => $redemption->id,
+                'trade_points' => $redemption->reward->trade_point_required,
+            ]);
     
             $transaction = Transaction::create([
                 'user_id' => $user->id,
@@ -230,16 +281,77 @@ class RewardController extends Controller
 
             $wallet->update(['balance' => $wallet->balance - $transaction->amount]);
 
-            // return redirect()->back()->with('notification', [
-            //     'details' => $redemption,
-            //     'type' => 'redeem_physical_success',
-            // ]);
+            $redemption->reward->name = json_decode($redemption->reward->name, true);
 
-            return redirect()->back()->with('toast', [
-                'title' => 'Successfully redeemed cash reward!',
-                'type' => 'success',
+            return redirect()->back()->with('notification', [
+                'details' => $redemption,
+                'type' => 'redeem_physical_success',
             ]);
+
+        }
+    }
+
+    public function getRedeemHistory(Request $request)
+    {
+        $description = $request->query('description');
+        $monthYear = $request->input('selectedMonth');
+
+        if ($monthYear === 'select_all') {
+            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+            $endDate = Carbon::now()->endOfDay();
+        } else {
+            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+
+            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
         }
 
+        $query = Transaction::with('redemption.reward')
+                ->where(['transaction_type' => 'redemption', 'user_id' => Auth::id()])
+                ->whereBetween('created_at', [$startDate, $endDate]);
+
+        if ($description && $description !== 'all') {
+            if ($description == 'processing'){
+                $query->where('status', 'processing');
+            }
+            elseif ($description == 'successful'){
+                $query->where('status', 'successful');
+            }
+            elseif ($description == 'rejected'){
+                $query->where('status', 'rejected');
+            }
+        }
+
+        $transactions = $query
+            ->latest()
+            ->get()
+            ->map(function ($transaction) {
+                $reward_name = json_decode($transaction->redemption->reward->name, true);
+
+                return [
+                    'category' => $transaction->category,
+                    'transaction_type' => $transaction->transaction_type,
+                    'transaction_number' => $transaction->transaction_number,
+                    'amount' => $transaction->amount,
+                    'transaction_charges' => $transaction->transaction_charges,
+                    'transaction_amount' => $transaction->transaction_amount,
+                    'status' => $transaction->status,
+                    'comment' => $transaction->comment,
+                    'remarks' => $transaction->remarks,
+                    'created_at' => $transaction->created_at,
+                    'approved_at' => $transaction->approved_at,
+                    'reward_type' => $transaction->redemption->reward->type,
+                    'reward_code' => $transaction->redemption->reward->code,
+                    'reward_name' => $reward_name,
+                    'receiving_account' => $transaction->redemption->receiving_account ?? null,
+                    'recipient_name' => $transaction->redemption->recipient_name ?? null,
+                    'phone_number' => $transaction->redemption->phone_number ?? null,
+                    'address' => $transaction->redemption->address ?? null,
+                ];
+            });
+
+        return response()->json([
+            'redeems' => $transactions,
+        ]);
     }
 }

@@ -5,11 +5,15 @@ import { Vue3Lottie } from 'vue3-lottie';
 import OneStarBadge from '@/Components/Icons/OneStarBadge.json';
 import { transactionFormat } from "@/Composables/index.js";
 import Button from "@/Components/Button.vue";
-import {ref, watchEffect} from 'vue';
+import {ref, watchEffect, computed} from 'vue';
 import RewardRedemption from "./Partials/RewardRedemption.vue";
+import dayjs from "dayjs";
+import { trans } from "laravel-vue-i18n";
+import Dialog from "primevue/dialog";
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
+const pointHistories = ref([]);
 const tradePoints = ref([]);
 const totalTradePoints = ref(0);
 
@@ -29,11 +33,63 @@ const getResults = async () => {
 
 getResults();
 
+const getPointHistories = async () => {
+    let url = `/rewards/getPointHistory`;
+
+    try {
+        const response = await axios.get(url);
+
+        // Update the rebateSummary and totals
+        pointHistories.value = response.data.pointHistory;
+        // console.log(pointHistories)
+    } catch (error) {
+        console.error('Error fetching trade point history:', error);
+    }
+};
+
+getPointHistories();
+
 watchEffect(() => {
     if (usePage().props.toast !== null) {
         getResults();
+        getPointHistories();
+    }
+
+    if (usePage().props.notification !== null) {
+        getResults();
+        getPointHistories();
     }
 });
+
+const getTransactionLabel = (type) => {
+    return type === 'redemption' ? trans('public.used') : trans('public.earned');
+};
+
+const getSign = (type) => {
+    return type === 'redemption' ? '-' : '+';
+};
+
+const showAll = ref(false);
+
+const limitedHistories = computed(() => pointHistories.value.slice(0, 6));
+
+const viewAll = () => {
+    showAll.value = true;
+};
+
+const getStatusBadgeClass = (status) => {
+    switch (status) {
+        case 'approved': return 'bg-success-500 text-white';
+        case 'processing': return 'bg-warning-500 text-white';
+        case 'rejected': return 'bg-error-500 text-white';
+        default: return 'bg-gray-500 text-white';
+    }
+};
+
+const getStatusTooltip = (history) => {
+    if (history.status === 'processing') return null;
+    return `${history.status} on ${formatDate(history.approved_at)}`;
+};
 </script>
 
 <template>
@@ -64,7 +120,7 @@ watchEffect(() => {
                                     {{ $t('public.' + item.symbol_group) }}
                                 </span>
                                 <span class="w-full truncate text-sm text-warning-500 text-right font-medium">
-                                    {{ formatAmount(0) }} tp
+                                    {{ formatAmount(item.trade_points) }} tp
                                 </span>
                             </div>
                         </div>
@@ -79,11 +135,12 @@ watchEffect(() => {
                             type="button"
                             variant="gray-outlined"
                             class="!py-2"
+                            @click="viewAll"
                         >
                             {{ $t('public.view_all') }}
                         </Button>
                     </div>
-                    <div 
+                    <!-- <div 
                         class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
                     >
                         <div class="flex flex-col">
@@ -91,18 +148,29 @@ watchEffect(() => {
                             <span class="text-xs text-gray-500">2020/01/01</span>
                         </div>
                         <span class="text-sm text-gray-950 font-medium">+0.00 tp</span>
-                    </div>
-                    <!-- <div v-for="(history, index) in pointHistories"
-                        :key="index"
-                        class="flex flex-row py-[6px] items-center gap-5 self-stretch border-b border-gray-100"
-                        :class="{ 'border-transparent': index === history.length - 1 }"
-                    >
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-950 font-medium">Earned</span>
-                            <span class="text-xs text-gray-500">2020/01/01</span>
-                        </div>
-                        <span class="text-sm text-gray-950 font-medium">+0.00 tp</span>
                     </div> -->
+                    <div class="w-full">
+                        <div v-for="(history, index) in limitedHistories"
+                            :key="index"
+                            class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
+                            :class="{ 'border-transparent': index === limitedHistories.length - 1 }"
+                        >
+                            <div class="flex flex-col">
+                                <span class="text-sm text-gray-950 font-medium">{{ getTransactionLabel(history.type) }}</span>
+                                <div class="flex flex-row items-center gap-2">
+                                    <span class="text-xs text-gray-500">{{ formatDate(history.date) }}</span>
+                                    <span 
+                                        v-if="history.type === 'redemption'" 
+                                        :class="['px-1 py-0.5 text-xxs rounded-sm', getStatusBadgeClass(history.status)]"
+                                        v-tooltip.top="history.status !== 'processing' ? getStatusTooltip(history) : null"
+                                    >
+                                        {{ $t(`public.${history.status}`) }}
+                                    </span>
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-950 font-medium">{{ getSign(history.type) }}{{ formatAmount(history.amount) }} tp</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- rewards -->
@@ -112,4 +180,32 @@ watchEffect(() => {
 
         </div>
     </AuthenticatedLayout>
+
+    <!-- Dialog for Full History -->
+    <Dialog v-model:visible="showAll"
+        modal
+        :header="$t('public.point_history')"
+        class="dialog-xs md:dialog-sm"
+    >
+        <div v-for="(history, index) in limitedHistories"
+            :key="index"
+            class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
+            :class="{ 'border-transparent': index === limitedHistories.length - 1 }"
+        >
+            <div class="flex flex-col">
+                <span class="text-sm text-gray-950 font-medium">{{ getTransactionLabel(history.type) }}</span>
+                <div class="flex flex-row items-center gap-2">
+                    <span class="text-xs text-gray-500">{{ formatDate(history.date) }}</span>
+                    <span 
+                        v-if="history.type === 'redemption'" 
+                        :class="['px-1 py-0.5 text-xxs rounded-sm', getStatusBadgeClass(history.status)]"
+                        v-tooltip.top="history.status !== 'processing' ? getStatusTooltip(history) : null"
+                    >
+                        {{ $t(`public.${history.status}`) }}
+                    </span>
+                </div>
+            </div>
+            <span class="text-sm text-gray-950 font-medium">{{ getSign(history.type) }}{{ formatAmount(history.amount) }} tp</span>
+        </div>
+    </Dialog>
 </template>

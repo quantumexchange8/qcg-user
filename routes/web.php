@@ -171,11 +171,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [RewardController::class, 'index'])->name('rewards');
 
         Route::get('/getTradePoints', [RewardController::class, 'getTradePoints'])->name('rewards.getTradePoints');
-        // Route::get('/getPointHistory', [RewardController::class, 'getPointHistory'])->name('rewards.getPointHistory');
+        Route::get('/getPointHistory', [RewardController::class, 'getPointHistory'])->name('rewards.getPointHistory');
 
         Route::get('/getRewardsData', [RewardController::class, 'getRewardsData'])->name('rewards.getRewardsData');
         Route::get('/getCountryPhones', [RewardController::class, 'getCountryPhones'])->name('rewards.getCountryPhones');
         Route::post('/redeemRewards', [RewardController::class, 'redeemRewards'])->name('rewards.redeemRewards');
+        Route::get('/getRedeemHistory', [RewardController::class, 'getRedeemHistory'])->name('rewards.getRedeemHistory');
 
     });
 
