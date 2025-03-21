@@ -25,7 +25,7 @@ const user = usePage().props.auth.user;
     <div
         tagname="nav"
         aria-label="main"
-        class="relative w-full flex flex-col flex-1 max-w-full max-h-full gap-1 items-center"
+        class="flex flex-1 flex-col w-full gap-1 items-center max-h-full max-w-full relative"
     >
         <!-- Dashboard -->
         <SidebarLink
@@ -84,7 +84,7 @@ const user = usePage().props.auth.user;
         </SidebarLink>
 
          <!-- Rewards -->
-        <SidebarLink
+        <!-- <SidebarLink
             :title="$t('public.sidebar.rewards')"
             :href="route('rewards')"
             :active="route().current('rewards')"
@@ -92,7 +92,7 @@ const user = usePage().props.auth.user;
             <template #icon>
                 <IconGift :size="20" stroke-width="1.25" />
             </template>
-        </SidebarLink>
+        </SidebarLink> -->
 
         <!-- Rebate Setting -->
 <!--        <SidebarLink-->
