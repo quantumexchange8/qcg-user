@@ -419,8 +419,6 @@ class AccountController extends Controller
 
         $transaction = Transaction::where('transaction_type', 'deposit')
             ->where('to_meta_login', $request->meta_login)
-            ->whereNull('comment')
-            ->where('amount', $request->amount)
             ->where('status', 'processing')
             ->first();
 
@@ -433,6 +431,10 @@ class AccountController extends Controller
                 'transaction_number' => RunningNumberService::getID('transaction'),
                 'amount' => $request->amount,
                 'status' => 'processing',
+            ]);
+        } else {
+            $transaction->update([
+                'amount' => $request->amount,
             ]);
         }
 

@@ -72,7 +72,7 @@ const transactionTypeOption = [
 
 // Watch for URL changes and update active tab
 watch(
-    () => window.location.search, 
+    () => window.location.search,
     () => {
         const newType = getQueryParam('type');
         if (newType) {
@@ -124,8 +124,8 @@ const getResults = async (search = '', type = '', status = '', selectedMonth = '
         }
 
         if (selectedMonth) {
-            const formattedMonth = selectedMonth === 'select_all' 
-                ? 'select_all' 
+            const formattedMonth = selectedMonth === 'select_all'
+                ? 'select_all'
                 : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
 
             params.append('selectedMonth', formattedMonth);
@@ -191,7 +191,7 @@ const exportXLSX = () => {
 
     // Create the XLSX content
     let csvContent = "data:text/xlsx;charset=utf-8,";
-    
+
     sheetData.forEach((rowArray) => {
         const row = rowArray.join("\t"); // Use tabs for column separation
         csvContent += row + "\r\n"; // Add a new line after each row
@@ -307,11 +307,11 @@ const openDialog = (rowData) => {
                     <template #header>
                         <div class="flex flex-col justify-between items-center pb-5 gap-3 self-stretch md:flex-row md:pb-6">
                             <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-5">
-                                <Select 
-                                    v-model="selectedMonth" 
-                                    :options="months" 
+                                <Select
+                                    v-model="selectedMonth"
+                                    :options="months"
                                     :placeholder="$t('public.month_placeholder')"
-                                    class="w-full md:w-60 font-normal truncate" scroll-height="236px" 
+                                    class="w-full md:w-60 font-normal truncate" scroll-height="236px"
                                 >
                                     <template #option="{option}">
                                         <span class="text-sm">
@@ -374,9 +374,9 @@ const openDialog = (rowData) => {
                         </div>
                     </template>
                     <template #empty>
-                        <Empty 
-                            :title="$t('public.empty_transaction_title')" 
-                            :message="$t('public.empty_transaction_message')" 
+                        <Empty
+                            :title="$t('public.empty_transaction_title')"
+                            :message="$t('public.empty_transaction_message')"
                         />
                     </template>
                     <template #loading>
@@ -480,7 +480,7 @@ const openDialog = (rowData) => {
                 </DataTable>
             </div>
         </div>
-        
+
     </AuthenticatedLayout>
 
     <Dialog v-model:visible="visible" modal :header="$t('public.details')" class="dialog-xs md:dialog-md">
@@ -538,7 +538,12 @@ const openDialog = (rowData) => {
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.txid') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.txn_hash }}</span>
+                    <a
+                        v-tooltip.top="$t('public.view_details')"
+                        class="w-full truncate text-gray-950 text-sm font-medium select-none cursor-pointer hover:text-primary"
+                        :href="`https://tronscan.org/#/transaction/${data.txn_hash}`"
+                        target="_blank"
+                    >{{ data.txn_hash }}</a>
                 </div>
             </div>
 
