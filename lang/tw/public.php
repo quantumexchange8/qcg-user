@@ -512,4 +512,7 @@ return [
     'code' => '代碼',
     'tp_used' => '已使用交易點',
     'point_history' => '積分記錄',
+    'last_week' => '上週',
+    'last_2_week' => '上兩週',
+    'last_3_week' => '上三週',
 ];

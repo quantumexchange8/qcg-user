@@ -19,12 +19,14 @@ const getResults = async (month) => {
     let url = `/report/getRebateBreakdown`;
 
     if (month) {
-        const formattedMonth = month === 'select_all' 
-            ? 'select_all' 
-            : dayjs(month, 'DD MMMM YYYY').format('MMMM YYYY');
+            let formattedMonth = month;
 
-        url += `?selectedMonth=${formattedMonth}`;
-    }
+            if (!formattedMonth.startsWith('select_') && !formattedMonth.startsWith('last_')) {
+                formattedMonth = dayjs(month, 'DD MMMM YYYY').format('MMMM YYYY');
+            }
+
+            url += `?selectedMonth=${formattedMonth}`;
+        }
 
     try {
         const response = await axios.get(url);

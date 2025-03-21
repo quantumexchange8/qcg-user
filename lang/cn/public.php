@@ -511,5 +511,8 @@ return [
     'provided_address' => '提供的地址',
     'code' => '代码',
     'tp_used' => '已使用交易点',
-    'point_history' => '积分记录'
+    'point_history' => '积分记录',
+    'last_week' => '上周',
+    'last_2_week' => '上两周',
+    'last_3_week' => '上三周',
 ];

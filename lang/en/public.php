@@ -516,4 +516,7 @@ return [
     'code' => 'Code',
     'tp_used' => 'TP Used',
     'point_history' => 'Point History',
+    'last_week' => 'Last Week',
+    'last_2_week' => 'Last 2 Week',
+    'last_3_week' => 'Last 3 Week',
 ];

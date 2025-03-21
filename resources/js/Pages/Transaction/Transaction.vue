@@ -42,10 +42,10 @@ const getCurrentMonthYear = () => {
 const getTransactionMonths = async () => {
     try {
         const response = await axios.get('/getTransactionMonths');
-        months.value = ['select_all', ...response.data.months];
+        months.value = response.data.months;
 
         if (months.value.length) {
-            selectedMonth.value = [getCurrentMonthYear()];
+            selectedMonth.value = getCurrentMonthYear();
         }
     } catch (error) {
         console.error('Error transaction months:', error);
@@ -124,9 +124,11 @@ const getResults = async (search = '', type = '', status = '', selectedMonth = '
         }
 
         if (selectedMonth) {
-            const formattedMonth = selectedMonth === 'select_all'
-                ? 'select_all'
-                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+            let formattedMonth = selectedMonth;
+
+            if (!formattedMonth.startsWith('select_') && !formattedMonth.startsWith('last_')) {
+                formattedMonth = dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+            }
 
             params.append('selectedMonth', formattedMonth);
         }
@@ -229,7 +231,7 @@ const clearFilter = () => {
         status: { value: null, matchMode: FilterMatchMode.EQUALS },
     };
 
-    selectedMonth.value = [getCurrentMonthYear()];
+    selectedMonth.value = getCurrentMonthYear();
     transactionType.value = null;
     status.value = null;
     filteredValue = null;
@@ -313,10 +315,13 @@ const openDialog = (rowData) => {
                                     :placeholder="$t('public.month_placeholder')"
                                     class="w-full md:w-60 font-normal truncate" scroll-height="236px"
                                 >
-                                    <template #option="{option}">
+                                    <template #option="{ option }">
                                         <span class="text-sm">
                                             <template v-if="option === 'select_all'">
                                                 {{ $t('public.select_all') }}
+                                            </template>
+                                            <template v-else-if="option.startsWith('last_')">
+                                                {{ $t(`public.${option}`) }}
                                             </template>
                                             <template v-else>
                                                 {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
@@ -327,6 +332,9 @@ const openDialog = (rowData) => {
                                         <span v-if="selectedMonth">
                                             <template v-if="selectedMonth === 'select_all'">
                                                 {{ $t('public.select_all') }}
+                                            </template>
+                                            <template v-else-if="selectedMonth.startsWith('last_')">
+                                                {{ $t(`public.${selectedMonth}`) }}
                                             </template>
                                             <template v-else>
                                                 {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}

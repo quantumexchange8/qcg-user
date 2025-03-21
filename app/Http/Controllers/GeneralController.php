@@ -143,6 +143,16 @@ class GeneralController extends Controller
             $months = $months->reverse()->values();
         }
 
+        // Add custom date ranges at the top
+        $additionalRanges = collect([
+            'select_all',
+            'last_week', 
+            'last_2_week', 
+            'last_3_week', 
+        ]);
+
+        $months = $additionalRanges->merge($months);
+
         if ($returnAsArray) {
             return $months;
         }
@@ -176,6 +186,16 @@ class GeneralController extends Controller
             $months = $months->reverse()->values();
         }
 
+        // Add custom date ranges at the top
+        $additionalRanges = collect([
+            'select_all',
+            'last_week', 
+            'last_2_week', 
+            'last_3_week', 
+        ]);
+
+        $months = $additionalRanges->merge($months);
+
         if ($returnAsArray) {
             return $months;
         }
@@ -205,6 +225,16 @@ class GeneralController extends Controller
 
             $months = $months->reverse()->values();
         }
+
+        // Add custom date ranges at the top
+        $additionalRanges = collect([
+            'select_all',
+            'last_week', 
+            'last_2_week', 
+            'last_3_week', 
+        ]);
+
+        $months = $additionalRanges->merge($months);
 
         if ($returnAsArray) {
             return $months;

@@ -33,9 +33,11 @@ const getResults = async (selectedMonth = '') => {
         let url = `/report/getGroupTransaction?type=${selectedType.value}`;
 
         if (selectedMonth) {
-            const formattedMonth = selectedMonth === 'select_all' 
-                ? 'select_all' 
-                : dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+            let formattedMonth = selectedMonth;
+
+            if (!formattedMonth.startsWith('select_') && !formattedMonth.startsWith('last_')) {
+                formattedMonth = dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+            }
 
             url += `&selectedMonth=${formattedMonth}`;
         }
