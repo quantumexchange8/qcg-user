@@ -177,7 +177,7 @@ watchEffect(() => {
         <div class="flex flex-col items-center self-stretch gap-3 md:gap-6">
             <div class="flex flex-col gap-3 items-center self-stretch md:flex-row md:gap-0 md:justify-between">
                 <span class="text-gray-950 font-semibold self-start md:self-center">{{ $t('public.all_users') }}</span>
-                <div class="flex flex-col gap-3 items-center self-stretch md:flex-row md:gap-5">
+                <div class="flex flex-col gap-3 items-center self-stretch md:hidden">
                     <div class="relative w-full md:w-60">
                         <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-500">
                             <IconSearch size="20" stroke-width="1.25" />
@@ -199,7 +199,7 @@ watchEffect(() => {
             </div>
 
             <div class="flex flex-col justify-between items-center gap-3 self-stretch md:flex-row">
-                <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-5">
+                <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-2">
                     <Select
                         v-model="level"
                         :options="levels"
@@ -222,17 +222,36 @@ watchEffect(() => {
                         class="w-full xl:w-60 font-normal"
                         scroll-height="236px"
                     />
+                    <div class="relative hidden md:flex md:w-60">
+                        <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-500 z-20">
+                            <IconSearch size="20" stroke-width="1.25" />
+                        </div>
+                        <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-60 focus:outline-none" />
+                        <div
+                            v-if="filters['global'].value !== null"
+                            class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer z-10"
+                            @click="clearFilterGlobal"
+                        >
+                            <IconX size="16" />
+                        </div>
+                    </div>
                 </div>
-                <Button
-                    type="button"
-                    variant="error-outlined"
-                    size="base"
-                    class='w-full md:w-auto'
-                    @click="clearFilter"
-                >
-                    <IconFilterOff size="20" stroke-width="1.25" />
-                    {{ $t('public.clear') }}
-                </Button>
+                <div class="flex flex-col md:flex-row gap-3 md:gap-2 w-full md:w-auto">
+                    <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-auto hidden md:flex">
+                        <IconDownload size="20" stroke-width="1.25" />
+                            {{ $t('public.export') }}
+                        </Button>
+                    <Button
+                        type="button"
+                        variant="error-outlined"
+                        size="base"
+                        class='w-full md:w-auto'
+                        @click="clearFilter"
+                    >
+                        <IconFilterOff size="20" stroke-width="1.25" />
+                        {{ $t('public.clear') }}
+                    </Button>
+                </div>
             </div>
         </div>
         <DataTable

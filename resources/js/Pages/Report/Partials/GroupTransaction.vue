@@ -148,7 +148,7 @@ const updateType = (event) => {
                     </TabList>
                 </Tabs>
             </div>
-            <div class="w-full md:w-auto flex flex-col items-center gap-3 md:flex-row md:gap-5">
+            <div class="w-full md:w-auto flex flex-col items-center gap-3 md:hidden md:gap-5">
                 <div class="relative w-full md:w-60">
                     <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
                         <IconSearch size="20" stroke-width="1.25" />
@@ -173,42 +173,67 @@ const updateType = (event) => {
             </div>
         </div>
 
-        <Select 
-            v-model="selectedMonth" 
-            :options="months" 
-            :placeholder="$t('public.month_placeholder')"
-            class="w-full md:w-[272px] font-normal truncate" scroll-height="236px" 
-        >
-            <template #option="{ option }">
-                <span class="text-sm">
-                    <template v-if="option === 'select_all'">
-                        {{ $t('public.select_all') }}
+        <div class="flex flex-col justify-between items-center gap-3 self-stretch md:flex-row">
+            <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-2">
+                <Select 
+                    v-model="selectedMonth" 
+                    :options="months" 
+                    :placeholder="$t('public.month_placeholder')"
+                    class="w-full md:w-60 font-normal truncate" scroll-height="236px" 
+                >
+                    <template #option="{ option }">
+                        <span class="text-sm">
+                            <template v-if="option === 'select_all'">
+                                {{ $t('public.select_all') }}
+                            </template>
+                            <template v-else-if="option.startsWith('last_')">
+                                {{ $t(`public.${option}`) }}
+                            </template>
+                            <template v-else>
+                                {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
+                            </template>
+                        </span>
                     </template>
-                    <template v-else-if="option.startsWith('last_')">
-                        {{ $t(`public.${option}`) }}
+                    <template #value>
+                        <span v-if="selectedMonth">
+                            <template v-if="selectedMonth === 'select_all'">
+                                {{ $t('public.select_all') }}
+                            </template>
+                            <template v-else-if="selectedMonth.startsWith('last_')">
+                                {{ $t(`public.${selectedMonth}`) }}
+                            </template>
+                            <template v-else>
+                                {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
+                            </template>
+                        </span>
+                        <span v-else>
+                            {{ $t('public.month_placeholder') }}
+                        </span>
                     </template>
-                    <template v-else>
-                        {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
-                    </template>
-                </span>
-            </template>
-            <template #value>
-                <span v-if="selectedMonth">
-                    <template v-if="selectedMonth === 'select_all'">
-                        {{ $t('public.select_all') }}
-                    </template>
-                    <template v-else-if="selectedMonth.startsWith('last_')">
-                        {{ $t(`public.${selectedMonth}`) }}
-                    </template>
-                    <template v-else>
-                        {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
-                    </template>
-                </span>
-                <span v-else>
-                    {{ $t('public.month_placeholder') }}
-                </span>
-            </template>
-        </Select>
+                </Select>
+                <div class="relative w-full hidden md:flex md:w-60">
+                    <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400 z-20">
+                        <IconSearch size="20" stroke-width="1.25" />
+                    </div>
+                    <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-60" />
+                    <div
+                        v-if="filters['global'].value"
+                        class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer z-10"
+                        @click="clearFilterGlobal"
+                    >
+                        <IconX size="16" />
+                    </div>
+                </div>
+            </div>
+            <Button
+                variant="primary-outlined"
+                @click="filteredValue?.length > 0 ? exportXLSX($event) : null" 
+                class="w-full hidden md:flex md:w-auto"
+            >
+                <IconDownload size="20" stroke-width="1.25" />
+                {{ $t('public.export') }}
+            </Button>
+        </div>
 
         <Tabs v-model:value="activeIndex" class="w-full">
             <TabPanels>

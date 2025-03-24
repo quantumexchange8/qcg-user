@@ -270,7 +270,7 @@ const openDialog = (rowData) => {
             <div class="flex flex-col justify-center items-center px-3 py-5 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
                 <div class="flex flex-col pb-3 gap-3 items-center self-stretch md:flex-row md:gap-0 md:justify-between md:pb-0">
                     <span class="text-gray-950 font-semibold self-stretch">{{ $t('public.all_transactions') }}</span>
-                    <div class="flex flex-col gap-3 items-center self-stretch md:flex-row md:gap-5">
+                    <div class="flex flex-col gap-3 items-center self-stretch md:hidden">
                         <div class="relative w-full md:w-60">
                             <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-500">
                                 <IconSearch size="20" stroke-width="1.25" />
@@ -308,12 +308,12 @@ const openDialog = (rowData) => {
                 >
                     <template #header>
                         <div class="flex flex-col justify-between items-center pb-5 gap-3 self-stretch md:flex-row md:pb-6">
-                            <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-5">
+                            <div class="grid grid-cols-1 items-center gap-3 self-stretch md:grid-cols-4 md:gap-2">
                                 <Select
                                     v-model="selectedMonth"
                                     :options="months"
                                     :placeholder="$t('public.month_placeholder')"
-                                    class="w-full md:w-60 font-normal truncate" scroll-height="236px"
+                                    class="w-full md:max-w-60 font-normal truncate" scroll-height="236px"
                                 >
                                     <template #option="{ option }">
                                         <span class="text-sm">
@@ -354,7 +354,7 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_type')"
-                                    class="w-full md:w-auto xl:w-60 font-normal"
+                                    class="w-full md:max-w-60 font-normal"
                                     scroll-height="236px"
                                 />
                                 <Select
@@ -365,20 +365,39 @@ const openDialog = (rowData) => {
                                     optionLabel="name"
                                     optionValue="value"
                                     :placeholder="$t('public.filter_by_status')"
-                                    class="w-full md:w-auto xl:w-60 font-normal"
+                                    class="w-full md:max-w-60 font-normal"
                                     scroll-height="236px"
                                 />
+                                <div class="relative hidden md:flex w-full md:max-w-60">
+                                    <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-500 z-20">
+                                        <IconSearch size="20" stroke-width="1.25" />
+                                    </div>
+                                    <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full" />
+                                    <div
+                                        v-if="filters['global'].value !== null"
+                                        class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer z-10"
+                                        @click="clearFilterGlobal"
+                                    >
+                                        <IconX size="16" />
+                                    </div>
+                                </div>
                             </div>
-                            <Button
-                                type="button"
-                                variant="error-outlined"
-                                size="base"
-                                class='w-full md:w-auto'
-                                @click="clearFilter"
-                            >
-                                <IconFilterOff size="20" stroke-width="1.25" />
-                                {{ $t('public.clear') }}
-                            </Button>
+                            <div class="flex flex-col md:flex-row gap-3 md:gap-2 w-full md:w-auto">
+                                <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-auto hidden md:flex">
+                                    <IconDownload size="20" stroke-width="1.25" />
+                                        {{ $t('public.export') }}
+                                    </Button>
+                                <Button
+                                    type="button"
+                                    variant="error-outlined"
+                                    size="base"
+                                    class='w-full md:w-auto'
+                                    @click="clearFilter"
+                                >
+                                    <IconFilterOff size="20" stroke-width="1.25" />
+                                    {{ $t('public.clear') }}
+                                </Button>
+                            </div>
                         </div>
                     </template>
                     <template #empty>

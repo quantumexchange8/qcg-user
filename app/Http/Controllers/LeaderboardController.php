@@ -143,14 +143,25 @@ class LeaderboardController extends Controller
 
         $query = Transaction::where('user_id', $id)->where('transaction_type', 'withdrawal')->where('category', 'incentive_wallet');
 
-        $startDate = $request->query('startDate');
-        $endDate = $request->query('endDate');
-        if ($startDate && $endDate) {
-            $start_date = Carbon::createFromFormat('Y-m-d', $startDate)->startOfDay();
-            $end_date = Carbon::createFromFormat('Y-m-d', $endDate)->endOfDay();
+        $monthYear = $request->query('selectedMonth');
 
-            $query->whereBetween('created_at', [$start_date, $end_date]);
+        if ($monthYear === 'select_all') {
+            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+            $endDate = Carbon::now()->endOfDay();
+        } elseif (str_starts_with($monthYear, 'last_')) {
+            preg_match('/last_(\d+)_week/', $monthYear, $matches);
+            $weeks = $matches[1] ?? 1;
+
+            $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
+            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
+        } else {
+            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+
+            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
         }
+
+        $query->whereBetween('created_at', [$startDate, $endDate]);
 
         $withdrawals = $query
             ->get()
