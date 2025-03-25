@@ -21,6 +21,7 @@ const props = defineProps({
 });
 
 const showDepositDialog = ref(false);
+const missingDepositDialog = ref(false);
 const contDepositDialog = ref(false);
 const showTransferDialog = ref(false);
 const transferOptions = ref([]);
@@ -56,6 +57,7 @@ const openDialog = (dialogRef) => {
 const closeDialog = (dialogName) => {
     if (dialogName === 'deposit') {
         showDepositDialog.value = false;
+        formDepositDialog.value = false;
         contDepositDialog.value = false;
         depositForm.reset();
     } else if (dialogName === 'transfer') {
@@ -132,16 +134,50 @@ const isTransferFormValid = computed(() => {
     </Button>
 
     <Dialog v-model:visible="showDepositDialog" header=" " modal class="dialog-xs sm:dialog-sm">
-        <div class="flex flex-col w-full pb-6 gap-8">
+        <div class="flex flex-col w-full pb-4 gap-8">
             <div class="w-full h-[145px] md:h-[200px]">
-                <img src="/assets/deposit.png" alt="No data" class="absolute top-0 left-0 -z-10">
+                <img src="/assets/deposit/d1a.png" alt="No data" class="absolute top-0 left-0 -z-10 hidden md:flex">
+                <img src="/assets/deposit/d1c.png" alt="No data" class="absolute top-48 left-36 -z-10 hidden md:flex">
+                <img src="/assets/deposit/d1b.png" alt="No data" class="absolute top-15 right-0 -z-10 hidden md:flex">
+
+                <img src="/assets/deposit/d1a2.png" alt="No data" class="absolute top-0 left-0 -z-10 flex md:hidden">
+                <img src="/assets/deposit/d1c2.png" alt="No data" class="absolute top-40 left-1/2 -translate-x-1/2 -z-10 flex md:hidden">
+                <img src="/assets/deposit/d1b2.png" alt="No data" class="absolute top-15 right-0 -z-10 flex md:hidden">
             </div>
-            <div class="flex flex-col w-[148px] md:w-[204px] gap-1">
+            <div class="flex flex-col w-[calc(100%-33%)] md:w-[204px] gap-1">
                 <span class="text-sm md:text-base text-gray-950 font-bold">
                     {{ $t('public.ctrader_deposit') }}
                 </span>
                 <span class="text-xs md:text-sm text-gray-700">
                     {{ $t('public.ctrader_deposit_caption') }}
+                </span>
+            </div>
+        </div>
+        <div class="pt-6 w-full">
+            <Button variant="primary-flat" type="button" class="justify-center w-full" @click="missingDepositDialog = true">
+                {{$t('public.continue')}}
+            </Button>
+        </div>
+    </Dialog>
+
+    <Dialog v-model:visible="missingDepositDialog" header=" " modal class="dialog-xs sm:dialog-sm">
+        <div class="flex flex-col w-full pb-4 gap-8">
+            <div class="w-full h-[145px] md:h-[200px]">
+                <img src="/assets/deposit/d2a.png" alt="No data" class="absolute top-0 left-0 -z-10 hidden md:flex">
+                <img src="/assets/deposit/d2c.png" alt="No data" class="absolute top-56 left-40 -z-10 hidden md:flex">
+                <img src="/assets/deposit/d2b.png" alt="No data" class="absolute top-15 right-0 -z-10 hidden md:flex">
+
+                <img src="/assets/deposit/d2a2.png" alt="No data" class="absolute top-0 left-0 -z-10 flex md:hidden">
+                <img src="/assets/deposit/d2c2.png" alt="No data" class="absolute top-36 left-20 -z-10 flex md:hidden">
+                <img src="/assets/deposit/d2d2.png" alt="No data" class="absolute top-44 left-32 -z-10 flex md:hidden">
+                <img src="/assets/deposit/d2b2.png" alt="No data" class="absolute top-15 right-0 -z-10 flex md:hidden">
+            </div>
+            <div class="flex flex-col w-[calc(100%-40%)] md:w-[204px] gap-1">
+                <span class="text-sm md:text-base text-gray-950 font-bold">
+                    {{ $t('public.report_missing_deposit') }}
+                </span>
+                <span class="text-xs md:text-sm text-gray-700">
+                    {{ $t('public.report_missing_deposit_caption') }}
                 </span>
             </div>
         </div>

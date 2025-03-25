@@ -515,4 +515,6 @@ return [
     'last_week' => '上周',
     'last_2_week' => '上两周',
     'last_3_week' => '上三周',
+    'report_missing_deposit' => '查询存款未到账！',
+    'report_missing_deposit_caption' => '如果您的存款在1小时内未到账，请提交遗失存款申诉表，我们会尽快处理！🚀',
 ];
