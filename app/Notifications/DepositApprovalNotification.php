@@ -7,16 +7,18 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\InteractsWithQueue;
 
 class DepositApprovalNotification extends Notification implements ShouldQueue
 {
-    use Queueable;
+    use Queueable, InteractsWithQueue;
 
     protected $transaction;
 
     public function __construct($transaction)
     {
         $this->transaction = $transaction;
+        $this->queue = 'send_deposit_email';
     }
 
     public function via($notifiable): array
