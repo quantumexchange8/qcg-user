@@ -134,17 +134,17 @@ const isTransferFormValid = computed(() => {
     </Button>
 
     <Dialog v-model:visible="showDepositDialog" header=" " modal class="dialog-xs sm:dialog-sm">
-        <div class="flex flex-col w-full pb-4 gap-8">
+        <div class="flex flex-col w-full pb-4 gap-6 md:gap-8">
             <div class="w-full h-[145px] md:h-[200px]">
                 <img src="/assets/deposit/d1a.png" alt="No data" class="absolute top-0 left-0 -z-10 hidden md:flex">
-                <img src="/assets/deposit/d1c.png" alt="No data" class="absolute top-48 left-36 -z-10 hidden md:flex">
+                <img src="/assets/deposit/d1c.png" alt="No data" class="absolute top-48 left-32 -z-10 hidden md:flex">
                 <img src="/assets/deposit/d1b.png" alt="No data" class="absolute top-15 right-0 -z-10 hidden md:flex">
 
                 <img src="/assets/deposit/d1a2.png" alt="No data" class="absolute top-0 left-0 -z-10 flex md:hidden">
-                <img src="/assets/deposit/d1c2.png" alt="No data" class="absolute top-40 left-1/2 -translate-x-1/2 -z-10 flex md:hidden">
+                <img src="/assets/deposit/d1c2.png" alt="No data" class="absolute top-40 left-24 -z-10 flex md:hidden">
                 <img src="/assets/deposit/d1b2.png" alt="No data" class="absolute top-15 right-0 -z-10 flex md:hidden">
             </div>
-            <div class="flex flex-col w-[calc(100%-33%)] md:w-[204px] gap-1">
+            <div class="flex flex-col w-[calc(100%-40%)] md:w-[204px] gap-1">
                 <span class="text-sm md:text-base text-gray-950 font-bold">
                     {{ $t('public.ctrader_deposit') }}
                 </span>
@@ -161,7 +161,7 @@ const isTransferFormValid = computed(() => {
     </Dialog>
 
     <Dialog v-model:visible="missingDepositDialog" header=" " modal class="dialog-xs sm:dialog-sm">
-        <div class="flex flex-col w-full pb-4 gap-8">
+        <div class="flex flex-col w-full pb-4 gap-6 md:gap-8">
             <div class="w-full h-[145px] md:h-[200px]">
                 <img src="/assets/deposit/d2a.png" alt="No data" class="absolute top-0 left-0 -z-10 hidden md:flex">
                 <img src="/assets/deposit/d2c.png" alt="No data" class="absolute top-56 left-40 -z-10 hidden md:flex">
