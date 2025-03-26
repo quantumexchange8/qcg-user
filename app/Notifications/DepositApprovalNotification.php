@@ -46,7 +46,7 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
             ->line('Account No: ' . $this->transaction->to_meta_login)
             ->line('Deposit Amount: ' . $this->transaction->amount)
             ->line('From: QCG User')
-            ->line('Type: ' . $this->transaction->status == 'processing' ? $type : 'Completed Transaction')
+            ->line('Type: ' . ($this->transaction->status == 'processing' ? $type : 'Completed Transaction'))
             ->line('TxID: ' . $this->transaction->txn_hash)
             ->line('Click the button to proceed with approval')
             ->action($action, route('approval', [
