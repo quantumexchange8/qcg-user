@@ -43,8 +43,15 @@ Route::get('approval/{token}', function ($token) {
         $hashed_token = md5($transaction->user->email . $transaction->transaction_number);
 
         if ($token == $hashed_token) {
+            if ($transaction->status == 'processing' && $transaction->comment) {
+                $type = 'Missing Amount Approval';
+            } else {
+                $type = 'Spread Amount Approval';
+            }
+
             return Inertia::render('DepositApproval', [
                 'transaction' => $transaction,
+                'type' => $type
             ]);
         }
     }

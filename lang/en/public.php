@@ -521,4 +521,5 @@ return [
     'last_3_week' => 'Last 3 Week',
     'report_missing_deposit' => 'Report Missing Deposit!',
     'report_missing_deposit_caption' => 'If your deposit isn’t credited within 1 hour, submit a Missing Amount form, and we’ll resolve it ASAP! 🚀',
+    'type' => 'Type',
 ];

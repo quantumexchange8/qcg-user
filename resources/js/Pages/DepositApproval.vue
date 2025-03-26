@@ -8,9 +8,16 @@ import Tag from "primevue/tag";
 import {useForm} from "@inertiajs/vue3";
 import Button from "primevue/button";
 import Image from "primevue/image";
+import Dialog from "primevue/dialog";
+import InputLabel from "@/Components/InputLabel.vue";
+import InputNumber from "primevue/inputnumber";
+import Textarea from "primevue/textarea";
+import InputError from "@/Components/InputError.vue";
+import InputText from "primevue/inputtext";
 
 const props = defineProps({
-    transaction: Object
+    transaction: Object,
+    type: String,
 });
 
 const {formatAmount} = transactionFormat();
@@ -54,13 +61,32 @@ const getSeverity = (status) => {
 
 const form = useForm({
     transaction_id: props.transaction.id,
+    amount: Number(props.transaction.amount),
+    txn_hash: props.transaction.txn_hash,
     action: ''
-})
+});
 
-const handleApproval = (data) => {
-    form.action = data;
+const visible = ref(false);
+const dialogType = ref('');
 
-    form.post(route('depositApproval'))
+const openDialog = (action) => {
+    visible.value = true;
+    dialogType.value = action;
+}
+
+const closeDialog = () => {
+    visible.value = false;
+}
+
+const submitForm = () => {
+    form.action = dialogType.value;
+
+    form.post(route('depositApproval'), {
+        onSuccess: () => {
+            closeDialog();
+            form.reset();
+        }
+    })
 }
 </script>
 
@@ -121,6 +147,14 @@ const handleApproval = (data) => {
                     </div>
                     <div class="text-primary text-sm md:text-base md:w-full font-medium">
                         $ {{ formatAmount(transaction.transaction_amount ?? 0) }}
+                    </div>
+                </div>
+                <div class="flex md:items-center gap-1 self-stretch">
+                    <div class="w-[140px] md:w-full text-gray-500 text-xs md:text-sm font-medium">
+                        {{ $t('public.type') }}
+                    </div>
+                    <div class="text-sm md:text-base md:w-full font-medium">
+                        {{ transaction.status === 'processing' ? type : 'Completed Transaction' }}
                     </div>
                 </div>
                 <div class="flex md:items-center gap-1 self-stretch">
@@ -199,7 +233,7 @@ const handleApproval = (data) => {
                         type="button"
                         severity="danger"
                         class="w-full"
-                        @click="handleApproval('reject')"
+                        @click="openDialog('reject')"
                     >
                         {{ $t('public.reject') }}
                     </Button>
@@ -207,7 +241,7 @@ const handleApproval = (data) => {
                         type="button"
                         severity="success"
                         class="w-full"
-                        @click="handleApproval('approve')"
+                        @click="openDialog('approve')"
                     >
                         {{ $t('public.approve') }}
                     </Button>
@@ -215,4 +249,65 @@ const handleApproval = (data) => {
             </div>
         </div>
     </GuestLayout>
+
+    <Dialog
+        v-model:visible="visible"
+        modal
+        :header="$t(`public.${dialogType}`)"
+        class="dialog-xs md:dialog-md"
+    >
+        <form class="flex flex-col gap-5 items-center w-full">
+            <div class="flex flex-col items-center bg-gray-100 p-5 w-full">
+                <div class="text-lg font-semibold">$ {{ formatAmount(transaction.transaction_amount) }}</div>
+                <div class="text-sm text-gray-500">{{ $t('public.transfer_amount') }}</div>
+            </div>
+            <div class="flex flex-col gap-1 items-start self-stretch">
+                <InputLabel for="amount" :value="$t('public.amount')" />
+                <InputNumber
+                    v-model="form.amount"
+                    inputId="amount"
+                    prefix="$ "
+                    class="w-full"
+                    placeholder="$ 0.00"
+                    :min="0"
+                    :step="100"
+                    :minFractionDigits="2"
+                    fluid
+                    autofocus
+                    :invalid="!!form.errors.amount"
+                />
+                <InputError :message="form.errors.amount" />
+            </div>
+            <div class="flex flex-col gap-1 items-start self-stretch">
+                <InputLabel for="txn_hash" :value="$t('public.txid')" />
+                <InputText
+                    id="txn_hash"
+                    type="text"
+                    class="block w-full"
+                    v-model="form.txn_hash"
+                    :placeholder="$t('public.txid')"
+                    :invalid="!!form.errors.txn_hash"
+                />
+                <InputError :message="form.errors.txn_hash" />
+            </div>
+
+            <div class="flex justify-end items-center pt-2 gap-4 self-stretch w-full">
+                <Button
+                    type="button"
+                    severity="secondary"
+                    class="w-full"
+                    @click="closeDialog"
+                >
+                    {{ $t('public.cancel') }}
+                </Button>
+                <Button
+                    type="submit"
+                    class="w-full"
+                    @click.prevent="submitForm"
+                >
+                    {{ $t('public.confirm') }}
+                </Button>
+            </div>
+        </form>
+    </Dialog>
 </template>

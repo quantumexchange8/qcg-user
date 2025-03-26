@@ -57,7 +57,7 @@ class TransactionController extends Controller
             $weeks = $matches[1] ?? 1;
 
             $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
-            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
+            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek();
         } else {
             $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
 
@@ -66,7 +66,7 @@ class TransactionController extends Controller
         }
 
         $query->whereBetween('created_at', [$startDate, $endDate]);
-        
+
         if ($request->filled('type')) {
             $type = $request->input('type');
             $query->where('transaction_type', $type);
@@ -287,7 +287,7 @@ class TransactionController extends Controller
             $weeks = $matches[1] ?? 1;
 
             $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
-            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
+            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek();
         } else {
             $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
 
@@ -354,6 +354,8 @@ class TransactionController extends Controller
         }
 
         $status = $action == "approve" ? "successful" : "failed";
+        $transaction->amount = $request->amount;
+        $transaction->txn_hash = $request->txn_hash;
         $transaction->status = $status;
         $transaction->remarks = 'System Approval';
         $transaction->approved_at = now();
@@ -371,17 +373,17 @@ class TransactionController extends Controller
                     $claimable_status = false;
                     $bonus_amount = 0;
                     $achievedAmount = $tradingAccount->achieved_amount ?? 0;
-                    $targetAmount = ($tradingAccount->bonus_amount_type === 'specified_amount') 
-                                ? $tradingAccount->min_threshold 
+                    $targetAmount = ($tradingAccount->bonus_amount_type === 'specified_amount')
+                                ? $tradingAccount->min_threshold
                                 : $tradingAccount->target_amount;
 
                     Log::info('Promotion detected');
-                    if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || ($targetAmount !== null && $achievedAmount >= $targetAmount)) 
+                    if (!($tradingAccount->is_claimed === 'expired' || $tradingAccount->is_claimed === 'completed' || ($targetAmount !== null && $achievedAmount >= $targetAmount))
                         && $tradingAccount->promotion_type == 'deposit' && ($tradingAccount->applicable_deposit !== 'first_deposit_only' || $achievedAmount == 0)) {
                         if ($tradingAccount->bonus_amount_type === 'percentage_of_deposit') {
                             $bonus_amount = ($transaction->transaction_amount * $tradingAccount->bonus_amount / 100);
 
-                            if ($transaction->amount >= $tradingAccount->min_threshold || 
+                            if ($transaction->amount >= $tradingAccount->min_threshold ||
                             ($tradingAccount->achieved_amount * 100 /  $tradingAccount->bonus_amount) >= $tradingAccount->min_threshold) {
                                 // achievedAmount = 600 target_amount = 1000 bonus_amount = 600 , remaining should be 400
                                 $remainingAmount = $tradingAccount->target_amount - $achievedAmount;

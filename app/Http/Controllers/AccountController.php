@@ -347,7 +347,7 @@ class AccountController extends Controller
             $weeks = $matches[1] ?? 1;
 
             $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
-            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
+            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek();
         } else {
             $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
 
@@ -423,9 +423,12 @@ class AccountController extends Controller
 
         $user = Auth::user();
 
-        $transaction = Transaction::where('transaction_type', 'deposit')
-            ->where('to_meta_login', $request->meta_login)
-            ->where('status', 'processing')
+        $transaction = Transaction::where([
+            'transaction_type' => 'deposit',
+            'to_meta_login' => $request->meta_login,
+            'status' => 'processing',
+            'txn_hash' => null,
+        ])
             ->first();
 
         if (!$transaction) {
@@ -986,10 +989,12 @@ class AccountController extends Controller
                     }
                 }
 
+                return response()->json(['success' => true, 'message' => 'Deposit Success']);
+            }
+
+            if ($transaction->status != 'failed') {
                 Notification::route('mail', 'payment@currenttech.pro')
                     ->notify(new DepositApprovalNotification($transaction));
-
-                return response()->json(['success' => true, 'message' => 'Deposit Success']);
             }
         }
 

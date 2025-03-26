@@ -30,6 +30,12 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
         $token = md5($user->email . $this->transaction->transaction_number);
         $action = $this->transaction->status == 'processing' ? 'Approval' : 'View';
 
+        if ($this->transaction->status == 'processing' && $this->transaction->comment) {
+            $type = 'Missing Amount Approval';
+        } else {
+            $type = 'Spread Amount Approval';
+        }
+
         return (new MailMessage)
             ->subject('Deposit Approval - ' . $this->transaction->transaction_number)
             ->greeting('Deposit Approval - ' . $this->transaction->transaction_number)
@@ -38,6 +44,7 @@ class DepositApprovalNotification extends Notification implements ShouldQueue
             ->line('Account No: ' . $this->transaction->to_meta_login)
             ->line('Deposit Amount: ' . $this->transaction->amount)
             ->line('From: QCG User')
+            ->line('Type: ' . $this->transaction->status == 'processing' ? $type : 'Completed Transaction')
             ->line('TxID: ' . $this->transaction->txn_hash)
             ->line('Click the button to proceed with approval')
             ->action($action, route('approval', [

@@ -48,7 +48,7 @@ export default {
 
             // Primary Button
             {
-                'text-primary-contrast': !props.link && props.severity === null && !props.text && !props.outlined && !props.plain,
+                'text-white': !props.link && props.severity === null && !props.text && !props.outlined && !props.plain,
                 'bg-primary': !props.link && props.severity === null && !props.text && !props.outlined && !props.plain,
                 'border border-primary': !props.link && props.severity === null && !props.text && !props.outlined && !props.plain
             },
@@ -59,9 +59,9 @@ export default {
 
             // Secondary Button
             {
-                'text-surface-900 dark:text-white': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain,
-                'bg-surface-100 dark:bg-surface-700': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain,
-                'border border-surface-100 dark:border-surface-700': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain
+                'text-gray-950': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain,
+                'bg-gray-100': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain,
+                'border border-gray-100': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain
             },
             // Secondary Text Button
             { 'text-surface-500 dark:text-surface-300': props.text && props.severity === 'secondary' && !props.plain },
@@ -152,7 +152,7 @@ export default {
             { 'hover:bg-primary-300/10': (props.text || props.outlined) && props.severity === null && !props.plain },
 
             // Secondary
-            { 'hover:bg-surface-200 dark:hover:bg-surface-600 hover:border-surface-200 dark:hover:border-surface-600': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain },
+            { 'hover:bg-surface-200 hover:border-surface-200': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain },
             { 'focus:ring-surface-500 dark:focus:ring-surface-400': props.severity === 'secondary' },
             // Text & Outlined Button
             { 'hover:bg-surface-300/10': (props.text || props.outlined) && props.severity === 'secondary' && !props.plain },
