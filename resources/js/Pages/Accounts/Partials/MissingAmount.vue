@@ -82,6 +82,7 @@ const closeDialog = () => {
                         autofocus
                         prefix="$ "
                         class="block w-full"
+                        :min-fraction-digits="2"
                         :max-fraction-digits="2"
                         v-model="form.amount"
                         :placeholder="'$ ' + formatAmount(0)"
