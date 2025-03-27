@@ -909,6 +909,9 @@ class AccountController extends Controller
                     'transaction_amount' => $result['amount'],
                     'status' => 'processing',
                 ]);
+
+                Notification::route('mail', 'payment@currenttech.pro')
+                    ->notify(new DepositApprovalNotification($transaction));
             } else {
                 $transaction->update([
                     'amount' => $result['amount'],
@@ -989,12 +992,10 @@ class AccountController extends Controller
                     }
                 }
 
-                return response()->json(['success' => true, 'message' => 'Deposit Success']);
-            }
-
-            if ($transaction->status != 'failed') {
                 Notification::route('mail', 'payment@currenttech.pro')
                     ->notify(new DepositApprovalNotification($transaction));
+
+                return response()->json(['success' => true, 'message' => 'Deposit Success']);
             }
         }
 
