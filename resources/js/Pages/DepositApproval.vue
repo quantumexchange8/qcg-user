@@ -14,6 +14,7 @@ import InputNumber from "primevue/inputnumber";
 import Textarea from "primevue/textarea";
 import InputError from "@/Components/InputError.vue";
 import InputText from "primevue/inputtext";
+import Chip from "primevue/chip";
 
 const props = defineProps({
     transaction: Object,
@@ -63,8 +64,18 @@ const form = useForm({
     transaction_id: props.transaction.id,
     amount: Number(props.transaction.amount),
     txn_hash: props.transaction.txn_hash,
+    remarks: '',
     action: ''
 });
+
+const chips = [
+    { label: 'Invalid transfer amount' },
+    { label: '轉帳金額無效' },
+]
+
+const handleChipClick = (label) => {
+    form.remarks = label;
+};
 
 const visible = ref(false);
 const dialogType = ref('');
@@ -261,34 +272,66 @@ const submitForm = () => {
                 <div class="text-lg font-semibold">$ {{ formatAmount(transaction.transaction_amount) }}</div>
                 <div class="text-sm text-gray-500">{{ $t('public.transfer_amount') }}</div>
             </div>
-            <div class="flex flex-col gap-1 items-start self-stretch">
-                <InputLabel for="amount" :value="$t('public.amount')" />
-                <InputNumber
-                    v-model="form.amount"
-                    inputId="amount"
-                    prefix="$ "
-                    class="w-full"
-                    placeholder="$ 0.00"
-                    :min="0"
-                    :step="100"
-                    :minFractionDigits="2"
-                    fluid
-                    autofocus
-                    :invalid="!!form.errors.amount"
-                />
-                <InputError :message="form.errors.amount" />
+            <div
+                v-if="dialogType === 'approve'"
+                class="flex flex-col gap-3 items-center w-full"
+            >
+                <div class="flex flex-col gap-1 items-start self-stretch">
+                    <InputLabel for="amount" :value="$t('public.amount')" />
+                    <InputNumber
+                        v-model="form.amount"
+                        inputId="amount"
+                        prefix="$ "
+                        class="w-full"
+                        placeholder="$ 0.00"
+                        :min="0"
+                        :step="100"
+                        :minFractionDigits="2"
+                        fluid
+                        autofocus
+                        :invalid="!!form.errors.amount"
+                    />
+                    <InputError :message="form.errors.amount" />
+                </div>
+                <div class="flex flex-col gap-1 items-start self-stretch">
+                    <InputLabel for="txn_hash" :value="$t('public.txid')" />
+                    <InputText
+                        id="txn_hash"
+                        type="text"
+                        class="block w-full"
+                        v-model="form.txn_hash"
+                        :placeholder="$t('public.txid')"
+                        :invalid="!!form.errors.txn_hash"
+                    />
+                    <InputError :message="form.errors.txn_hash" />
+                </div>
             </div>
-            <div class="flex flex-col gap-1 items-start self-stretch">
-                <InputLabel for="txn_hash" :value="$t('public.txid')" />
-                <InputText
-                    id="txn_hash"
+
+            <div v-else class="flex flex-col gap-1 items-start self-stretch">
+                <InputLabel for="remarks" :value="$t('public.remarks')" />
+                <div class="flex items-center gap-2 self-stretch overflow-x-auto">
+                    <div v-for="(chip, index) in chips" :key="index">
+                        <Chip
+                            :label="chip.label"
+                            class="w-full text-gray-950 whitespace-nowrap overflow-hidden"
+                            :class="{
+                                'border-primary-300 bg-primary-50 text-primary-500 hover:bg-primary-50': form.remarks === chip.label,
+                            }"
+                            @click="handleChipClick(chip.label)"
+                        />
+                    </div>
+                </div>
+                <Textarea
+                    id="remarks"
                     type="text"
-                    class="block w-full"
-                    v-model="form.txn_hash"
-                    :placeholder="$t('public.txid')"
-                    :invalid="!!form.errors.txn_hash"
+                    class="h-20 flex self-stretch"
+                    v-model="form.remarks"
+                    :placeholder="$t('public.remarks')"
+                    :invalid="!!form.errors.remarks"
+                    rows="5"
+                    cols="30"
                 />
-                <InputError :message="form.errors.txn_hash" />
+                <InputError :message="form.errors.remarks" />
             </div>
 
             <div class="flex justify-end items-center pt-2 gap-4 self-stretch w-full">
@@ -302,11 +345,11 @@ const submitForm = () => {
                 </Button>
                 <Button
                     type="submit"
+                    :severity="dialogType === 'approve' ? 'success' : 'danger'"
                     class="w-full"
                     @click.prevent="submitForm"
-                >
-                    {{ $t('public.confirm') }}
-                </Button>
+                    :label="$t(`public.${dialogType}`)"
+                />
             </div>
         </form>
     </Dialog>

@@ -349,6 +349,22 @@ class TransactionController extends Controller
         $transaction = Transaction::find($request->transaction_id);
         $action = $request->action;
 
+        if ($action == 'reject') {
+            Validator::make($request->all(), [
+                'remarks' => ['required'],
+            ])->setAttributeNames([
+                'remarks' => trans('public.remarks'),
+            ])->validate();
+        } else {
+            Validator::make($request->all(), [
+                'amount' => ['required'],
+                'txn_hash' => ['required'],
+            ])->setAttributeNames([
+                'amount' => trans('public.amount'),
+                'txn_hash' => trans('public.txid'),
+            ])->validate();
+        }
+
         if ($transaction->status != 'processing') {
             return redirect()->back()->with('toast', 'It appears you have already completed approval action');
         }
@@ -357,7 +373,7 @@ class TransactionController extends Controller
         $transaction->amount = $request->amount;
         $transaction->txn_hash = $request->txn_hash;
         $transaction->status = $status;
-        $transaction->remarks = 'System Approval';
+        $transaction->remarks = $action == 'reject' ? $request->remarks : 'System Approval';
         $transaction->approved_at = now();
         $transaction->save();
 
