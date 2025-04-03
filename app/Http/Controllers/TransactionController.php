@@ -371,6 +371,7 @@ class TransactionController extends Controller
 
         $status = $action == "approve" ? "successful" : "failed";
         $transaction->amount = $request->amount;
+        $transaction->transaction_amount = $request->transaction_amount;
         $transaction->txn_hash = $request->txn_hash;
         $transaction->status = $status;
         $transaction->remarks = $action == 'reject' ? $request->remarks : 'System Approval';

@@ -63,6 +63,7 @@ const getSeverity = (status) => {
 const form = useForm({
     transaction_id: props.transaction.id,
     amount: Number(props.transaction.amount),
+    transaction_amount: Number(props.transaction.transaction_amount),
     txn_hash: props.transaction.txn_hash,
     remarks: '',
     action: ''
@@ -292,6 +293,22 @@ const submitForm = () => {
                         :invalid="!!form.errors.amount"
                     />
                     <InputError :message="form.errors.amount" />
+                </div>
+                <div v-if="type === 'Missing Amount Approval'" class="flex flex-col gap-1 items-start self-stretch">
+                    <InputLabel for="transaction_amount" :value="$t('public.transfer_amount')" />
+                    <InputNumber
+                        v-model="form.transaction_amount"
+                        inputId="transaction_amount"
+                        prefix="$ "
+                        class="w-full"
+                        placeholder="$ 0.00"
+                        :min="0"
+                        :step="100"
+                        :minFractionDigits="2"
+                        fluid
+                        :invalid="!!form.errors.transaction_amount"
+                    />
+                    <InputError :message="form.errors.transaction_amount" />
                 </div>
                 <div class="flex flex-col gap-1 items-start self-stretch">
                     <InputLabel for="txn_hash" :value="$t('public.txid')" />
