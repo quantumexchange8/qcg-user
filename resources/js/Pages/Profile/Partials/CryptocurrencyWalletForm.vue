@@ -83,7 +83,7 @@ const resetForm = () => {
 </script>
 
 <template>
-    <form class="w-full h-full flex flex-col items-end p-3 gap-8 rounded-lg bg-white shadow-card md:p-6">
+    <form class="w-full flex flex-col items-end p-3 gap-8 rounded-lg bg-white shadow-card md:p-6">
         <div class="w-full flex flex-col justify-center items-start gap-8">
             <div class="flex flex-col gap-1 items-start justify-center w-full">
                 <span class="text-gray-950 font-bold">{{ $t('public.cryptocurrency_wallet') }}</span>
@@ -136,7 +136,7 @@ const resetForm = () => {
         </div>
 
 
-        <div class="flex justify-end items-center pt-10 md:pt-7 gap-4 self-stretch">
+        <div class="flex justify-end items-center gap-4 self-stretch">
             <Button
                 type="button"
                 variant="gray-tonal"

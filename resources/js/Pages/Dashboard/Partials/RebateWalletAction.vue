@@ -17,6 +17,7 @@ const props = defineProps({
 const visible = ref(false);
 const dialogType = ref('');
 const paymentAccounts = usePage().props.auth.payment_account;
+const kycStatus = usePage().props.auth.user.kyc_approval;
 const confirm = useConfirm();
 
 const requireAccountConfirmation = (accountType) => {
@@ -30,6 +31,18 @@ const requireAccountConfirmation = (accountType) => {
             actionType: 'crypto',
             cancelButton: trans('public.later'),
             acceptButton: trans('public.add_wallet'),
+            action: () => {
+                window.location.href = route('profile');
+            }
+        },
+        verification: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconQuestionMark),
+            header: trans('public.kyc_verification_required'),
+            message: trans('public.kyc_verification_required_message'),
+            cancelButton: trans('public.later'),
+            acceptButton: trans('public.proceed'),
             action: () => {
                 window.location.href = route('profile');
             }
@@ -52,7 +65,10 @@ const requireAccountConfirmation = (accountType) => {
 }
 
 const openDialog = (type) => {
-    if (type === 'withdrawal' && paymentAccounts.length === 0) {
+    if (type === 'withdrawal' && kycStatus !== 'verified') {
+        requireAccountConfirmation('verification');
+    }
+    else if (type === 'withdrawal' && paymentAccounts.length === 0) {
         requireAccountConfirmation('crypto');
     } else {
         dialogType.value = type;

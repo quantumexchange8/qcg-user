@@ -59,36 +59,42 @@ class RegisteredUserController extends Controller
         $phone = $request->phone;
         $phone_number = $request->phone_number;
 
-        $validator = Validator::make($request->all(), $rules);
-        $validator->setAttributeNames($attributes);
+        // $validator = Validator::make($request->all(), $rules);
+        // $validator->setAttributeNames($attributes);
 
-        $validator->validate();
-        // } elseif ($request->form_step == 2) {
-        //     // Validation rules for step 2
-        //     $additionalRules = [
-        //         'password' => ['required', 'confirmed', Password::min(6)->letters()->symbols()->numbers()->mixedCase()],
-        //     ];
+        // $validator->validate();
+        if ($request->form_step == 1) {
+            $validator = Validator::make($request->all(), $rules);
+            $validator->setAttributeNames($attributes);
 
-        //     // Merge additional rules with existing rules
-        //     $rules = array_merge($rules, $additionalRules);
+            $validator->validate();
+        } elseif ($request->form_step == 2) {
+            // Validation rules for step 2
+            $additionalRules = [
+                'password' => ['required', 'confirmed', Password::min(8)->letters()->symbols()->numbers()->mixedCase()],
+            ];
 
-        //     // Set additional attributes
-        //     $additionalAttributes = [
-        //         'password' => trans('public.password'),
-        //     ];
+            // Merge additional rules with existing rules
+            $rules = array_merge($rules, $additionalRules);
 
-        //     // Merge additional attributes with existing attributes
-        //     $attributes = array_merge($attributes, $additionalAttributes);
+            // Set additional attributes
+            $additionalAttributes = [
+                'password' => trans('public.password'),
+            ];
 
-        //     // Create a new validator with updated rules and attributes
-        //     $validator = Validator::make($request->all(), $rules);
-        //     $validator->setAttributeNames($attributes);
+            // Merge additional attributes with existing attributes
+            $attributes = array_merge($attributes, $additionalAttributes);
 
-        //     // Validate the request
-        //     $validator->validate();
-        // }
+            // Create a new validator with updated rules and attributes
+            $validator = Validator::make($request->all(), $rules);
+            $validator->setAttributeNames($attributes);
 
-        return to_route('sign_up');
+            // Validate the request
+            $validator->validate();
+        }
+
+        return back();
+        // return to_route('sign_up');
     }
 
     /**
@@ -129,14 +135,17 @@ class RegisteredUserController extends Controller
 //        if($otp->otp != $request->verification_code){
 //            throw ValidationException::withMessages(['verification_code' => 'Invalid Verification Code']);
 //        }
+
         // Validation rules for step 2
         $rules = [
-            'password' => ['required', 'confirmed', Password::min(8)->letters()->symbols()->numbers()->mixedCase()],
+            'kyc_verification' => ['required', 'array', 'size:2'],
+            'kyc_verification.* ' => ['required', 'mimes:jpg,png', 'max:10000'],
         ];
 
         // Set additional attributes
         $attributes = [
-            'password' => trans('public.password'),
+            'kyc_verification' => trans('public.kyc_verification'),
+            'kyc_verification.*' => trans('public.kyc_verification_file'),
         ];
 
         // Create a new validator with updated rules and attributes
@@ -146,18 +155,20 @@ class RegisteredUserController extends Controller
         // Validate the request
         $validator->validate();
 
-        // $default_agent_id = User::where('id_number', 'AID00082')->first()->id;
-
         $userData = [
             'first_name' => $request->first_name,
+            'chinese_name' => $request->chinese_name ?? null,
             'email' => $request->email,
             'country' => $request->country,
             'dial_code' => $request->phone_code,
             'phone' => $request->phone,
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
+            'kyc_approval' => 'pending',
             'remarks' => 'TW Test Trading Group',
         ];
+
+        // $default_agent_id = User::where('id_number', 'AID00082')->first()->id;
 
         $check_referral_code = null;
         $default_upline = null;
@@ -185,6 +196,10 @@ class RegisteredUserController extends Controller
         }
 
         $user = User::create($userData);
+
+        foreach ($request->file('kyc_verification') as $file) {
+            $user->addMedia($file)->toMediaCollection('kyc_verification'); 
+        }
 
         $user->setReferralId();
 

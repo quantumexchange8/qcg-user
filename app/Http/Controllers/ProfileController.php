@@ -207,4 +207,40 @@ class ProfileController extends Controller
             'type' => 'success'
         ]);
     }
+
+    public function getKycVerification()
+    {
+        return response()->json([
+            'kycVerification' => Auth::user()->getMedia('kyc_verification'),
+        ]);
+    }
+
+    public function updateKyc(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'kyc_verification' => ['required',  'array', 'size:2'],
+            'kyc_verification.* ' => ['required', 'mimes:jpg,png', 'max:10000'],
+        ])->setAttributeNames([
+            'kyc_verification' => trans('public.kyc_verification'),
+            'kyc_verification.*' => trans('public.kyc_verification_file'),
+        ]);
+        $validator->validate();
+
+        $user = $request->user();
+
+        if ($request->hasFile('kyc_verification')) {
+            $user->clearMediaCollection('kyc_verification');
+            foreach ($request->file('kyc_verification') as $image) {
+                $user->addMedia($image)->toMediaCollection('kyc_verification');
+            }
+
+            $user->kyc_approval = 'pending';
+            $user->save();
+        }
+
+        return redirect()->back()->with('toast', [
+            'title' => trans("public.toast_update_kyc_success"),
+            'type' => 'success',
+        ]);
+    }
 }

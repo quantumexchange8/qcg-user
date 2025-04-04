@@ -28,6 +28,7 @@ const props = defineProps({
 });
 
 const paymentAccounts = usePage().props.auth.payment_account;
+const kycStatus = usePage().props.auth.user.kyc_approval;
 const menu = ref();
 const visible = ref(false);
 const dialogType = ref('');
@@ -37,7 +38,10 @@ const items = ref([
         label: 'withdrawal',
         icon: h(IconCash),
         command: () => {
-            if (paymentAccounts.length === 0) {
+            if (kycStatus !== 'verified') {
+                requireAccountConfirmation('verification');
+            }
+            else if (paymentAccounts.length === 0) {
                 requireAccountConfirmation('crypto');
             } else {
                 visible.value = true;
@@ -149,6 +153,18 @@ const requireAccountConfirmation = (accountType) => {
             message: trans('public.missing_cryptocurrency_message'),
             cancelButton: trans('public.later'),
             acceptButton: trans('public.add_wallet'),
+            action: () => {
+                window.location.href = route('profile');
+            }
+        },
+        verification: {
+            group: 'headless',
+            color: 'primary',
+            icon: h(IconQuestionMark),
+            header: trans('public.kyc_verification_required'),
+            message: trans('public.kyc_verification_required_message'),
+            cancelButton: trans('public.later'),
+            acceptButton: trans('public.proceed'),
             action: () => {
                 window.location.href = route('profile');
             }

@@ -68,7 +68,7 @@ const changeLanguage = async (langVal) => {
         </div>
 
         <div class="w-full flex flex-grow flex-col justify-center items-center px-3 pb-8 md:gap-[60px] md:px-8 md:py-12">
-            <div class="w-full max-w-md flex-1 flex flex-col justify-center items-center">
+            <div class="w-full max-w-xl flex-1 flex flex-col justify-center items-center">
                 <slot />
             </div>
             <div class="text-center text-gray-500 text-xs mt-auto">© {{ dayjs().year() }} Quantum Capital Group. All rights reserved.</div>

@@ -33,7 +33,7 @@ const submit = () => {
 
 <template>
     <GuestLayout :title="$t('public.log_in')">
-        <div class="w-full flex flex-col justify-center items-center gap-8 self-stretch">
+        <div class="w-full flex flex-col justify-center items-center gap-8 self-stretch max-w-md mx-auto">
             <div class="flex flex-col items-center gap-6 self-stretch">
                 <ApplicationLogo class="w-14 h-14 md:w-16 md:h-16" />
                 <div class="flex flex-col items-start gap-3 self-stretch">

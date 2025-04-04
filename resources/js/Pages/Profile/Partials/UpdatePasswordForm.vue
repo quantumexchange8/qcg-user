@@ -38,7 +38,7 @@ const resetForm = () => {
 </script>
 
 <template>
-    <div class="w-full h-full flex flex-col items-center p-3 gap-8 rounded-lg bg-white shadow-card md:p-6">
+    <div class="w-full flex flex-col items-center p-3 gap-8 rounded-lg bg-white shadow-card md:p-6">
         <div class="w-full flex flex-col justify-center items-start gap-1">
             <span class="text-gray-950 font-bold">{{ $t('public.reset_password') }}</span>
             <span class="text-gray-500 text-xs">{{ $t('public.reset_password_caption') }}</span>

@@ -130,7 +130,7 @@ const user = usePage().props.auth.user;
         </SidebarLink>
 
         <!-- My Profile -->
-        <SidebarLink
+        <!-- <SidebarLink
             :title="$t('public.sidebar.profile')"
             :href="route('profile')"
             :active="route().current('profile')"
@@ -138,7 +138,7 @@ const user = usePage().props.auth.user;
             <template #icon>
                 <IconUserCircle :size="20" stroke-width="1.25" />
             </template>
-        </SidebarLink>
+        </SidebarLink> -->
 
     </div>
 </template>
