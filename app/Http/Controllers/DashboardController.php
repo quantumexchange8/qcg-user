@@ -24,10 +24,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $number = 21919.999996;
-        $formattedNumber = floor($number * 100) / 100;
-
-        dd($formattedNumber);
         return Inertia::render('Dashboard/Dashboard');
     }
 
