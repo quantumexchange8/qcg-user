@@ -24,6 +24,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $number = 21919.999996;
+        $formattedNumber = floor($number * 100) / 100;
+
+        dd($formattedNumber);
         return Inertia::render('Dashboard/Dashboard');
     }
 
@@ -69,7 +73,7 @@ class DashboardController extends Controller
         ->sum('balance');
         // $group_total_trade_volume = TradeBrokerHistory::with('trading_account.ofUser')
         //     ->whereHas('trading_account.ofUser', function($query) use ($groupIds) {
-        //         $query->whereIn('id', $groupIds); 
+        //         $query->whereIn('id', $groupIds);
         //     })
         //     ->sum('trade_volume');
 

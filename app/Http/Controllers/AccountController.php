@@ -904,9 +904,12 @@ class AccountController extends Controller
                 'approved_at' => now()
             ]);
 
+            $original_amount = $result['amount'];
+            $formatted_amount = floor($original_amount * 100) / 100;
+
             if ($result['transfer_amount_type'] == 'invalid') {
                 $transaction->update([
-                    'transaction_amount' => $result['amount'],
+                    'transaction_amount' => $formatted_amount,
                     'status' => 'processing',
                 ]);
 
@@ -914,8 +917,8 @@ class AccountController extends Controller
                     ->notify(new DepositApprovalNotification($transaction));
             } else {
                 $transaction->update([
-                    'amount' => $result['amount'],
-                    'transaction_amount' => $result['amount'],
+                    'amount' => $formatted_amount,
+                    'transaction_amount' => $formatted_amount,
                     'status' => $status,
                     'remarks' => $result['remarks'],
                     'approved_at' => now()
