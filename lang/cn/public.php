@@ -537,4 +537,7 @@ return [
     'kyc_verification_required' => '身份未验证',
     'kyc_verification_required_message' => '哎呀！您的身份尚未验证。请确保身份已验证以继续操作。',
     'proceed' => '继续',
+    'kyc_attachment_caption' => '确保同时上传两个文件, 一个是正面文件, 另一个是背面文件. 最大文件大小为10 MB. 支持的文件类型为 .jpg 和 .png.',
+    'chinese_name' => '中文名字',
+    'chinese_name_placeholder' => '输入中文名字',
 ];

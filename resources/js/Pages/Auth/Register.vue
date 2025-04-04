@@ -390,7 +390,7 @@ const removeKycVerification = (index) => {
                                         {{ $t('public.kyc_upload') }}
                                     </div>
                                     <div class="flex flex-col gap-3 items-start self-stretch">
-                                        <span class="text-xs text-gray-500">{{ $t('public.attachment_caption') }}</span>
+                                        <span class="text-xs text-gray-500">{{ $t('public.kyc_attachment_caption') }}</span>
                                         <div class="flex flex-col gap-3">
                                             <input
                                                 ref="kycVerificationInput"

@@ -24,7 +24,7 @@ const selectedCountry = ref();
 const user = usePage().props.auth.user;
 
 const form = useForm({
-    name: user.first_name,
+    name: user.chinese_name ?? user.first_name,
     email: user.email,
     dial_code: '',
     phone: user.phone,

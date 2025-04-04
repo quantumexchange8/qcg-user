@@ -44,7 +44,7 @@ const $page = usePage();
                         'text-gray-700': !route().current('profile'),
                         'text-gray-700': route().current('profile'),
                     }"
-                >{{ user.first_name }}</span>
+                >{{ user.chinese_name ?? user.first_name }}</span>
                 <span
                     class="text-xs truncate max-w-[144px]"
                     :class="{

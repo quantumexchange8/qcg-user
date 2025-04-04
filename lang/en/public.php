@@ -544,4 +544,7 @@ return [
     'kyc_verification_required' => 'Unverified KYC',
     'kyc_verification_required_message' => 'Oops! Your KYC is yet to be verified. Ensure your KYC is verified to proceed.',
     'proceed' => 'Proceed',
+    'kyc_attachment_caption' => 'Ensure that there are 2 files, 1 for front and 1 for back. Maximum file size is 10 MB. Supported file types are .jpg and .png.',
+    'chinese_name' => 'Chinese Name',
+    'chinese_name_placeholder' => 'Enter Chinese Name',
 ];
