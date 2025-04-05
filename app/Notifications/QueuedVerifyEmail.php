@@ -13,8 +13,5 @@ class QueuedVerifyEmail extends BaseVerifyEmail implements ShouldQueue
 {
     use Queueable, InteractsWithQueue;
 
-    public $connection = 'database'; 
-    public $queue = 'verify_email';      
-
-  
+    public $queue = 'verify_email'; 
 }
