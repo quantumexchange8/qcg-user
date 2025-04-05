@@ -54,7 +54,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
 
     public function sendEmailVerificationNotification()
     {
-        $this->notify(new QueuedVerifyEmail);
+        $this->notify((new QueuedVerifyEmail)->onQueue('verify_email'));
     }
 
     public function setReferralId(): void

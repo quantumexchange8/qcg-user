@@ -13,5 +13,11 @@ class QueuedVerifyEmail extends BaseVerifyEmail implements ShouldQueue
 {
     use Queueable, InteractsWithQueue;
 
-    public $queue = 'verify_email'; 
+    // public $queue = 'verify_email'; 
+
+    // public function __construct()
+    // {
+    //     $this->queue = 'verify_email';
+    // }
+
 }
