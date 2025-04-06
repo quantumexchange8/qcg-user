@@ -230,7 +230,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        return redirect('/login')->with('toast', 'Successfully Created Account');
+        return redirect()->route('verification.notice');
+        // return redirect('/login')->with('toast', 'Successfully Created Account');
     }
 
 }
