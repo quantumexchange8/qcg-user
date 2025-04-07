@@ -243,6 +243,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         Route::post('/updateCryptoWalletInfo', [ProfileController::class, 'updateCryptoWalletInfo'])->name('profile.updateCryptoWalletInfo');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/getKycVerification', [ProfileController::class, 'getKycVerification'])->name('profile.getKycVerification');
+        Route::post('/updateKyc', [ProfileController::class, 'updateKyc'])->name('profile.updateKyc');
     });
 });
 

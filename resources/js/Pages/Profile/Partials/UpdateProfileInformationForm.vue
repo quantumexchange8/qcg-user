@@ -24,7 +24,7 @@ const selectedCountry = ref();
 const user = usePage().props.auth.user;
 
 const form = useForm({
-    name: user.first_name,
+    name: user.chinese_name ?? user.first_name,
     email: user.email,
     dial_code: '',
     phone: user.phone,
@@ -40,7 +40,7 @@ const dirtyFields = ref({
 
 const handleInputChange = (field) => {
     dirtyFields.value[field] = true;
-    console.log(field);
+    // console.log(field);
 };
 
 const resetForm = () => {
@@ -77,8 +77,8 @@ const submitForm = () => {
 </script>
 
 <template>
-    <form class="w-full h-full flex flex-col items-end p-3 gap-8 rounded-lg bg-white shadow-card md:p-6">
-        <div class="w-full flex flex-col justify-center items-start gap-1">
+    <form class="w-full flex flex-col items-end p-3 gap-8 rounded-lg bg-white shadow-card md:p-6">
+        <div class="w-full flex flex-col justify-center items-start gap-8">
             <div class="flex flex-col gap-1 items-start justify-center w-full">
                 <span class="text-gray-950 font-bold">{{ $t('public.account_details') }}</span>
                 <span class="text-gray-500 text-xs">{{ $t('public.update_account_caption') }}</span>
@@ -131,7 +131,7 @@ const submitForm = () => {
                             :filterFields="['name', 'phone_code']"
                             optionLabel="name"
                             :placeholder="$t('public.phone_code')"
-                            class="w-[100px]"
+                            class="w-[110px]"
                             scroll-height="236px"
                             :invalid="!!form.errors.dial_code"
                             @change="handleInputChange('dial_code')"
@@ -203,7 +203,7 @@ const submitForm = () => {
         </div>
 
 
-        <div class="flex justify-end items-center pt-10 md:pt-7 gap-4 self-stretch">
+        <div class="flex justify-end items-center gap-4 self-stretch">
             <Button
                 type="button"
                 variant="gray-tonal"

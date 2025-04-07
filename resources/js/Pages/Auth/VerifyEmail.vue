@@ -110,8 +110,8 @@ const verificationLinkSent = computed(() => props.status === 'verification-link-
 
 <template>
     <GuestLayout :title="$t('public.email_verification')">
-        <img src="/assets/verify-email.svg" alt="verify-email">
-        <div class="w-full flex flex-col items-center justify-center gap-8 pt-8 md:pt-0">
+        <img src="/assets/verify-email.svg" alt="verify-email" class="max-w-md mx-auto">
+        <div class="w-full flex flex-col items-center justify-center gap-8 pt-8 md:pt-0 max-w-md mx-auto">
             <div class="flex flex-col items-start gap-3 self-stretch">
                 <div class="self-stretch text-center text-gray-950 text-xl font-semibold">{{ $t('public.verify_email') }}</div>
                 <div class="flex flex-col self-stretch text-center text-gray-500 gap-1">{{ $t('public.verify_email_caption') }}

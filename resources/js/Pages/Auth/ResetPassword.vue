@@ -48,7 +48,7 @@ const goToLoginPage = () => {
 
 <template>
     <GuestLayout :title="$t('public.reset_password')">
-        <div v-if="!isResetSuccessful" class="w-full flex flex-col justify-center items-center gap-8 pt-8 md:pt-0">
+        <div v-if="!isResetSuccessful" class="w-full flex flex-col justify-center items-center gap-8 pt-8 md:pt-0 max-w-md mx-auto">
             <div class="flex flex-col items-start gap-3 self-stretch">
                 <div class="text-gray-950 text-center text-lg md:text-xl font-semibold self-stretch">{{ $t('public.choose_password') }}</div>
                 <div class="text-gray-500 text-center self-stretch text-sm md:text-base">{{ $t('public.choose_password_caption') }}</div>
@@ -98,7 +98,7 @@ const goToLoginPage = () => {
             </div>
         </div>
 
-        <div v-else class="w-full flex flex-col justify-center items-center">
+        <div v-else class="w-full flex flex-col justify-center items-center max-w-md mx-auto">
             <div class="flex flex-col items-center justify-center">
                 <img src="/img/reset-password.svg" alt="no data" class="w-80 h-60">
             </div>

@@ -56,7 +56,7 @@ onBeforeUnmount(() => {
 
 <template>
     <GuestLayout :title="$t('public.forgot_password')">
-        <div v-if="!submitted" class="w-full flex flex-col items-center justify-center gap-8 pt-8 md:pt-0">
+        <div v-if="!submitted" class="w-full flex flex-col items-center justify-center gap-8 pt-8 md:pt-0 max-w-md mx-auto">
             <div class="flex flex-col items-start gap-3 self-stretch">
                 <div class="self-stretch text-center text-gray-950 text-lg md:text-xl font-bold">{{ $t('public.forgot_password') }}</div>
                 <div class="self-stretch text-center text-gray-500 text-sm md:text-base">{{ $t('public.forgot_password_caption') }}</div>
@@ -85,7 +85,7 @@ onBeforeUnmount(() => {
             </form>
         </div>
 
-        <div v-else class="w-full flex flex-col items-center justify-center gap-8 pt-8 md:pt-0">
+        <div v-else class="w-full flex flex-col items-center justify-center gap-8 pt-8 md:pt-0 max-w-md mx-auto">
             <div class="flex flex-col items-start gap-3 self-stretch">
                 <div class="self-stretch text-center text-gray-950 text-lg md:text-xl font-bold">{{ $t('public.check_your_email') }}</div>
                 <div class="self-stretch text-center text-gray-500 text-sm md:text-base">{{ $t('public.check_your_email_caption') }} <br/><span class="text-gray-900 font-medium">{{ submittedEmail }}</span> </div>

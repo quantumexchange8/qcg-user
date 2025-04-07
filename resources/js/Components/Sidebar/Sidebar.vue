@@ -5,6 +5,7 @@ import { sidebarState } from '@/Composables'
 import SidebarHeader from '@/Components/Sidebar/SidebarHeader.vue'
 import SidebarContent from '@/Components/Sidebar/SidebarContent.vue'
 import SidebarFooter from '@/Components/Sidebar/SidebarFooter.vue'
+import SidebarProfile from "@/Components/Sidebar/SidebarProfile.vue";
 import PerfectScrollbar from '@/Components/PerfectScrollbar.vue'
 
 onMounted(() => {
@@ -56,6 +57,7 @@ onMounted(() => {
         <!-- <SidebarHeader /> -->
 
             <div class="w-full h-full flex flex-col justify-center items-center overflow-y-auto no-scrollbar">
+                <SidebarProfile />
                 <SidebarContent />
             </div>
             <SidebarFooter />
