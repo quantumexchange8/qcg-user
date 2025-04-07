@@ -96,11 +96,11 @@ const submitForm = () => {
         <div class="w-full flex flex-col justify-center items-start gap-1">
             <div class="w-full flex flex-row gap-2 items-center">
                 <span class="text-gray-950 font-bold">{{ $t('public.kyc_verification') }}</span>
-                <IconCircleCheckFilled v-if="user.kyc_approval === 'approved'" size="16" stroke-width="1.25" class="text-success-500 grow-0 shrink-0" />
+                <IconCircleCheckFilled v-if="user.kyc_approval === 'verified'" size="16" stroke-width="1.25" class="text-success-500 grow-0 shrink-0" />
                 <IconClockFilled v-else-if="user.kyc_approval === 'pending'" size="16" stroke-width="1.25" class="text-warning-500 grow-0 shrink-0" />
                 <IconExclamationCircleFilled v-else size="16" stroke-width="1.25" class="text-error-500 grow-0 shrink-0" />
             </div>
-            <span v-if="user.kyc_approval === 'approved'" class="text-gray-500 text-xs">{{ $t('public.kyc_approved_caption') }}</span>
+            <span v-if="user.kyc_approval === 'verified'" class="text-gray-500 text-xs">{{ $t('public.kyc_approved_caption') }}</span>
             <span v-else-if="user.kyc_approval === 'pending'" class="text-gray-500 text-xs">{{ $t('public.kyc_pending_caption') }}</span>
             <span v-else class="text-gray-500 text-xs">{{ $t('public.kyc_unverified_caption') }}</span>
         </div>

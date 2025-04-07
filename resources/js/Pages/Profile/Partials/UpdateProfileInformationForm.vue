@@ -131,7 +131,7 @@ const submitForm = () => {
                             :filterFields="['name', 'phone_code']"
                             optionLabel="name"
                             :placeholder="$t('public.phone_code')"
-                            class="w-[100px]"
+                            class="w-[110px]"
                             scroll-height="236px"
                             :invalid="!!form.errors.dial_code"
                             @change="handleInputChange('dial_code')"

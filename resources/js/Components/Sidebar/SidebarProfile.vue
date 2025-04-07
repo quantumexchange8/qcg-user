@@ -31,7 +31,7 @@ const $page = usePage();
                     </div>
                 </div>
                 <div class="absolute -right-0.5 -bottom-1 bg-white rounded-full">
-                    <IconCircleCheckFilled v-if="user.kyc_approval === 'approved'" size="12" stroke-width="1.25" class="text-success-500 grow-0 shrink-0" />
+                    <IconCircleCheckFilled v-if="user.kyc_approval === 'verified'" size="12" stroke-width="1.25" class="text-success-500 grow-0 shrink-0" />
                     <IconClockFilled v-else-if="user.kyc_approval === 'pending'" size="12" stroke-width="1.25" class="text-warning-500 grow-0 shrink-0" />
                     <IconExclamationCircleFilled v-else size="12" stroke-width="1.25" class="text-error-500 grow-0 shrink-0" />
                 </div>
