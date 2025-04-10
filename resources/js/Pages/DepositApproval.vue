@@ -62,7 +62,7 @@ const getSeverity = (status) => {
 
 const form = useForm({
     transaction_id: props.transaction.id,
-    amount: Number(props.transaction.amount),
+    amount: Number(props.transaction.transaction_amount),
     transaction_amount: Number(props.transaction.transaction_amount),
     txn_hash: props.transaction.txn_hash,
     remarks: '',
