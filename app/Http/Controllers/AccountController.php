@@ -20,6 +20,7 @@ use App\Models\Transaction;
 use App\Models\SettingLeverage;
 use App\Models\Wallet;
 use App\Models\UserAccountTypeVisibility;
+use App\Models\SettingAutoApproval;
 use App\Services\CTraderService;
 use App\Services\RunningNumberService;
 use App\Services\DropdownOptionService;
@@ -908,13 +909,46 @@ class AccountController extends Controller
             $formatted_amount = floor($original_amount * 100) / 100;
 
             if ($result['transfer_amount_type'] == 'invalid') {
-                $transaction->update([
-                    'transaction_amount' => $formatted_amount,
-                    'status' => 'processing',
-                ]);
+                $now = Carbon::now('Asia/Kuala_Lumpur');
+                $currentDay = $now->dayOfWeekIso;
 
-                Notification::route('mail', 'payment@currenttech.pro')
-                    ->notify(new DepositApprovalNotification($transaction));
+                $setting = SettingAutoApproval::where('day', $currentDay)
+                ->where('type', 'deposit')
+                ->where('status', 'active')
+                ->first();
+
+                if ($setting) {
+                    $startTime = Carbon::createFromFormat('H:i', $setting->start_time, 'Asia/Kuala_Lumpur')
+                        ->setDateFrom($now);
+
+                    $endTime = Carbon::createFromFormat('H:i', $setting->end_time, 'Asia/Kuala_Lumpur')
+                        ->setDateFrom($now);
+
+                    $lowerBound = $transaction->amount - $setting->spread_amount;
+                    $upperBound = $transaction->amount + $setting->spread_amount;
+                    
+                    if (
+                        $now->between($startTime, $endTime) &&
+                        $formatted_amount >= $lowerBound &&
+                        $formatted_amount <= $upperBound
+                    ) {
+                        $transaction->update([
+                            'transaction_amount' => $formatted_amount,
+                            'status' => 'successful',
+                            'remarks' => $result['remarks'],
+                            'approved_at' => now()
+                        ]);
+                    } else {
+                    $transaction->update([
+                        'transaction_amount' => $formatted_amount,
+                        'status' => 'processing',
+                    ]);
+
+                    Notification::route('mail', 'payment@currenttech.pro')
+                        ->notify(new DepositApprovalNotification($transaction));
+                    }
+                }
+
             } else {
                 $transaction->update([
                     'amount' => $formatted_amount,
