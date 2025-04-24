@@ -18,6 +18,7 @@ import Button from "@/Components/Button.vue";
 import {loadLanguageAsync} from "laravel-vue-i18n";
 import Tag from "primevue/tag";
 import InputText from "primevue/inputtext";
+import { ForumIcon, ForumNotifIcon } from '@/Components/Icons/outline'
 
 defineProps({
     title: String
@@ -111,37 +112,38 @@ const downloadQrCode = () => {
         </div> -->
         <div class="flex items-center">
             <Link
-                class="w-12 h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('forum')"
                 method="get"
                 as="button"
             >
-                <IconMessage size="20" stroke-width="1.25" />
+                <ForumIcon aria-hidden="true" class="flex-shrink-0 w-5 h-5" />
+                <!-- <ForumNotifIcon aria-hidden="true" class="flex-shrink-0 w-5 h-5" /> -->
             </Link>
             <div
-                class="w-12 h-12 p-3.5 flex items-center justify-center rounded-full hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 @click="toggle"
             >
-                <IconLanguage size="20" stroke-width="1.25" />
+                <IconLanguage size="20" stroke-width="1.25" class="flex-shrink-0 w-5 h-5"/>
             </div>
             <Button
                 variant="gray-text"
-                class="w-12 h-12 p-3.5 !ring-0"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 !ring-0"
                 size="base"
                 type="button"
                 iconOnly
                 pill
                 @click="visible = true"
             >
-                <IconQrcode size="20" stroke-width="1.5" />
+                <IconQrcode size="20" stroke-width="1.5" class="flex-shrink-0 w-5 h-5"/>
             </Button>
             <Link
-                class="hidden w-12 h-12 p-3.5 md:flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('logout')"
                 method="post"
                 as="button"
             >
-                <IconTransferOut size="20" stroke-width="1.25" />
+                <IconTransferOut size="20" stroke-width="1.25" class="flex-shrink-0 w-5 h-5"/>
             </Link>
         </div>
     </nav>
