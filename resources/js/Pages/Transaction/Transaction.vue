@@ -454,7 +454,7 @@ const openDialog = (rowData) => {
                         <Column field="transaction_amount" :header="`${$t('public.amount')}&nbsp;($)`" sortable class="hidden md:table-cell w-auto">
                             <template #body="slotProps">
                                 <div class="text-gray-950 text-sm">
-                                    {{ formatAmount(slotProps.data.amount) }}
+                                    {{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : slotProps.data.amount) }}
                                 </div>
                             </template>
                         </Column>
@@ -494,7 +494,7 @@ const openDialog = (rowData) => {
                                     </div>
                                     <div class="flex flex-col items-end">
                                         <div class=" font-semibold text-right">
-                                            $&nbsp;{{ formatAmount(slotProps.data.amount) }}
+                                            $&nbsp;{{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : slotProps.data.amount) }}
                                         </div>
                                         <div class="text-xs text-right" :style="{ color: getStatusColor(slotProps.data.status) }">
                                             {{ $t(`public.${slotProps.data.status}`) }}
