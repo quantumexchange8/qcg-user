@@ -165,9 +165,11 @@ class RegisteredUserController extends Controller
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
             'kyc_approval' => 'pending',
-            'remarks' => 'TW Test Trading Group',
+            // 'remark' => 'TW Test Trading Group',
         ];
 
+        Log::info($userData['email']);
+        Log::info($userData['first_name']);
         // $default_agent_id = User::where('id_number', 'AID00082')->first()->id;
 
         $check_referral_code = null;
