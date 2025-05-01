@@ -7,7 +7,7 @@ import { useForm, usePage, router } from '@inertiajs/vue3';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import Dropdown from 'primevue/dropdown';
-import {ref, watch, watchEffect} from "vue";
+import {isReadonly, readonly, ref, watch, watchEffect} from "vue";
 import {
     IconEdit,
 } from "@tabler/icons-vue";
@@ -23,7 +23,7 @@ const props = defineProps({
 });
 
 const editStatus = ref(false);
-const countryList = ref(props.countries); 
+const countryList = ref(props.countries);
 const selectedCountry = ref();
 const user = usePage().props.auth.user;
 
@@ -131,7 +131,10 @@ const submitForm = () => {
                         :invalid="!!form.errors.first_name"
                         autocomplete="name"
                         @change="handleInputChange('first_name')"
-                        :disabled="user.kyc_approval === 'verified' || editStatus === false"
+                        :readOnly="user.kyc_approval === 'verified' || editStatus === false"
+                        :class="{
+                            '!bg-gray-100 !text-gray-700 cursor-default': user.kyc_approval === 'verified' || editStatus === false
+                        }"
                     />
                     <InputError :message="form.errors.first_name" />
                 </div>
@@ -149,7 +152,10 @@ const submitForm = () => {
                         :invalid="!!form.errors.chinese_name"
                         autocomplete="name"
                         @change="handleInputChange('chinese_name')"
-                        :disabled="user.kyc_approval === 'verified' || editStatus === false"
+                        :readOnly="user.kyc_approval === 'verified' || editStatus === false"
+                        :class="{
+                            '!bg-gray-100 !text-gray-700 cursor-default': user.kyc_approval === 'verified' || editStatus === false
+                        }"
                     />
                     <InputError :message="form.errors.chinese_name" />
                 </div>
