@@ -464,15 +464,16 @@ const removeKycVerification = (index) => {
                                 </Button>
 
                                 <Button
-                                type="button"
-                                variant="primary-text"
-                                @click="() => {
-                                    if (activeStep > 1) {
-                                        activeStep -= 1;
-                                        activateCallback(activeStep);
-                                    }
-                                }"
-                                class="px-4 py-3"
+                                    type="button"
+                                    variant="primary-text"
+                                    @click="() => {
+                                        if (activeStep > 1) {
+                                            activeStep -= 1;
+                                            activateCallback(activeStep);
+                                        }
+                                    }"
+                                    class="px-4 py-3"
+                                    :disabled="form.processing"
                                 >
                                     <span>{{ $t('public.previous_page') }}</span>
                                 </Button>
