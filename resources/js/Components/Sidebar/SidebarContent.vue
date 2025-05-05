@@ -16,6 +16,7 @@ import {
     IconDownload,
     IconUserCircle,
     IconGift,
+    IconWand,
 } from '@tabler/icons-vue';
 
 const user = usePage().props.auth.user;
@@ -35,6 +36,16 @@ const user = usePage().props.auth.user;
         >
             <template #icon>
                 <IconSmartHome :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+        <SidebarLink
+            :title="$t('public.sidebar.highlights')"
+            :href="route('highlights')"
+            :active="route().current('highlights')"
+        >
+            <template #icon>
+                <IconWand :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
 
@@ -84,7 +95,7 @@ const user = usePage().props.auth.user;
         </SidebarLink>
 
          <!-- Rewards -->
-        <!-- <SidebarLink
+        <SidebarLink
             :title="$t('public.sidebar.rewards')"
             :href="route('rewards')"
             :active="route().current('rewards')"
@@ -92,7 +103,7 @@ const user = usePage().props.auth.user;
             <template #icon>
                 <IconGift :size="20" stroke-width="1.25" />
             </template>
-        </SidebarLink> -->
+        </SidebarLink>
 
         <!-- Rebate Setting -->
 <!--        <SidebarLink-->

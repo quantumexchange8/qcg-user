@@ -23,7 +23,6 @@ const getResults = async () => {
     try {
         const response = await axios.get(url);
 
-        // Update the rebateSummary and totals
         tradePoints.value = response.data.tradePoints;
         totalTradePoints.value = response.data.totalTradePoints;
     } catch (error) {
@@ -39,7 +38,6 @@ const getPointHistories = async () => {
     try {
         const response = await axios.get(url);
 
-        // Update the rebateSummary and totals
         pointHistories.value = response.data.pointHistory;
         // console.log(pointHistories)
     } catch (error) {
@@ -164,7 +162,7 @@ const getStatusTooltip = (history) => {
                                         :class="['px-1 py-0.5 text-xxs rounded-sm', getStatusBadgeClass(history.status)]"
                                         v-tooltip.top="history.status !== 'processing' ? getStatusTooltip(history) : null"
                                     >
-                                        {{ $t(`public.${history.status}`) }}
+                                        {{ $t(`public.${history.status ?? 'unknown'}`) }}
                                     </span>
                                 </div>
                             </div>
