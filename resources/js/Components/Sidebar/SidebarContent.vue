@@ -39,7 +39,7 @@ const user = usePage().props.auth.user;
             </template>
         </SidebarLink>
 
-        <!-- <SidebarLink
+        <SidebarLink
             :title="$t('public.sidebar.highlights')"
             :href="route('highlights')"
             :active="route().current('highlights')"
@@ -47,7 +47,7 @@ const user = usePage().props.auth.user;
             <template #icon>
                 <IconWand :size="20" stroke-width="1.25" />
             </template>
-        </SidebarLink> -->
+        </SidebarLink>
 
         <!-- Accounts -->
         <!-- <SidebarLink

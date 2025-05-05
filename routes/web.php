@@ -18,6 +18,7 @@ use App\Http\Controllers\RebateSettingController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\DownloadCenterController;
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\AnnouncementController;
 
 Route::get('locale/{locale}', function ($locale) {
     App::setLocale($locale);
@@ -101,6 +102,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/walletWithdrawal', [TransactionController::class, 'walletWithdrawal'])->name('dashboard.walletWithdrawal');
         Route::get('/getRebateTransactions', [TransactionController::class, 'getRebateTransactions'])->name('dashboard.getRebateTransactions');
     });
+
+
+    /**
+     * ==============================
+     *           Highlights
+     * ==============================
+     */
+    Route::prefix('highlights')->group(function() {
+        Route::get('/', [AnnouncementController::class, 'index'])->name('highlights');
+        Route::get('/getAnnouncement', [AnnouncementController::class, 'getAnnouncement'])->name('highlights.getAnnouncement');
+        // Route::get('/', [AnnouncementController::class, ''])->name('highlights.');
+        // Route::get('/', [AnnouncementController::class, ''])->name('highlights.');
+        // Route::get('/', [AnnouncementController::class, ''])->name('highlights.');
+    });
+
 
     /**
      * ==============================
