@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Announcement;
 use App\Models\Wallet;
 use App\Models\ForumPost;
 use App\Models\Transaction;
@@ -73,8 +74,22 @@ class DashboardController extends Controller
         //     })
         //     ->sum('trade_volume');
 
+        $pinned_announcements = Announcement::with([
+            'media'
+        ])
+            ->where('pinned', true)
+            ->where('status', 'active')
+            ->latest()
+            ->get()
+            ->map(function ($announcement) {
+                $announcement->thumbnail = $announcement->getFirstMediaUrl('thumbnail');
+
+                return $announcement;
+            });
+
         return response()->json([
             'rebateWallet' => $rebate_wallet,
+            'pinnedAnnouncements' => $pinned_announcements,
             'groupTotalDeposit' => $group_total_deposit,
             'groupTotalWithdrawal' => $group_total_withdrawal,
             // 'groupTotalNetBalance' => $group_total_deposit - $group_total_withdrawal,

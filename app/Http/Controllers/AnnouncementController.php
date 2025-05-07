@@ -27,8 +27,22 @@ class AnnouncementController extends Controller
                 return $announcement;
             });
 
+        $pinned_announcements = Announcement::with([
+            'media'
+        ])
+            ->where('pinned', true)
+            ->where('status', 'active')
+            ->latest()
+            ->get()
+            ->map(function ($announcement) {
+                $announcement->thumbnail = $announcement->getFirstMediaUrl('thumbnail');
+
+                return $announcement;
+            });
+
         return response()->json([
             'announcements' => $announcements,
+            'pinnedAnnouncements' => $pinned_announcements,
         ]);
     }
 }

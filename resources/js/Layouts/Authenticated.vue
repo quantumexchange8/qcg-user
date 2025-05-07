@@ -26,7 +26,7 @@ defineProps({
                 <Sidebar  v-if="title!==$t('public.forum')"/>
 
                 <!-- Page Content -->
-                <main class="flex flex-1 justify-center items-start">
+                <main class="flex flex-1 justify-center items-start overflow-hidden">
                     <div class="flex flex-col h-full w-full max-w-[1440px]">
                         <!-- Toast -->
                         <ToastList />

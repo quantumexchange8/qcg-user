@@ -4,21 +4,32 @@ import { ref, computed } from "vue";
 import Button from "@/Components/Button.vue";
 import Divider from 'primevue/divider';
 import Dialog from 'primevue/dialog';
-// import PerfectScrollbar from '@/Components/PerfectScrollbar.vue'
 import dayjs from 'dayjs';
 
 const announcements = ref([]);
+const pinnedAnnouncements = ref([]);
 
 const getAnnouncementData = async () => {
     try {
         const response = await axios.get('/highlights/getAnnouncement');
         announcements.value = response.data.announcements;
-    } catch (error) {
+        pinnedAnnouncements.value = response.data.pinnedAnnouncements;
+    } catch (error) { 
         console.error('Error getting announcement:', error);
     }
 };
 
 getAnnouncementData();
+
+const visibleCount = ref(4)
+
+const visibleAnnouncements = computed(() =>
+  announcements.value.slice(0, visibleCount.value)
+)
+
+function loadMore() {
+  visibleCount.value += 4
+}
 
 const visible = ref(false);
 const data = ref({});
@@ -30,40 +41,41 @@ const openDialog = (announcementData) => {
 
 <template>
     <AuthenticatedLayout :title="$t('public.sidebar.highlights')">
-        <div class="flex flex-col gap-5 items-center justify-center self-stretch">
-            <!-- <PerfectScrollbar>
-                <div class="flex flex-row gap-5 px-4">
-                    <div
-                    v-for="announcement in announcements"
-                    class="rounded-lg w-[400px] h-[225px] flex-shrink-0 bg-black"
+        <div class="flex flex-col gap-5 items-center justify-center w-full ">
+            <div class="flex flex-row gap-5 overflow-x-auto w-full">
+                <div
+                    v-for="announcement in pinnedAnnouncements"
+                    class="relative rounded-lg w-[400px] h-[225px] flex-shrink-0 overflow-hidden hover:opacity-60 hover:cursor-pointer"
+                    :class="{ 'bg-black': !announcement.thumbnail }"
                     @click="openDialog(announcement)"
                     >
-                    <div class="flex flex-col p-3 gap-1 w-full h-full justify-end">
-                        <span class="font-semibold text-white">{{ announcement.title }}</span>
-                        <span class="text-sm text-white">{{ announcement.content }}</span>
-                    </div>
-                    </div>
-                </div>
-            </PerfectScrollbar> -->
-            <!-- <div class="w-full overflow-x-auto">
-                <div class="flex flex-row gap-5 px-4">
+                    <!-- Image -->
+                    <img
+                        v-if="announcement.thumbnail"
+                        :src="announcement.thumbnail"
+                        alt="cover"
+                        class="w-full h-full object-fill"
+                    />
+                    <!-- reminder that justify-end does not work with line-clamp (use mt in child of flex container instead) -->
                     <div
-                    v-for="announcement in announcements"
-                    class="rounded-lg w-[400px] h-[225px] flex-shrink-0 bg-black"
-                    @click="openDialog(announcement)"
+                        class="absolute inset-0 p-3 flex flex-col items-start overflow-hidden"
                     >
-                    <div class="flex flex-col p-3 gap-1 w-full h-full justify-end">
-                        <span class="font-semibold text-white">{{ announcement.title }}</span>
-                        <span class="text-sm text-white">{{ announcement.content }}</span>
-                    </div>
+                        <div class="mt-auto flex flex-col gap-1 max-h-[112px] w-full overflow-hidden">
+                            <span class="font-semibold text-gray-500 w-full line-clamp-1">
+                            {{ announcement.title }}
+                            </span>
+                            <span class="text-sm text-gray-500 w-full line-clamp-3">
+                            {{ announcement.content }}
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div> -->
+            </div>
 
             <div class="flex flex-col gap-3 p-6 items-center justify-center rounded-md shadow-card bg-white self-stretch">
                 <span class="text-gray-950 font-bold self-stretch">{{ $t('public.announcements') }}</span>
                 <div class="flex flex-col self-stretch">
-                    <div v-for="announcement in announcements" class="flex flex-row gap-5 self-stretch py-5 hover:opacity-60 hover:cursor-pointer" @click="openDialog(announcement)">
+                    <div v-for="announcement in visibleAnnouncements" class="flex flex-row gap-5 self-stretch py-5 hover:opacity-60 hover:cursor-pointer" @click="openDialog(announcement)">
                         <div class="flex flex-col gap-1 w-[60px] flex-shrink-0">
                             <span class="font-semibold text-gray-500">
                                 {{ dayjs(announcement.start_date).format('MMM DD') }}
@@ -74,10 +86,10 @@ const openDialog = (announcementData) => {
                         </div>
                         <Divider layout="vertical" />
                         <div class="flex flex-col gap-1 w-full">
-                            <span class="font-semibold text-gray-950">
+                            <span class="font-semibold text-gray-950 line-clamp-1">
                                 {{ announcement.title }}
                             </span>
-                            <span class="text-sm text-gray-700">
+                            <span class="text-sm text-gray-700 line-clamp-4">
                                 {{ announcement.content }}
                             </span>
                         </div>
@@ -85,6 +97,8 @@ const openDialog = (announcementData) => {
                     </div>
                 </div>
                 <Button
+                    v-if="visibleCount < announcements.length"
+                     @click="loadMore"
                     type="button"
                     variant="primary-outlined"
                     size="lg"
@@ -107,3 +121,33 @@ const openDialog = (announcementData) => {
         </div>
     </Dialog>
 </template>
+
+<style scoped>
+.horizontal-scrollpanel {
+  width: 100%;
+  height: 250px;
+  position: relative;
+}
+
+/* 1. Enable horizontal scrolling */
+.horizontal-scrollpanel ::v-deep(.p-scrollpanel-wrapper) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  height: 100%;
+}
+
+/* 2. Force horizontal layout */
+.horizontal-scrollpanel ::v-deep(.p-scrollpanel-content) {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  min-width: max-content; /* Forces horizontal overflow */
+  height: 100%;
+}
+
+/* 3. Structure for your items */
+.scroll-inner {
+  display: flex;
+  gap: 1.25rem; /* Tailwind's gap-5 */
+}
+</style>

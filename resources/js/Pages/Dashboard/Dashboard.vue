@@ -19,6 +19,8 @@ import RebateEarn from "@/Pages/Dashboard/Partials/RebateEarn.vue";
 import RebateHistory from "@/Pages/Dashboard/Partials/RebateHistory.vue";
 import Vue3Autocounter from "vue3-autocounter";
 import Account from "@/Pages/Accounts/Account.vue";
+import Carousel from 'primevue/carousel';
+import Dialog from 'primevue/dialog';
 
 // const props = defineProps({
 //     terms: Object,
@@ -35,6 +37,7 @@ const groupTotalAsset = ref(0);
 const groupTotalTradeLot = ref(0);
 const groupTotalTradePoints = ref(0);
 const rebateWallet = ref();
+const pinnedAnnouncements = ref([]);
 
 // data overview
 const dataOverviews = computed(() => [
@@ -119,6 +122,7 @@ const getDashboardData = async () => {
     try {
         const response = await axios.get('/dashboard/getDashboardData');
         rebateWallet.value = response.data.rebateWallet
+        pinnedAnnouncements.value = response.data.pinnedAnnouncements
         groupTotalDeposit.value = response.data.groupTotalDeposit
         groupTotalWithdrawal.value = response.data.groupTotalWithdrawal
         groupTotalNetBalance.value = response.data.groupTotalNetBalance
@@ -137,6 +141,7 @@ watchEffect(() => {
         getDashboardData();
     }
 });
+
 </script>
 
 <template>
@@ -158,6 +163,55 @@ watchEffect(() => {
                         </div>
                     </div>
 
+                    <div class="flex flex-col gap-1 bg-white rounded-lg shadow-card relative overflow-hidden px-3 py-3 md:p-6 items-center w-full">
+                        <div class="flex flex-row items-center justify-between self-stretch">
+                            <span class="text-md font-bold text-gray-950">{{ $t('public.highlights') }}</span>
+                            <Button
+                            variant="primary-text"
+                            :href="route('highlights')"
+                            >
+                                {{ $t('public.see_more') }}
+                            </Button>
+                        </div>
+                        <Carousel v-if="pinnedAnnouncements.length > 0" :value="pinnedAnnouncements" 
+                            :numVisible="1" :numScroll="1" circular :autoplayInterval="5000" 
+                            :showIndicators="false"
+                            :showNavigators="false"
+                            :responsiveOptions="[
+                                {
+                                breakpoint: '768px',
+                                numVisible: 1,
+                                numScroll: 1
+                                },
+                                {
+                                breakpoint: '9999px',
+                                numVisible: 2,
+                                numScroll: 1
+                                }
+                            ]"
+                            class="w-full relative">
+                            <template #item="slotProps">
+                                    <div
+                                        class="relative rounded-lg w-full h-[160px] md:h-[225px] overflow-hidden bg-black"
+                                        >
+                                        <!-- Image -->
+                                        <img
+                                            v-if="slotProps.data.thumbnail"
+                                            :src="slotProps.data.thumbnail"
+                                            alt="cover"
+                                            class="w-full h-full object-fill"
+                                        />
+
+                                        <!-- Text Overlay -->
+                                        <div
+                                            class="absolute inset-0 p-2 flex items-end justify-start text-white text-lg font-semibold bg-black/50 overflow-hidden truncate"
+                                        >
+                                            {{ slotProps.data.title }}
+                                        </div>
+                                    </div>
+                            </template>
+                        </Carousel>
+                    </div>
                     <!-- overview data -->
                     <div
                         class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-2"
@@ -230,4 +284,6 @@ watchEffect(() => {
         </div>
 
     </AuthenticatedLayout>
+
 </template>
+

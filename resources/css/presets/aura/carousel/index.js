@@ -2,7 +2,7 @@ export default {
     root: {
         class: [
             // Flexbox
-            'flex flex-col'
+            'flex flex-col',
         ]
     },
     contentContainer: {
@@ -21,7 +21,7 @@ export default {
                 'flex-row': props.orientation !== 'vertical',
                 'flex-col': props.orientation == 'vertical'
             },
-            '[&>[data-pc-extend=button]]:self-center'
+            '[&>[data-pc-extend=button]]:self-center px-1'
         ]
     }),
     viewport: {
@@ -33,7 +33,7 @@ export default {
     itemList: ({ props }) => ({
         class: [
             // Flexbox
-            'flex',
+            'flex h-[160px] md:h-[225px]',
 
             // Orientation & Sizing
             {
@@ -49,7 +49,8 @@ export default {
 
             // Size
             {
-                'w-full sm:w-[50%] md:w-[33.333333333333336%]': props.orientation !== 'vertical',
+                // 'w-full sm:w-[50%] md:w-[33.333333333333336%]': props.orientation !== 'vertical',
+                'w-full': props.orientation !== 'vertical',
 
                 'w-full h-full': props.orientation == 'vertical'
             }
@@ -63,7 +64,8 @@ export default {
 
             // Size
             {
-                'w-full sm:w-[50%] md:w-[33.333333333333336%]': props.orientation !== 'vertical',
+                // 'w-full sm:w-[50%] md:w-[33.333333333333336%]': props.orientation !== 'vertical',
+                'w-full': props.orientation !== 'vertical',
 
                 'w-full h-full': props.orientation == 'vertical'
             }
@@ -78,7 +80,7 @@ export default {
     indicator: {
         class: [
             // Spacing
-            'mr-2 mb-2'
+            'mx-1'
         ]
     },
     indicatorButton: ({ context }) => ({
@@ -90,11 +92,11 @@ export default {
             'transition duration-200',
 
             // Focus Styles
-            'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500 dark:focus:ring-primary-400',
+            'focus:outline-none focus:outline-offset-0 focus:ring-1 focus:ring-primary-500',
 
             // Color & Background
             {
-                'bg-surface-200 hover:bg-surface-300 dark:bg-surface-700 dark:hover:bg-surface-600': !context.highlighted,
+                'bg-surface-200 hover:bg-surface-300': !context.highlighted,
                 'bg-primary hover:bg-primary-emphasis': context.highlighted
             }
         ]

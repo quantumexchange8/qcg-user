@@ -155,7 +155,7 @@ export default {
             { 'hover:bg-surface-200 hover:border-surface-200': props.severity === 'secondary' && !props.text && !props.outlined && !props.plain },
             { 'focus:ring-surface-500 dark:focus:ring-surface-400': props.severity === 'secondary' },
             // Text & Outlined Button
-            { 'hover:bg-surface-300/10': (props.text || props.outlined) && props.severity === 'secondary' && !props.plain },
+            { 'hover:bg-surface-200': (props.text || props.outlined) && props.severity === 'secondary' && !props.plain },
 
             // Success
             { 'hover:bg-green-600 dark:hover:bg-green-300 hover:border-green-600 dark:hover:border-green-300': props.severity === 'success' && !props.text && !props.outlined && !props.plain },
