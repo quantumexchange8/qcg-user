@@ -552,4 +552,5 @@ return [
     'load_more' => 'Load More',
     'announcement' => 'Announcement',
     'highlights' => 'Highlights',
+    'today' => 'Today',
 ];

@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import Button from '@/Components/Button.vue';
 import {usePage, router} from "@inertiajs/vue3";
 import {transactionFormat} from "@/Composables/index.js";
-import {computed, ref, watchEffect} from "vue";
+import {computed, ref, watch, watchEffect, onMounted} from "vue";
 import {
     DepositIcon,
     WithdrawalIcon,
@@ -134,6 +134,15 @@ const getDashboardData = async () => {
     }
 };
 
+const isMounted = ref(false);
+const autoplayInterval = ref(0);
+
+onMounted(() => {
+  setTimeout(() => {
+    autoplayInterval.value = 5000; // enable autoplay after initial mount
+  }, 200); // delay enough to avoid flashing the last clone
+});
+
 getDashboardData();
 
 watchEffect(() => {
@@ -141,6 +150,24 @@ watchEffect(() => {
         getDashboardData();
     }
 });
+
+const responsiveOptions = ref([
+    {
+        breakpoint: '9999px',
+        numVisible: 2.22,
+        numScroll: 1
+    },
+    {
+        breakpoint: '1280px',
+        numVisible: 1.43,
+        numScroll: 1
+    },
+    {
+        breakpoint: '768px',
+        numVisible: 1,
+        numScroll: 1
+    },
+]);
 
 </script>
 
@@ -163,55 +190,6 @@ watchEffect(() => {
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-1 bg-white rounded-lg shadow-card relative overflow-hidden px-3 py-3 md:p-6 items-center w-full">
-                        <div class="flex flex-row items-center justify-between self-stretch">
-                            <span class="text-md font-bold text-gray-950">{{ $t('public.highlights') }}</span>
-                            <Button
-                            variant="primary-text"
-                            :href="route('highlights')"
-                            >
-                                {{ $t('public.see_more') }}
-                            </Button>
-                        </div>
-                        <Carousel v-if="pinnedAnnouncements.length > 0" :value="pinnedAnnouncements" 
-                            :numVisible="1" :numScroll="1" circular :autoplayInterval="5000" 
-                            :showIndicators="false"
-                            :showNavigators="false"
-                            :responsiveOptions="[
-                                {
-                                breakpoint: '768px',
-                                numVisible: 1,
-                                numScroll: 1
-                                },
-                                {
-                                breakpoint: '9999px',
-                                numVisible: 2,
-                                numScroll: 1
-                                }
-                            ]"
-                            class="w-full relative">
-                            <template #item="slotProps">
-                                    <div
-                                        class="relative rounded-lg w-full h-[160px] md:h-[225px] overflow-hidden bg-black"
-                                        >
-                                        <!-- Image -->
-                                        <img
-                                            v-if="slotProps.data.thumbnail"
-                                            :src="slotProps.data.thumbnail"
-                                            alt="cover"
-                                            class="w-full h-full object-fill"
-                                        />
-
-                                        <!-- Text Overlay -->
-                                        <div
-                                            class="absolute inset-0 p-2 flex items-end justify-start text-white text-lg font-semibold bg-black/50 overflow-hidden truncate"
-                                        >
-                                            {{ slotProps.data.title }}
-                                        </div>
-                                    </div>
-                            </template>
-                        </Carousel>
-                    </div>
                     <!-- overview data -->
                     <div
                         class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-2"
@@ -242,6 +220,52 @@ watchEffect(() => {
                                 <IconDots class="w-4 h-4 text-gray-400" />
                             </div>
                         </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3 bg-white rounded-lg shadow-card relative overflow-hidden px-3 py-3 md:p-6 items-center w-full">
+                        <div class="flex flex-row items-center justify-between self-stretch">
+                            <span class="text-md font-bold text-gray-950">{{ $t('public.highlights') }}</span>
+                            <Button
+                            variant="primary-text"
+                            :href="route('highlights')"
+                            >
+                                {{ $t('public.see_more') }}
+                            </Button>
+                        </div>
+                        <Carousel v-if="pinnedAnnouncements.length > 0" :value="pinnedAnnouncements" 
+                            :numVisible="1.43" :numScroll="1" circular :autoplayInterval="autoplayInterval"
+                            :responsiveOptions="responsiveOptions"
+                            :showNavigators="false" :showIndicators="false"
+                            class="w-full relative">
+                            <template #item="slotProps">
+                                <div class="w-full px-2 flex justify-start">
+                                    <div
+                                        class="relative w-full h-[160px] md:h-[225px] rounded-lg overflow-hidden bg-black"
+                                    >
+                                        <!-- Image -->
+                                        <img
+                                        v-if="slotProps.data.thumbnail"
+                                        :src="slotProps.data.thumbnail"
+                                        alt="cover"
+                                        class="w-full h-full object-fill"
+                                        />
+
+                                        <div
+                                            class="absolute inset-0 p-2 flex flex-col items-start overflow-hidden"
+                                        >
+                                            <div class="mt-auto flex flex-col gap-1 max-h-[112px] w-full overflow-hidden">
+                                                <span class="font-semibold text-gray-500 w-full line-clamp-1">
+                                                {{ slotProps.data.title }}
+                                                </span>
+                                                <span class="text-sm text-gray-500 w-full line-clamp-3">
+                                                {{ slotProps.data.content }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </Carousel>
                     </div>
                 </div>
 

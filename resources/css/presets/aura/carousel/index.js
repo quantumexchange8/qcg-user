@@ -45,12 +45,12 @@ export default {
     item: ({ props }) => ({
         class: [
             // Flexbox
-            'flex shrink-0 grow ',
+            'flex shrink-0 grow px-1',
 
             // Size
             {
                 // 'w-full sm:w-[50%] md:w-[33.333333333333336%]': props.orientation !== 'vertical',
-                'w-full': props.orientation !== 'vertical',
+                'w-full md:w-[70%] xl:w-[45%]': props.orientation !== 'vertical',
 
                 'w-full h-full': props.orientation == 'vertical'
             }
@@ -59,13 +59,13 @@ export default {
     itemClone: ({ props }) => ({
         class: [
             // Flexbox
-            'flex shrink-0 grow',
-            'unvisible',
+            'flex shrink-0 grow px-1',
+            'unvisible',    
 
             // Size
             {
                 // 'w-full sm:w-[50%] md:w-[33.333333333333336%]': props.orientation !== 'vertical',
-                'w-full': props.orientation !== 'vertical',
+                'w-full md:w-[70%] xl:w-[45%]': props.orientation !== 'vertical',
 
                 'w-full h-full': props.orientation == 'vertical'
             }

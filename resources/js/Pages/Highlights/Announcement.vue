@@ -37,6 +37,20 @@ const openDialog = (announcementData) => {
     visible.value = true;
     data.value = announcementData;
 };
+
+const isToday = (date) => {
+  return dayjs(date).isSame(dayjs(), 'day')
+}
+
+const getTimeLabel = (announcement) => {
+  if (isToday(announcement.start_date)) {
+    const start = dayjs(announcement.start_date)
+    const updated = dayjs(announcement.updated_at)
+    return start.isSame(updated) ? '00:00' : updated.format('HH:mm')
+  } else {
+    return dayjs(announcement.start_date).format('YYYY')
+  }
+}
 </script>
 
 <template>
@@ -78,10 +92,10 @@ const openDialog = (announcementData) => {
                     <div v-for="announcement in visibleAnnouncements" class="flex flex-row gap-5 self-stretch py-5 hover:opacity-60 hover:cursor-pointer" @click="openDialog(announcement)">
                         <div class="flex flex-col gap-1 w-[60px] flex-shrink-0">
                             <span class="font-semibold text-gray-500">
-                                {{ dayjs(announcement.start_date).format('MMM DD') }}
+                                {{ isToday(announcement.start_date) ? $t('public.today') : dayjs(announcement.start_date).format('MMM DD') }}
                             </span>
                             <span class="text-gray-500">
-                                {{ dayjs(announcement.start_date).format('YYYY') }}
+                                {{ getTimeLabel(announcement) }}
                             </span>
                         </div>
                         <Divider layout="vertical" />
