@@ -78,8 +78,7 @@ const getTimeLabel = (announcement) => {
                             <span class="font-semibold text-gray-500 w-full line-clamp-1">
                             {{ announcement.title }}
                             </span>
-                            <span class="text-sm text-gray-500 w-full line-clamp-3">
-                            {{ announcement.content }}
+                            <span class="text-sm text-gray-500 w-full line-clamp-3" v-html="announcement.content">
                             </span>
                         </div>
                     </div>

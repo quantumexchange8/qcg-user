@@ -257,8 +257,7 @@ const responsiveOptions = ref([
                                                 <span class="font-semibold text-gray-500 w-full line-clamp-1">
                                                 {{ slotProps.data.title }}
                                                 </span>
-                                                <span class="text-sm text-gray-500 w-full line-clamp-3">
-                                                {{ slotProps.data.content }}
+                                                <span class="text-sm text-gray-500 w-full line-clamp-3" v-html="slotProps.data.content">
                                                 </span>
                                             </div>
                                         </div>
