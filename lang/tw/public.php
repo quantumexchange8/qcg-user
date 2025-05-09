@@ -550,4 +550,5 @@ return [
     'announcement' => '公告',
     'highlights' => '亮點',
     'today' => '今天',
+    'close' => '關閉',
 ];

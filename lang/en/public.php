@@ -553,4 +553,5 @@ return [
     'announcement' => 'Announcement',
     'highlights' => 'Highlights',
     'today' => 'Today',
+    'close' => 'Close',
 ];

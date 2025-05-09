@@ -22,11 +22,9 @@ import Account from "@/Pages/Accounts/Account.vue";
 import Carousel from 'primevue/carousel';
 import Dialog from 'primevue/dialog';
 
-// const props = defineProps({
-//     terms: Object,
-//     postCounts: Number,
-//     authorName: String,
-// })
+const props = defineProps({
+    announcements: Object,
+})
 
 const user = usePage().props.auth.user;
 const { formatAmount } = transactionFormat();
@@ -136,11 +134,18 @@ const getDashboardData = async () => {
 
 const isMounted = ref(false);
 const autoplayInterval = ref(0);
+const announcementsQueue = ref([...props.announcements]) // clone to avoid mutation
+const currentAnnouncement = ref(null)
+const showPopup = ref(false)
 
 onMounted(() => {
-  setTimeout(() => {
-    autoplayInterval.value = 5000; // enable autoplay after initial mount
-  }, 200); // delay enough to avoid flashing the last clone
+    if (announcementsQueue.value.length) {
+        showNextAnnouncement();
+    }
+
+    setTimeout(() => {
+        autoplayInterval.value = 5000;
+    }, 200); 
 });
 
 getDashboardData();
@@ -150,6 +155,29 @@ watchEffect(() => {
         getDashboardData();
     }
 });
+
+function showNextAnnouncement() {
+  if (announcementsQueue.value.length) {
+    currentAnnouncement.value = announcementsQueue.value.shift()
+    showPopup.value = true
+  }
+}
+
+async function handlePopupClose() {
+  showPopup.value = false;
+
+  if (currentAnnouncement.value?.popup_login === 'first') {
+    // console.log(currentAnnouncement.value.id)
+    await axios.post('/dashboard/markAsViewed', {
+        announcement_id: currentAnnouncement.value.id,
+    })
+  }
+
+  // Slight delay before showing the next popup
+  setTimeout(() => {
+    showNextAnnouncement()
+  }, 300)
+}
 
 const responsiveOptions = ref([
     {
@@ -240,7 +268,8 @@ const responsiveOptions = ref([
                             <template #item="slotProps">
                                 <div class="w-full px-2 flex justify-start">
                                     <div
-                                        class="relative w-full h-[160px] md:h-[225px] rounded-lg overflow-hidden bg-black"
+                                        class="relative w-full h-[160px] md:h-[225px] rounded-lg overflow-hidden"
+                                        :class="{ 'bg-black': !slotProps.data.thumbnail }"
                                     >
                                         <!-- Image -->
                                         <img
@@ -285,7 +314,7 @@ const responsiveOptions = ref([
 
                         <!-- rebate wallet -->
                         <div class="bg-gray-50 flex flex-col p-3 md:p-6 gap-3 justify-between items-center self-stretch w-full">
-                            <div class="flex flex-col gap-1 items-center justify-center self-stretch w-full">
+                            <div class="flex flex-col gap-1 items-center justify-center self-stretch w-full max-w-">
                                 <span class="text-xxs md:text-sm text-gray-500">{{ $t('public.available_rebate_balance') }}</span>
                                 <span class="text-lg md:text-xl text-gray-950 font-semibold"> $ <vue3-autocounter ref="counter" :startAmount="0" :endAmount="rebateWallet ? Number(rebateWallet.balance) : 0" :duration="1" separator="," decimalSeparator="." :decimals="2" :autoinit="true" /></span>
                             </div>
@@ -308,5 +337,27 @@ const responsiveOptions = ref([
 
     </AuthenticatedLayout>
 
+    <Dialog v-model:visible="showPopup" modal :header="$t('public.announcement')" class="dialog-xs md:dialog-md no-header-border" :closable="false">
+        <div class="flex flex-col justify-center items-start gap-8 pb-6 self-stretch">
+            <img v-if="currentAnnouncement.thumbnail" :src="currentAnnouncement.thumbnail" alt="announcement_image" class="w-full h-[310.5px]" />
+
+            <span class="text-lg font-bold text-gray-950">{{ currentAnnouncement.title }}</span>
+
+            <!-- need to ask nic about this content if got html tag -->
+            <span class="text-md font-regular text-gray-950" v-html="currentAnnouncement.content"></span>
+
+        </div>
+        <template #footer>
+            <Button 
+                type="button"
+                variant="primary-flat"
+                size="base"
+                class="w-1/4"
+                @click="handlePopupClose" 
+            >
+                {{ $t('public.close') }}
+            </Button>
+        </template>
+    </Dialog>
 </template>
 

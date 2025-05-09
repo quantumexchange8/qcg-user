@@ -94,6 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
      */
     Route::prefix('dashboard')->group(function() {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::post('/markAsViewed', [DashboardController::class, 'markAsViewed'])->name('markAsViewed');
         Route::get('/getDashboardData', [DashboardController::class, 'getDashboardData'])->name('getDashboardData');
         Route::get('/getRebateEarnData', [DashboardController::class, 'getRebateEarnData'])->name('getRebateEarnData');
 

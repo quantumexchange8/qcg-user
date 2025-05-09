@@ -152,4 +152,9 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     {
         return $this->hasMany(UserAccountTypeVisibility::class);
     }
+
+    public function read()
+    {
+        return $this->hasMany(AnnouncementLog::class, 'user_id');
+    }
 }

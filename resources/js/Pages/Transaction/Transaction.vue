@@ -567,7 +567,7 @@ const openDialog = (rowData) => {
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.txid') }}</span>
                     <a
                         v-tooltip.top="$t('public.view_details')"
-                        class="w-full truncate text-gray-950 text-sm font-medium select-none cursor-pointer hover:text-primary"
+                        class="w-full flex-1 text-gray-950 text-sm font-medium select-none cursor-pointer hover:text-primary break-all"
                         :href="`https://tronscan.org/#/transaction/${data.txn_hash}`"
                         target="_blank"
                     >{{ data.txn_hash }}</a>
@@ -588,7 +588,7 @@ const openDialog = (rowData) => {
             <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.remarks') }}</span>
-                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.remarks ? data.remarks : '-' }}</span>
+                    <span class="w-full text-gray-950 text-sm font-medium">{{ data.remarks ? data.remarks : '-' }}</span>
                 </div>
             </div>
         </div>

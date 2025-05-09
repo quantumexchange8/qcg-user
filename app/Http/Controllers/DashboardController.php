@@ -11,6 +11,7 @@ use App\Models\Transaction;
 use App\Models\TradingAccount;
 use Illuminate\Http\Request;
 use App\Models\UserPostInteraction;
+use App\Models\AnnouncementLog;
 use App\Models\TradeBrokerHistory;
 use App\Models\TradeRebateSummary;
 use Illuminate\Support\Facades\DB;
@@ -25,7 +26,39 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Dashboard/Dashboard');
+        $user = Auth::user();
+
+        $announcements = Announcement::where('popup', true)
+        ->where(function ($query) use ($user) {
+            $query->where('popup_login', 'every')
+                  ->orWhere(function ($q) use ($user) {
+                      $q->where('popup_login', 'first')
+                        ->whereDoesntHave('read', function ($sub) use ($user) {
+                            $sub->where('user_id', $user->id);
+                        });
+                  });
+        })
+        ->get();
+
+        return Inertia::render('Dashboard/Dashboard', [
+            'announcements' => $announcements,
+        ]);
+
+    }
+
+    public function markAsViewed(Request $request)
+    {
+        $user = Auth::user();
+        $id = $request->input('announcement_id');
+
+        AnnouncementLog::create([
+            'user_id' => $user->id,
+            'announcementId' => $id,
+            'date_read' => now(),
+        ]);
+
+
+        return response()->json(['status' => 'ok']);
     }
 
     public function getDashboardData()
@@ -84,8 +117,21 @@ class DashboardController extends Controller
             ->map(function ($announcement) {
                 $announcement->thumbnail = $announcement->getFirstMediaUrl('thumbnail');
 
+                if ($announcement->recipient === 'selected_members') {
+
+                    $userHasVisibility = UserAnnouncementVisibility::where('announcement_id', $announcement->id)
+                        ->where('user_id', Auth::id())
+                        ->exists();
+
+                    if (!$userHasVisibility) {
+                        return null;
+                    }
+                }
+
                 return $announcement;
-            });
+            })
+            ->filter()
+            ->values();
 
         return response()->json([
             'rebateWallet' => $rebate_wallet,

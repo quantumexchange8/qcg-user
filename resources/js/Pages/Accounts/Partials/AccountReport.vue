@@ -324,7 +324,7 @@ function copyToClipboard(text) {
                 ></Tag>
                 <span class="self-stretch w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.sent_address') }}</span>
                 <div
-                    class="w-full max-w-[360px] md:max-w-[220px] text-gray-950 font-medium text-sm truncate select-none cursor-pointer"
+                    class="w-full max-w-[360px] md:max-w-[220px] text-gray-950 font-medium text-sm select-none cursor-pointer break-all"
                     @click="copyToClipboard(data.to_wallet_address)"
                 >
                     {{ data.to_wallet_address }}
@@ -343,7 +343,7 @@ function copyToClipboard(text) {
                 ></Tag>
                 <span class="self-stretch w-[120px] text-gray-500 text-xs font-medium">{{ $t('public.receiving_address') }}</span>
                 <div
-                    class="w-full max-w-[360px] md:max-w-[220px] text-gray-950 font-medium text-sm truncate select-none cursor-pointer"
+                    class="w-full max-w-[360px] md:max-w-[220px] text-gray-950 font-medium text-sm select-none cursor-pointer break-all"
                     @click="copyToClipboard(data.to_wallet_address)"
                 >
                     {{ data.to_wallet_address }}
