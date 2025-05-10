@@ -273,7 +273,6 @@ const responsiveOptions = ref([
                                     >
                                         <!-- Image -->
                                         <img
-                                        v-if="slotProps.data.thumbnail"
                                         :src="slotProps.data.thumbnail"
                                         alt="cover"
                                         class="w-full h-full object-fill"
@@ -283,10 +282,10 @@ const responsiveOptions = ref([
                                             class="absolute inset-0 p-2 flex flex-col items-start overflow-hidden"
                                         >
                                             <div class="mt-auto flex flex-col gap-1 max-h-[112px] w-full overflow-hidden">
-                                                <span class="font-semibold text-gray-500 w-full line-clamp-1">
+                                                <span class="font-semibold text-white w-full line-clamp-1">
                                                 {{ slotProps.data.title }}
                                                 </span>
-                                                <span class="text-sm text-gray-500 w-full line-clamp-3" v-html="slotProps.data.content">
+                                                <span class="text-sm text-white w-full line-clamp-2" v-html="slotProps.data.content">
                                                 </span>
                                             </div>
                                         </div>
@@ -339,7 +338,7 @@ const responsiveOptions = ref([
 
     <Dialog v-model:visible="showPopup" modal :header="$t('public.announcement')" class="dialog-xs md:dialog-md no-header-border" :closable="false">
         <div class="flex flex-col justify-center items-start gap-8 pb-6 self-stretch">
-            <img v-if="currentAnnouncement.thumbnail" :src="currentAnnouncement.thumbnail" alt="announcement_image" class="w-full h-[310.5px]" />
+            <img :src="currentAnnouncement.thumbnail" alt="announcement_image" class="w-full h-[310.5px]" />
 
             <span class="text-lg font-bold text-gray-950">{{ currentAnnouncement.title }}</span>
 
@@ -360,4 +359,10 @@ const responsiveOptions = ref([
         </template>
     </Dialog>
 </template>
+
+<style scoped>
+:deep(.p-carousel-items-content) {
+    scroll-padding-left: 11%;
+}
+</style>
 

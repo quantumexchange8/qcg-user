@@ -12,6 +12,7 @@ use App\Models\TradingAccount;
 use Illuminate\Http\Request;
 use App\Models\UserPostInteraction;
 use App\Models\AnnouncementLog;
+use App\Models\UserAnnouncementVisibility;
 use App\Models\TradeBrokerHistory;
 use App\Models\TradeRebateSummary;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         $announcements = Announcement::where('popup', true)
+        ->where('status', 'active')
         ->where(function ($query) use ($user) {
             $query->where('popup_login', 'every')
                   ->orWhere(function ($q) use ($user) {
@@ -38,7 +40,24 @@ class DashboardController extends Controller
                         });
                   });
         })
-        ->get();
+        ->get()
+        ->map(function ($announcement) {
+            $announcement->thumbnail = $announcement->getFirstMediaUrl('thumbnail');
+
+            if ($announcement->recipient === 'selected_members') {
+
+                $userHasVisibility = UserAnnouncementVisibility::where('announcement_id', $announcement->id)
+                    ->where('user_id', Auth::id())
+                    ->exists();
+
+                if (!$userHasVisibility) {
+                    return null;
+                }
+            }
+            return $announcement;
+        })
+        ->filter()
+        ->values();
 
         return Inertia::render('Dashboard/Dashboard', [
             'announcements' => $announcements,

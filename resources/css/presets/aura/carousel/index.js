@@ -45,7 +45,8 @@ export default {
     item: ({ props }) => ({
         class: [
             // Flexbox
-            'flex shrink-0 grow px-1',
+            'flex px-1',
+            'shrink-0 grow-0', 
 
             // Size
             {
@@ -59,7 +60,8 @@ export default {
     itemClone: ({ props }) => ({
         class: [
             // Flexbox
-            'flex shrink-0 grow px-1',
+            'flex px-1',
+            'shrink-0 grow-0', 
             'unvisible',    
 
             // Size
