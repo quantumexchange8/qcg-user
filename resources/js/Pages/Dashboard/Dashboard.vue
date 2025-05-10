@@ -282,10 +282,10 @@ const responsiveOptions = ref([
                                             class="absolute inset-0 p-2 flex flex-col items-start overflow-hidden"
                                         >
                                             <div class="mt-auto flex flex-col gap-1 max-h-[112px] w-full overflow-hidden">
-                                                <span class="font-semibold text-white w-full line-clamp-1">
+                                                <span class="font-semibold text-gray-100 w-full line-clamp-1">
                                                 {{ slotProps.data.title }}
                                                 </span>
-                                                <span class="text-sm text-white w-full line-clamp-2" v-html="slotProps.data.content">
+                                                <span class="text-sm text-gray-100 w-full line-clamp-2" v-html="slotProps.data.content">
                                                 </span>
                                             </div>
                                         </div>

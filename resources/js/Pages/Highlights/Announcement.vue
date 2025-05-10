@@ -74,10 +74,10 @@ const getTimeLabel = (announcement) => {
                         class="absolute inset-0 p-3 flex flex-col items-start overflow-hidden"
                     >
                         <div class="mt-auto flex flex-col gap-1 max-h-[112px] w-full overflow-hidden">
-                            <span class="font-semibold text-gray-500 w-full line-clamp-1">
+                            <span class="font-semibold text-gray-100 w-full line-clamp-1">
                             {{ announcement.title }}
                             </span>
-                            <span class="text-sm text-white w-full line-clamp-2" v-html="announcement.content">
+                            <span class="text-sm text-gray-100 w-full line-clamp-2" v-html="announcement.content">
                             </span>
                         </div>
                     </div>
