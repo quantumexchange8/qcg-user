@@ -278,7 +278,7 @@ const responsiveOptions = ref([
                                         class="w-full h-full object-fill"
                                         />
 
-                                        <div
+                                        <!-- <div
                                             class="absolute inset-0 p-2 flex flex-col items-start overflow-hidden"
                                         >
                                             <div class="mt-auto flex flex-col gap-1 max-h-[112px] w-full overflow-hidden">
@@ -288,7 +288,7 @@ const responsiveOptions = ref([
                                                 <span class="text-sm text-gray-100 w-full line-clamp-2" v-html="slotProps.data.content">
                                                 </span>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </div>
                                 </div>
                             </template>
