@@ -144,7 +144,7 @@ onMounted(() => {
     }
 
     setTimeout(() => {
-        autoplayInterval.value = 5000;
+        autoplayInterval.value = 2500;
     }, 200); 
 });
 
@@ -268,7 +268,7 @@ const responsiveOptions = ref([
                             <template #item="slotProps">
                                 <div class="w-full px-2 flex justify-start">
                                     <div
-                                        class="relative w-full h-[160px] md:h-[225px] rounded-lg overflow-hidden"
+                                        class="relative w-full h-[170px] md:h-[225px] rounded-lg overflow-hidden"
                                         :class="{ 'bg-black': !slotProps.data.thumbnail }"
                                     >
                                         <!-- Image -->
@@ -343,7 +343,7 @@ const responsiveOptions = ref([
             <span class="text-lg font-bold text-gray-950">{{ currentAnnouncement.title }}</span>
 
             <!-- need to ask nic about this content if got html tag -->
-            <span class="text-md font-regular text-gray-950" v-html="currentAnnouncement.content"></span>
+            <span class="text-md font-regular text-gray-950 whitespace-pre-line" v-html="currentAnnouncement.content"></span>
 
         </div>
         <template #footer>

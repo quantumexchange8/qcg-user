@@ -33,7 +33,7 @@ export default {
     itemList: ({ props }) => ({
         class: [
             // Flexbox
-            'flex h-[160px] md:h-[225px]',
+            'flex h-[170px] md:h-[225px]',
 
             // Orientation & Sizing
             {

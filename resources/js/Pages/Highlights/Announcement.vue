@@ -38,6 +38,11 @@ const openDialog = (announcementData) => {
     data.value = announcementData;
 };
 
+const closeDialog = () => {
+    visible.value = false;
+    data.value = {};
+};
+
 const isToday = (date) => {
   return dayjs(date).isSame(dayjs(), 'day')
 }
@@ -70,7 +75,7 @@ const getTimeLabel = (announcement) => {
                         class="w-full h-full object-fill"
                     />
                     <!-- reminder that justify-end does not work with line-clamp (use mt in child of flex container instead) -->
-                    <div
+                    <!-- <div
                         class="absolute inset-0 p-3 flex flex-col items-start overflow-hidden"
                     >
                         <div class="mt-auto flex flex-col gap-1 max-h-[112px] w-full overflow-hidden">
@@ -80,14 +85,14 @@ const getTimeLabel = (announcement) => {
                             <span class="text-sm text-gray-100 w-full line-clamp-2" v-html="announcement.content">
                             </span>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
             <div class="flex flex-col gap-3 p-6 items-center justify-center rounded-md shadow-card bg-white self-stretch">
                 <span class="text-gray-950 font-bold self-stretch">{{ $t('public.announcements') }}</span>
-                <div class="flex flex-col self-stretch">
-                    <div v-for="announcement in visibleAnnouncements" class="flex flex-row gap-5 self-stretch py-5 hover:opacity-60 hover:cursor-pointer" @click="openDialog(announcement)">
+                <div class="flex flex-col self-stretch gap-1 md:gap-0">
+                    <div v-for="announcement in visibleAnnouncements" class="flex flex-row gap-2 md:gap-5 self-stretch py-2 md:py-5 hover:opacity-60 hover:cursor-pointer" @click="openDialog(announcement)">
                         <div class="flex flex-col gap-1 w-[60px] flex-shrink-0">
                             <span class="font-semibold text-gray-500">
                                 {{ isToday(announcement.start_date) ? $t('public.today') : dayjs(announcement.start_date).format('MMM DD') }}
@@ -96,15 +101,18 @@ const getTimeLabel = (announcement) => {
                                 {{ getTimeLabel(announcement) }}
                             </span>
                         </div>
-                        <Divider layout="vertical" />
-                        <div class="flex flex-col gap-1 w-full">
-                            <span class="font-semibold text-gray-950 line-clamp-1">
-                                {{ announcement.title }}
-                            </span>
-                            <span class="text-sm text-gray-700 line-clamp-4" v-html="announcement.content">
-                            </span>
+                        <Divider layout="vertical"/>
+                        <div class="flex flex-col gap-1 w-full md:flex-row md:gap-5">
+                            <div class="flex flex-col gap-1 w-full">
+                                <span class="font-semibold text-gray-950 md:line-clamp-1">
+                                    {{ announcement.title }}
+                                </span>
+                                <span class="text-sm text-gray-700 line-clamp-4 hidden md:flex" v-html="announcement.content">
+                                </span>
+                            </div>
+                            <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0 \n">
                         </div>
-                        <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0">
+                        <!-- <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0 hidden md:flex"> -->
                     </div>
                 </div>
                 <Button
@@ -120,20 +128,29 @@ const getTimeLabel = (announcement) => {
         </div>
     </AuthenticatedLayout>
 
-    <Dialog v-model:visible="visible" modal :header="$t('public.announcement')"  class="dialog-md no-header-border" :dismissableMask="true">
+    <Dialog v-model:visible="visible" modal :header="$t('public.announcement')" :closable="false" class="dialog-xs md:dialog-md no-header-border" :dismissableMask="true">
         <div class="flex flex-col justify-center items-start gap-8 pb-6 self-stretch">
-            <img v-if="data.thumbnail" :src="data.thumbnail" alt="announcement_image" class="w-full h-[310.5px]" />
+            <img v-if="data.thumbnail" :src="data.thumbnail" alt="announcement_image" class="w-full h-[144px] md:h-[310.5px]" />
 
             <span class="text-lg font-bold text-gray-950">{{ data.title }}</span>
 
             <!-- need to ask nic about this content if got html tag -->
-            <span class="text-md font-regular text-gray-950" v-html="data.content"></span>
+            <span class="text-md font-regular text-gray-950 whitespace-pre-line" v-html="data.content"></span>
 
         </div>
+        <Button
+            @click="closeDialog"
+            type="button"
+            variant="primary-flat"
+            class="w-full"
+            size="base"
+        >
+            {{ $t('public.close') }}
+        </Button>
     </Dialog>
 </template>
 
-<style scoped>
+<!-- <style scoped>
 .horizontal-scrollpanel {
   width: 100%;
   height: 250px;
@@ -161,4 +178,4 @@ const getTimeLabel = (announcement) => {
   display: flex;
   gap: 1.25rem; /* Tailwind's gap-5 */
 }
-</style>
+</style> -->
