@@ -133,7 +133,7 @@ const getDashboardData = async () => {
 };
 
 const isMounted = ref(false);
-const autoplayInterval = ref(0);
+// const autoplayInterval = ref(3000);
 const announcementsQueue = ref([...props.announcements]) // clone to avoid mutation
 const currentAnnouncement = ref(null)
 const showPopup = ref(false)
@@ -143,9 +143,9 @@ onMounted(() => {
         showNextAnnouncement();
     }
 
-    setTimeout(() => {
-        autoplayInterval.value = 2500;
-    }, 200); 
+    // setTimeout(() => {
+    //     autoplayInterval.value = 3000;
+    // }, 200); 
 });
 
 getDashboardData();
@@ -250,9 +250,9 @@ const responsiveOptions = ref([
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-3 bg-white rounded-lg shadow-card relative overflow-hidden px-3 py-3 md:p-6 items-center w-full">
+                    <div class="flex flex-col gap-3 bg-white rounded-lg shadow-card relative overflow-hidden p-3 md:p-6 items-center w-full">
                         <div class="flex flex-row items-center justify-between self-stretch">
-                            <span class="text-md font-bold text-gray-950">{{ $t('public.highlights') }}</span>
+                            <span class="text-sm md:text-base font-bold text-gray-950">{{ $t('public.highlights') }}</span>
                             <Button
                             variant="primary-text"
                             :href="route('highlights')"
@@ -261,14 +261,14 @@ const responsiveOptions = ref([
                             </Button>
                         </div>
                         <Carousel v-if="pinnedAnnouncements.length > 0" :value="pinnedAnnouncements" 
-                            :numVisible="1.43" :numScroll="1" circular :autoplayInterval="autoplayInterval"
+                            :numVisible="1.43" :numScroll="1" circular :autoplayInterval="3000"
                             :responsiveOptions="responsiveOptions"
                             :showNavigators="false" :showIndicators="false"
                             class="w-full relative">
                             <template #item="slotProps">
-                                <div class="w-full px-2 flex justify-start">
+                                <div class="w-full flex justify-start">
                                     <div
-                                        class="relative w-full h-[170px] md:h-[225px] rounded-lg overflow-hidden"
+                                        class="relative w-full h-[170px] md:h-[225px] overflow-hidden"
                                         :class="{ 'bg-black': !slotProps.data.thumbnail }"
                                     >
                                         <!-- Image -->
@@ -338,7 +338,7 @@ const responsiveOptions = ref([
 
     <Dialog v-model:visible="showPopup" modal :header="$t('public.announcement')" class="dialog-xs md:dialog-md no-header-border" :closable="false">
         <div class="flex flex-col justify-center items-start gap-8 pb-6 self-stretch">
-            <img :src="currentAnnouncement.thumbnail" alt="announcement_image" class="w-full h-[310.5px]" />
+            <img :src="currentAnnouncement.thumbnail" alt="announcement_image" class="w-full h-[144px] md:h-[310.5px]" />
 
             <span class="text-lg font-bold text-gray-950">{{ currentAnnouncement.title }}</span>
 
@@ -351,7 +351,7 @@ const responsiveOptions = ref([
                 type="button"
                 variant="primary-flat"
                 size="base"
-                class="w-1/4"
+                class="w-full"
                 @click="handlePopupClose" 
             >
                 {{ $t('public.close') }}
