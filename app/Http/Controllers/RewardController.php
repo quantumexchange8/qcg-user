@@ -39,7 +39,7 @@ class RewardController extends Controller
     public function getTradePoints()
     {
         $user = Auth::user();
-        $total_points = $user->trade_points->balance;
+        $total_points = $user->trade_points->balance ?? 0;
         $userId = $user->id;
 
         // Initialize query for rebate summary with date filtering
