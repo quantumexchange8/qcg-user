@@ -208,7 +208,7 @@ watchEffect(() => {
                         optionLabel="name"
                         optionValue="value"
                         :placeholder="$t('public.filter_by_level')"
-                        class="w-full xl:w-60 font-normal"
+                        class="w-full md:w-auto xl:w-48 font-normal"
                         scroll-height="236px"
                     />
                     <Select
@@ -219,14 +219,14 @@ watchEffect(() => {
                         optionLabel="name"
                         optionValue="value"
                         :placeholder="$t('public.filter_by_role')"
-                        class="w-full xl:w-60 font-normal"
+                        class="w-full md:w-auto xl:w-48 font-normal"
                         scroll-height="236px"
                     />
-                    <div class="relative hidden md:flex md:w-60">
+                    <div class="relative hidden md:flex w-full xl:w-72">
                         <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-500 z-20">
                             <IconSearch size="20" stroke-width="1.25" />
                         </div>
-                        <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-60 focus:outline-none" />
+                        <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full xl:w-72 focus:outline-none" />
                         <div
                             v-if="filters['global'].value !== null"
                             class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer z-10"
@@ -264,7 +264,7 @@ watchEffect(() => {
             tableStyle="min-width: 50rem"
             paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
             :currentPageReportTemplate="paginator_caption"
-            :globalFilterFields="['name','email']"
+            :globalFilterFields="['name','email','account']"
             ref="dt"
             :loading="loading"
             table-style="min-width:fit-content"

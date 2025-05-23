@@ -383,7 +383,7 @@ const openDialog = (rowData) => {
                                 </div>
                             </div>
                             <div class="flex flex-col md:flex-row gap-3 md:gap-2 w-full md:w-auto">
-                                <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-auto hidden md:flex">
+                                <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-[90px] hidden md:flex">
                                     <IconDownload size="20" stroke-width="1.25" />
                                         {{ $t('public.export') }}
                                     </Button>
@@ -391,7 +391,7 @@ const openDialog = (rowData) => {
                                     type="button"
                                     variant="error-outlined"
                                     size="base"
-                                    class='w-full md:w-auto'
+                                    class='w-full md:w-[90px]'
                                     @click="clearFilter"
                                 >
                                     <IconFilterOff size="20" stroke-width="1.25" />

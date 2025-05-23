@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\TradingAccount;
 use App\Services\CTraderService;
 use App\Services\DropdownOptionService;
 use Illuminate\Http\Request;
@@ -28,14 +29,20 @@ class NetworkController extends Controller
 
         if ($request->filled('search')) {
             $search = '%' . $request->input('search') . '%';
-            $parent = User::query()
-                ->where('id_number', 'LIKE', $search)
-                ->orWhere('first_name', 'LIKE', $search)
-                ->orWhere('email', 'LIKE', $search)
+            $parent = User::with('tradingAccounts')
+                ->where('hierarchyList', 'like', '%-' . Auth::id() . '-%')
+                ->where(function ($query) use ($search) {
+                    $query->where('id_number', 'LIKE', $search)
+                          ->orWhere('first_name', 'LIKE', $search)
+                          ->orWhere('email', 'LIKE', $search)
+                          ->orWhereHas('tradingAccounts', function($q) use ($search) {
+                              $q->where('meta_login', 'LIKE', $search);
+                          });
+                })
                 ->first();
 
-            $parent_id = $parent->id;
-            $upline_id = $parent->upline_id;
+            $parent_id = $parent ? $parent->id : Auth::id();
+            $upline_id = $parent ? $parent->upline_id : null;
         }
 
         $parent = User::with(['directChildren:id,first_name,id_number,upline_id,role,hierarchyList'])
@@ -96,7 +103,8 @@ class NetworkController extends Controller
     public function getDownlineListingData()
     {
         $children_ids = User::find(Auth::id())->getChildrenIds();
-        $query = User::whereIn('id', $children_ids)
+        $query = User::with('tradingAccounts')
+            ->whereIn('id', $children_ids)
             ->latest()
             ->get()
             ->map(function ($user) {
@@ -104,6 +112,7 @@ class NetworkController extends Controller
                     'id' => $user->id,
                     'name' => $user->first_name,
                     'email' => $user->email,
+                    'account' => $user->tradingAccounts->pluck('meta_login')->toArray(),
                     'upline_id' => $user->upline_id,
                     'upline_name' => $user->upline->first_name,
                     'upline_email' => $user->upline->email,
