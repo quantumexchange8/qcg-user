@@ -270,7 +270,6 @@ class RewardController extends Controller
                 'category' => 'trade_points',
                 'transaction_type' => 'redemption',
                 'from_wallet_id' => $wallet->id,
-                'to_meta_login' => $request->meta_login,
                 'redemption_id' => $redemption->id,
                 'transaction_number' => RunningNumberService::getID('transaction'),
                 'amount' => $redemption->reward->trade_point_required,
