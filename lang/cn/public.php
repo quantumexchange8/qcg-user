@@ -552,4 +552,5 @@ return [
     'highlights' => '亮点',
     'today' => '今天',
     'close' => '关闭',
+    'redemption' => '奖励兑换',
 ];
