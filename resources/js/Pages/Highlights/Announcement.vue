@@ -107,7 +107,7 @@ const getTimeLabel = (announcement) => {
                                 <span class="font-semibold text-gray-950 md:line-clamp-1">
                                     {{ announcement.title }}
                                 </span>
-                                <span class="text-sm text-gray-700 line-clamp-4 hidden md:flex" v-html="announcement.content">
+                                <span class="text-sm text-gray-700 hidden md:line-clamp-4" v-html="announcement.content">
                                 </span>
                             </div>
                             <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0 \n">
