@@ -86,15 +86,15 @@ const downloadQrCode = () => {
 <template>
     <nav
         aria-label="secondary"
-        class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3"
+        class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3 justify-between"
     >
         <div
-            class="inline-flex justify-center items-center rounded-full hover:bg-gray-100 w-12 h-12 shrink-0 grow-0 hover:select-none hover:cursor-pointer"
+            class="inline-flex justify-center items-center rounded-full border border-gray-200 hover:bg-gray-100 w-9 h-9 md:w-12 md:h-12 shrink-0 grow-0 hover:select-none hover:cursor-pointer"
             @click="sidebarState.isOpen = !sidebarState.isOpen"
         >
             <IconMenu2 size="20" color="#182230" stroke-width="1.25" />
         </div>
-        <div class="w-full h-full flex items-center">
+        <!-- <div class="w-full h-full flex items-center">
             <Link class="h-full flex items-center gap-2"
                 :href="route('dashboard')"
             >
@@ -104,15 +104,10 @@ const downloadQrCode = () => {
                     <span class="text-gray-700 text-xxxs font-medium tracking-[1.04px]">Capital Group</span>
                 </div>
             </Link>
-        </div>
-        <!-- <div
-            class="text-base md:text-lg font-semibold text-gray-950 w-full"
-        >
-            {{ title }}
         </div> -->
-        <div class="flex items-center">
+        <div class="flex items-center gap-2">
             <Link
-                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('forum')"
                 method="get"
                 as="button"
@@ -121,14 +116,14 @@ const downloadQrCode = () => {
                 <!-- <ForumNotifIcon aria-hidden="true" class="flex-shrink-0 w-5 h-5" /> -->
             </Link>
             <div
-                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 @click="toggle"
             >
                 <IconLanguage size="20" stroke-width="1.25" class="flex-shrink-0 w-5 h-5"/>
             </div>
             <Button
                 variant="gray-text"
-                class="w-9 h-9 md:w-12 md:h-12 p-3.5 !ring-0"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 !ring-0 border border-gray-200"
                 size="base"
                 type="button"
                 iconOnly
@@ -138,7 +133,7 @@ const downloadQrCode = () => {
                 <IconQrcode size="20" stroke-width="1.5" class="flex-shrink-0 w-5 h-5"/>
             </Button>
             <Link
-                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('logout')"
                 method="post"
                 as="button"
