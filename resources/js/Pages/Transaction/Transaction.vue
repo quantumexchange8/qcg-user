@@ -234,7 +234,7 @@ const clearFilter = () => {
     selectedMonth.value = getCurrentMonthYear();
     transactionType.value = null;
     status.value = null;
-    filteredValue = null;
+    filteredValue.value = null;
 };
 
 const handleFilter = (e) => {

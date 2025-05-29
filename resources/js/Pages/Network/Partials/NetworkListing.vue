@@ -153,7 +153,7 @@ const clearFilter = () => {
     };
 
     level.value = null;
-    filteredValue = null;
+    filteredValue.value = null;
 };
 
 const handleFilter = (e) => {
