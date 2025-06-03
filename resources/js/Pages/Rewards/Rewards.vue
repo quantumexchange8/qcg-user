@@ -185,10 +185,10 @@ const getStatusTooltip = (history) => {
         :header="$t('public.point_history')"
         class="dialog-xs md:dialog-sm"
     >
-        <div v-for="(history, index) in limitedHistories"
+        <div v-for="(history, index) in pointHistories"
             :key="index"
             class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
-            :class="{ 'border-transparent': index === limitedHistories.length - 1 }"
+            :class="{ 'border-transparent': index === pointHistories.length - 1 }"
         >
             <div class="flex flex-col">
                 <span class="text-sm text-gray-950 font-medium">{{ getTransactionLabel(history.type) }}</span>
