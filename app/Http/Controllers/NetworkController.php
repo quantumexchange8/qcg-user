@@ -9,6 +9,7 @@ use App\Services\DropdownOptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\Models\AccountType;
 use Inertia\Inertia;
 
 class NetworkController extends Controller
@@ -191,14 +192,20 @@ class NetworkController extends Controller
         }
 
         $trading_accounts = $user->tradingAccounts->map(function($trading_account) {
+            $overrideType = null;
+
+            if ($trading_account->accountType->account_group === 'VIRTUAL') {
+                $overrideType = AccountType::where('account_group', 'STANDARD.t')->first();
+            }
+
             return [
                 'id' => $trading_account->id,
                 'meta_login' => $trading_account->meta_login,
-                'account_type' => $trading_account->accountType->name,
+                'account_type' => $overrideType->slug ?? $trading_account->accountType->slug,
                 'balance' => $trading_account->balance,
                 'credit' => $trading_account->credit,
                 'equity' => $trading_account->equity,
-                'account_type_color' => $trading_account->accountType->color,
+                'account_type_color' => $overrideType->color ?? $trading_account->accountType->color,
             ];
         });
 

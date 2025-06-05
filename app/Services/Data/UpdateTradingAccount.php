@@ -29,6 +29,7 @@ class UpdateTradingAccount
         $tradingAccount->margin_leverage = $data['leverageInCents'] / 100;
         $tradingAccount->equity = $data['equity'] / 100;
         $tradingAccount->account_type_id = $accountType->id;
+        $tradingAccount->account_type = $accountType->id;
         DB::transaction(function () use ($tradingAccount) {
             $tradingAccount->save();
         });
