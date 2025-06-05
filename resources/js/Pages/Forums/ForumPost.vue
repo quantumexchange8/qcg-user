@@ -13,6 +13,7 @@ import {usePermission} from "@/Composables/permissions.js";
 import { IconThumbUpFilled, IconThumbDownFilled, IconChevronLeft } from "@tabler/icons-vue";
 import AuthenticatedLayout from '@/Layouts/Authenticated.vue';
 import ScrollPanel from 'primevue/scrollpanel';
+import { router } from '@inertiajs/vue3'
 
 const props = defineProps({
     postCounts: Number,

@@ -17,6 +17,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\ForumPost;
 
 class User extends Authenticatable implements HasMedia, MustVerifyEmail
 {
@@ -38,6 +39,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         'password',
         'remember_token',
     ];
+
+    protected $appends = ['has_new_forum_posts'];
 
     /**
      * Get the attributes that should be cast.
@@ -156,5 +159,12 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
     public function read()
     {
         return $this->hasMany(AnnouncementLog::class, 'user_id');
+    }
+
+    public function getHasNewForumPostsAttribute(): bool
+    {
+        $lastVisit = $this->forum_last_visit ?? now()->subYear();
+        
+        return ForumPost::where('created_at', '>', $lastVisit)->exists();
     }
 }

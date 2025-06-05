@@ -35,6 +35,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'profile_image' => $request->user() ? $request->user()->getFirstMediaUrl('profile_image') : null,
                 'payment_account' => $request->user() ? $request->user()->paymentAccounts : null,
+                'forum_visited' => $request->user() ? $request->user()->has_new_forum_posts : null,
             ],
             'toast' => session('toast'),
             'notification' => session('notification'),
