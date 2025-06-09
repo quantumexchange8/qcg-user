@@ -1,7 +1,7 @@
 <script setup>
 import InputText from 'primevue/inputtext';
 import Button from '@/Components/Button.vue';
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import Dialog from 'primevue/dialog';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
@@ -9,10 +9,11 @@ import {FilterMatchMode} from "@primevue/core/api";
 import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
-import {IconSearch, IconX, IconDownload} from '@tabler/icons-vue';
+import {IconSearch, IconX, IconDownload, IconRefresh} from '@tabler/icons-vue';
 import Select from "primevue/select";
 import { trans, wTrans } from "laravel-vue-i18n";
 import dayjs from 'dayjs'
+import DatePicker from 'primevue/datepicker';
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -23,45 +24,54 @@ const loading = ref(false);
 const expandedRows = ref({});
 const filteredValue = ref();
 
-const months = ref([]);
-const selectedMonth = ref('');
+const today = new Date();
+const minDate = ref(new Date(today.getFullYear(), today.getMonth(), 1));
+const maxDate = ref(today);
+const selectedDate = ref([minDate.value, maxDate.value]);
+// const months = ref([]);
+// const selectedMonth = ref('');
 
-const getCurrentMonthYear = () => {
-    const date = new Date();
-    return `01 ${dayjs(date).format('MMMM YYYY')}`;
-};
+// const getCurrentMonthYear = () => {
+//     const date = new Date();
+//     return `01 ${dayjs(date).format('MMMM YYYY')}`;
+// };
 
-// Fetch settlement months from API
-const getTransactionMonths = async () => {
-    try {
-        const response = await axios.get('/getTransactionMonths');
-        months.value = response.data.months;
+// // Fetch settlement months from API
+// const getTransactionMonths = async () => {
+//     try {
+//         const response = await axios.get('/getTransactionMonths');
+//         months.value = response.data.months;
 
-        if (months.value.length) {
-            selectedMonth.value = getCurrentMonthYear();
-        }
-    } catch (error) {
-        console.error('Error trade months:', error);
-    }
-};
+//         if (months.value.length) {
+//             selectedMonth.value = getCurrentMonthYear();
+//         }
+//     } catch (error) {
+//         console.error('Error trade months:', error);
+//     }
+// };
 
-getTransactionMonths()
+// getTransactionMonths()
 
-const getResults = async (selectedMonth = '') => {
+const getResults = async (selectedDate = null) => {
     loading.value = true;
     try {
         let response;
         let url = `/report/getRebateDetails`;
 
-        if (selectedMonth) {
-            let formattedMonth = selectedMonth;
-
-            if (!formattedMonth.startsWith('select_') && !formattedMonth.startsWith('last_')) {
-                formattedMonth = dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
-            }
-
-            url += `?selectedMonth=${formattedMonth}`;
+        if (selectedDate) {
+            const [startDate, endDate] = selectedDate;
+            url += `?startDate=${formatDate(startDate)}&endDate=${formatDate(endDate)}`;
         }
+
+        // if (selectedMonth) {
+        //     let formattedMonth = selectedMonth;
+
+        //     if (!formattedMonth.startsWith('select_') && !formattedMonth.startsWith('last_')) {
+        //         formattedMonth = dayjs(selectedMonth, 'DD MMMM YYYY').format('MMMM YYYY');
+        //     }
+
+        //     url += `?selectedMonth=${formattedMonth}`;
+        // }
 
         response = await axios.get(url);
         rebateDetails.value = response.data.rebateDetails;
@@ -124,12 +134,70 @@ const handleFilter = (e) => {
     filteredValue.value = e.filteredValue;
 };
 
-const emit = defineEmits(['update-month']);
+const clearDate = () => {
+    selectedDate.value = null;
+};
 
-watch(selectedMonth, (newMonth) => {
-    getResults(newMonth);
-    emit('update-month', newMonth);
-});
+const emit = defineEmits(['update-date']);
+
+// watch(selectedDate, (newDateRange) => {
+//     if (Array.isArray(newDateRange)) {
+//         const [startDate, endDate] = newDateRange;
+
+//         if (startDate && endDate) {
+//             getResults([startDate, endDate]);
+//             emit('update-date', [startDate, endDate]);
+//         } else if (startDate || endDate) {
+//             getResults([startDate || endDate, endDate || startDate]);
+//             emit('update-date', [startDate || endDate, endDate || startDate]);
+//         } else if (!(startDate && endDate)) {
+//             getResults(null);
+//             emit('update-date', null);
+//         }
+//     } else if (newDateRange === null) {
+//         getResults(null);
+//         emit('update-date', null); 
+//     }
+//     else {
+//         console.warn('Invalid date range format:', newDateRange);
+//     }
+// }, { immediate: true });
+
+const generateRecords = () => {
+    if (Array.isArray(selectedDate.value)) {
+        const [startDate, endDate] = selectedDate.value;
+
+        if (startDate && endDate) {
+            getResults([startDate, endDate]);
+            emit('update-date', [startDate, endDate]);
+        } else if (startDate || endDate) {
+            const fallbackStart = startDate || endDate;
+            const fallbackEnd = endDate || startDate;
+
+            getResults([fallbackStart, fallbackEnd]);
+            emit('update-date', [fallbackStart, fallbackEnd]);
+        } else {
+            getResults(null);
+            emit('update-date', null);
+        }
+    } else if (selectedDate.value === null) {
+        getResults(null);
+        emit('update-date', null);
+    } else {
+        console.warn('Invalid date range format:', selectedDate.value);
+    }
+};
+
+onMounted(() => {
+    generateRecords()
+})
+
+// const emit = defineEmits(['update-month']);
+
+// watch(selectedMonth, (newMonth) => {
+//     getResults(newMonth);
+//     emit('update-month', newMonth);
+// });
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -152,7 +220,36 @@ const openDialog = (rowData) => {
 <template>
     <div class="flex flex-col justify-center items-center px-3 py-5 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
         <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
-            <Select 
+            <div class="relative w-full md:w-[272px]">
+                <DatePicker
+                    v-model="selectedDate"
+                    selectionMode="range"
+                    :manualInput="false"
+                    :maxDate="maxDate"
+                    dateFormat="dd/mm/yy"
+                    showIcon
+                    iconDisplay="input"
+                    placeholder="dd/mm/yyyy - dd/mm/yyyy"
+                    class="w-full md:w-[272px]"
+                />
+                <div
+                    v-if="selectedDate && selectedDate.length > 0"
+                    class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
+                    @click="clearDate"
+                >
+                    <IconX size="20" />
+                </div>
+            </div>
+
+            <Button
+                variant="primary-flat"
+                @click="generateRecords" 
+                class="w-full md:w-auto"
+            >
+                <IconRefresh size="20" stroke-width="1.25" />
+                {{ $t('public.generate') }}
+            </Button>
+            <!-- <Select 
                 v-model="selectedMonth" 
                 :options="months" 
                 :placeholder="$t('public.month_placeholder')"
@@ -187,7 +284,7 @@ const openDialog = (rowData) => {
                         {{ $t('public.month_placeholder') }}
                     </span>
                 </template>
-            </Select>
+            </Select> -->
             <div class="w-full flex justify-end gap-5">
                 <div class="relative w-full md:w-60">
                     <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">

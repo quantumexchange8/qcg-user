@@ -555,4 +555,5 @@ return [
     'today' => 'Today',
     'close' => 'Close',
     'redemption' => 'Reward Redemption',
+    'generate' => 'Generate',
 ];

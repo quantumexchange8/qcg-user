@@ -553,4 +553,5 @@ return [
     'today' => '今天',
     'close' => '關閉',
     'redemption' => '獎勵兌換',
+    'generate' => '產生',
 ];
