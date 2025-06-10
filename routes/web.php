@@ -196,6 +196,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/getTradePoints', [RewardController::class, 'getTradePoints'])->name('rewards.getTradePoints');
         Route::get('/getPointHistory', [RewardController::class, 'getPointHistory'])->name('rewards.getPointHistory');
+        Route::get('/viewAllPointHistory', [RewardController::class, 'viewAllPointHistory'])->name('rewards.viewAllPointHistory');
 
         Route::get('/getRewardsData', [RewardController::class, 'getRewardsData'])->name('rewards.getRewardsData');
         Route::get('/getCountryPhones', [RewardController::class, 'getCountryPhones'])->name('rewards.getCountryPhones');
