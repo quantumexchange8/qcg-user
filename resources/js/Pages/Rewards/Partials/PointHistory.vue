@@ -33,7 +33,6 @@ const maxDate = ref(today);
 const selectedDate = ref(null);
 
 const getResults = async (selectedDate = null) => {
-    console.log('test')
     loading.value = true;
 
     let response;
