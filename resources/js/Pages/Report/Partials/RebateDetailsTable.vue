@@ -219,36 +219,38 @@ const openDialog = (rowData) => {
 
 <template>
     <div class="flex flex-col justify-center items-center px-3 py-5 self-stretch rounded-lg bg-white shadow-card md:p-6 md:gap-6">
-        <div class="flex flex-col md:flex-row gap-3 items-center self-stretch">
-            <div class="relative w-full md:w-[272px]">
-                <DatePicker
-                    v-model="selectedDate"
-                    selectionMode="range"
-                    :manualInput="false"
-                    :maxDate="maxDate"
-                    dateFormat="dd/mm/yy"
-                    showIcon
-                    iconDisplay="input"
-                    placeholder="dd/mm/yyyy - dd/mm/yyyy"
-                    class="w-full md:w-[272px]"
-                />
-                <div
-                    v-if="selectedDate && selectedDate.length > 0"
-                    class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
-                    @click="clearDate"
-                >
-                    <IconX size="20" />
+        <div class="flex flex-col md:flex-row gap-3 items-center justify-between w-full">
+            <div class="flex flex-col md:flex-row gap-3 w-full items-center">
+                <div class="relative w-full md:w-56">
+                    <DatePicker
+                        v-model="selectedDate"
+                        selectionMode="range"
+                        :manualInput="false"
+                        :maxDate="maxDate"
+                        dateFormat="dd/mm/yy"
+                        showIcon
+                        iconDisplay="input"
+                        placeholder="dd/mm/yyyy - dd/mm/yyyy"
+                        class="w-full md:w-56"
+                    />
+                    <div
+                        v-if="selectedDate && selectedDate.length > 0"
+                        class="absolute top-[11px] right-3 flex justify-center items-center text-gray-400 select-none cursor-pointer bg-white w-6 h-6 "
+                        @click="clearDate"
+                    >
+                        <IconX size="20" />
+                    </div>
                 </div>
-            </div>
 
-            <Button
-                variant="primary-flat"
-                @click="generateRecords" 
-                class="w-full md:w-auto"
-            >
-                <IconRefresh size="20" stroke-width="1.25" />
-                {{ $t('public.generate') }}
-            </Button>
+                <Button
+                    variant="primary-flat"
+                    @click="generateRecords" 
+                    class="w-full md:w-auto"
+                >
+                    <IconRefresh size="20" stroke-width="1.25" />
+                    {{ $t('public.generate') }}
+                </Button>
+            </div>
             <!-- <Select 
                 v-model="selectedMonth" 
                 :options="months" 
@@ -285,12 +287,12 @@ const openDialog = (rowData) => {
                     </span>
                 </template>
             </Select> -->
-            <div class="w-full flex justify-end gap-5">
-                <div class="relative w-full md:w-60">
+            <div class="w-full flex gap-3 justify-end">
+                <div class="relative w-full md:w-56">
                     <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
                         <IconSearch size="20" stroke-width="1.25" />
                     </div>
-                    <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-60" />
+                    <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-56" />
                     <div
                         v-if="filters['global'].value !== null"
                         class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer"
