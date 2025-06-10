@@ -131,7 +131,7 @@ const getStatusTooltip = (history) => {
                 :loading="loading"
             >
                 <template #header>
-                    <div class="flex flex-col items-center gap-4 mb-4 ">
+                    <div class="flex flex-col items-center gap-4 mb-4">
                         <div class="flex flex-col items-center gap-5 self-stretch md:flex-row">
                             <div class="relative w-full md:w-60">
                                 <DatePicker
@@ -165,7 +165,7 @@ const getStatusTooltip = (history) => {
                 </template>
                 <template v-if="pointHistories?.length > 0">
                 <!-- <template> -->
-                    <Column field="date" :header="$t('public.date')" sortable style="width: 75%">
+                    <Column field="date" :header="$t('public.date')" sortable style="width: 60%">
                         <template #body="slotProps">
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-950 font-medium">{{ getTransactionLabel(slotProps.data.type) }}</span>
@@ -182,7 +182,7 @@ const getStatusTooltip = (history) => {
                             </div>
                         </template>
                     </Column>
-                    <Column field="amount" :header="$t('public.amount')" sortable style="width: 25%">
+                    <Column field="amount" :header="$t('public.amount')" sortable style="width: 40%">
                         <template #body="slotProps">
                             <span class="text-sm text-gray-950 font-medium">{{ getSign(slotProps.data.type) }}{{ formatAmount(slotProps.data.amount) }} tp</span>
                         </template>
