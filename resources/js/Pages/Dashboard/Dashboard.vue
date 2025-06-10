@@ -268,7 +268,7 @@ const responsiveOptions = ref([
                             <template #item="slotProps">
                                 <div class="w-full flex justify-start">
                                     <div
-                                        class="relative w-full h-[170px] md:h-[225px] overflow-hidden"
+                                        class="relative w-full h-[170px] smd:h-full smd:max-h-72 md:h-[310.5px] md:max-h-none overflow-hidden"
                                         :class="{ 'bg-black': !slotProps.data.thumbnail }"
                                     >
                                         <!-- Image -->
@@ -338,12 +338,12 @@ const responsiveOptions = ref([
 
     <Dialog v-model:visible="showPopup" modal :header="$t('public.announcement')" class="dialog-xs md:dialog-md no-header-border" :closable="false">
         <div class="flex flex-col justify-center items-start gap-8 pb-6 self-stretch">
-            <img :src="currentAnnouncement.thumbnail" alt="announcement_image" class="w-full h-[170px] md:h-[310.5px]" />
+            <img :src="currentAnnouncement.thumbnail" alt="announcement_image" class="w-full h-[170px] smd:h-full smd:max-h-72 md:h-[310.5px] md:max-h-none" />
 
-            <span class="text-lg font-bold text-gray-950">{{ currentAnnouncement.title }}</span>
+            <span class="text-sm md:text-lg font-bold text-gray-950">{{ currentAnnouncement.title }}</span>
 
             <!-- need to ask nic about this content if got html tag -->
-            <span class="text-md font-regular text-gray-950 whitespace-pre-line" v-html="currentAnnouncement.content"></span>
+            <span class="text-sm md:text-md font-regular text-gray-950 whitespace-pre-line" v-html="currentAnnouncement.content"></span>
 
         </div>
         <template #footer>
