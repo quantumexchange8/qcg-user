@@ -129,6 +129,8 @@ const getStatusTooltip = (history) => {
                 ref="dt"
                 selectionMode="single"
                 :loading="loading"
+                scrollable
+                scrollHeight="250px"
             >
                 <template #header>
                     <div class="flex flex-col items-center gap-4 mb-4">
