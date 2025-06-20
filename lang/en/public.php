@@ -559,4 +559,5 @@ return [
     'empty_point_history_title' => 'No Point Histories Found',
     'empty_point_history_message' => 'There are no point histories to display at the moment. Check back later for updates.',
     'select_date_range' => 'Select Date Range',
+    'virtual' => 'Virtual Account',
 ];

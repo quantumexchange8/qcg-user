@@ -237,11 +237,11 @@ class AccountController extends Controller
                     }
                 }
 
-                $overrideType = null;
+                // $overrideType = null;
                 
-                if ($account->accountType->account_group === 'VIRTUAL') {
-                    $overrideType = AccountType::where('account_group', 'STANDARD.t')->first();
-                }
+                // if ($account->accountType->account_group === 'VIRTUAL') {
+                //     $overrideType = AccountType::where('account_group', 'STANDARD.t')->first();
+                // }
 
                 return [
                     'id' => $account->id,
@@ -251,10 +251,11 @@ class AccountController extends Controller
                     'credit' => $account->credit,
                     'leverage' => $account->margin_leverage,
                     'equity' => $account->equity,
-                    'account_type' => $overrideType->slug ?? $account->accountType->slug,
-                    'account_type_leverage' => $overrideType->leverage ?? $account->accountType->leverage,
-                    'account_type_color' => $overrideType->color ?? $account->accountType->color,
-                    'account_category' => $overrideType->category ?? $account->accountType->category,
+                    'account_type' => $account->accountType->slug,
+                    'account_group' => $account->accountType->account_group,
+                    'account_type_leverage' => $account->accountType->leverage,
+                    'account_type_color' => $account->accountType->color,
+                    'account_category' => $account->accountType->category,
                     'is_active' => $account->status,
                     'promotion_title' => $account->promotion_title,
                     'promotion_description' => $account->promotion_description,

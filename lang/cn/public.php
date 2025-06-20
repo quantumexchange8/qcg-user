@@ -557,4 +557,5 @@ return [
     'empty_point_history_title' => '未找到积分记录',
     'empty_point_history_message' => '目前没有可显示的积分记录，请稍后再查看更新。',
     'select_date_range' => '选择日期范围',
+    'virtual' => '虚拟账户',
 ];
