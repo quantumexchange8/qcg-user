@@ -99,7 +99,7 @@ class RewardController extends Controller
                 ];
             });
 
-            Log::info($tradeLots);
+            // Log::info($tradeLots);
         
         // Get individual redemption transactions
         $redemptionTransactions = TradePointHistory::where('user_id', $userId)
@@ -116,10 +116,82 @@ class RewardController extends Controller
                 ];
             });
         
-            Log::info($redemptionTransactions);
+            // Log::info($redemptionTransactions);
         // Merge and sort the results by date
-        $combined = collect($tradeLots)->merge($redemptionTransactions)->sortByDesc('date')->values();;
-        Log::info($combined);
+        $combined = collect($tradeLots)->merge($redemptionTransactions)->sortByDesc('date')->values()->take(6);
+        // Log::info($combined);
+        return response()->json([
+            'pointHistory' => $combined,
+        ]);
+    }
+
+    public function viewAllPointHistory(Request $request)
+    {
+        $userId = Auth::id();
+
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
+
+        // Get summed trade lots per day
+        $tradeQuery = TradePointHistory::selectRaw('DATE(created_at) as date, SUM(trade_points) as total_trade_points')
+            ->where('user_id', $userId)
+            ->where('category', 'trade_lots');
+
+        $tradeLots = $tradeQuery
+            ->groupBy('date')
+            ->get()
+            ->map(function ($tradeLot) {
+                return [
+                    'type' => 'trade_lots',
+                    'date' => $tradeLot->date,
+                    'amount' => $tradeLot->total_trade_points,
+                ];
+            });
+        
+        // Get individual redemption transactions
+        $redemptionQuery = TradePointHistory::with('redemption.transaction')
+            ->where('user_id', $userId)
+            ->where('category', 'redemption');
+
+        if ($startDate && $endDate) {
+            // Both startDate and endDate are provided
+            $start = Carbon::parse($startDate, config('app.timezone'))->startOfDay()->utc();
+            $end = Carbon::parse($endDate, config('app.timezone'))->endOfDay()->utc();
+
+            $tradeQuery->whereBetween('created_at', [$start, $end]);
+
+            $redemptionQuery->whereBetween('created_at', [$start, $end]);
+        }
+
+        $tradeLots = $tradeQuery
+            ->groupBy('date')
+            ->get()
+            ->map(function ($tradeLot) {
+                return [
+                    'type' => 'trade_lots',
+                    'date' => $tradeLot->date,
+                    'amount' => $tradeLot->total_trade_points,
+                ];
+            });
+
+        $redemptionTransactions = $redemptionQuery
+            ->get()
+            ->map(function ($history) {
+                return [
+                    'type' => 'redemption',
+                    'date' => $history->created_at->format('Y-m-d'),
+                    'amount' => $history->trade_points,
+                    'status' => $history->redemption->transaction->status ?? null,
+                    'approved_at' => $history->redemption->transaction->approved_at ?? null,
+                ];
+            });
+        
+        // Log::info($tradeLots);
+        // Log::info($redemptionTransactions);
+
+        // Merge and sort the results by date
+        $combined = collect($tradeLots)->merge($redemptionTransactions)->sortByDesc('date')->values();
+        // Log::info($combined);
         return response()->json([
             'pointHistory' => $combined,
         ]);

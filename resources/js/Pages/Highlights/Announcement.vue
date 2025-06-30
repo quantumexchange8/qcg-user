@@ -130,12 +130,12 @@ const getTimeLabel = (announcement) => {
 
     <Dialog v-model:visible="visible" modal :header="$t('public.announcement')" :closable="false" class="dialog-xs md:dialog-md no-header-border" :dismissableMask="true">
         <div class="flex flex-col justify-center items-start gap-8 pb-6 self-stretch">
-            <img v-if="data.thumbnail" :src="data.thumbnail" alt="announcement_image" class="w-full h-[170px] md:h-[310.5px]" />
+            <img v-if="data.thumbnail" :src="data.thumbnail" alt="announcement_image" class="w-full h-[170px] smd:h-full smd:max-h-72 md:h-[310.5px] md:max-h-none" />
 
-            <span class="text-lg font-bold text-gray-950">{{ data.title }}</span>
+            <span class="text-sm md:text-lg font-bold text-gray-950">{{ data.title }}</span>
 
             <!-- need to ask nic about this content if got html tag -->
-            <span class="text-md font-regular text-gray-950 whitespace-pre-line" v-html="data.content"></span>
+            <span class="text-sm md:text-md font-regular text-gray-950 whitespace-pre-line" v-html="data.content"></span>
 
         </div>
         <Button

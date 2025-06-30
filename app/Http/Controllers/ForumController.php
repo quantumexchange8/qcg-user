@@ -20,6 +20,10 @@ class ForumController extends Controller
     {
         $author = ForumPost::where('user_id', \Auth::id())->first();
 
+        Auth::user()->update([
+            'forum_last_visit' => now(),
+        ]);
+
         return Inertia::render('Forums/ForumPost', [
             'postCounts' => ForumPost::count(),
             'authorName' => $author?->display_name

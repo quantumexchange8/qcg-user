@@ -23,29 +23,44 @@ class ReportController extends Controller
     {
         $userId = Auth::id();
 
-        $monthYear = $request->input('selectedMonth');
+        $startDate = $request->query('startDate');
+        $endDate = $request->query('endDate');
 
-        if ($monthYear === 'select_all') {
-            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
-            $endDate = Carbon::now()->endOfDay();
-        } elseif (str_starts_with($monthYear, 'last_')) {
-            preg_match('/last_(\d+)_week/', $monthYear, $matches);
-            $weeks = $matches[1] ?? 1;
+        // $monthYear = $request->input('selectedMonth');
 
-            $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
-            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
-        } else {
-            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+        // if ($monthYear === 'select_all') {
+        //     $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+        //     $endDate = Carbon::now()->endOfDay();
+        // } elseif (str_starts_with($monthYear, 'last_')) {
+        //     preg_match('/last_(\d+)_week/', $monthYear, $matches);
+        //     $weeks = $matches[1] ?? 1;
 
-            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
-            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
-        }
+        //     $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
+        //     $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
+        // } else {
+        //     $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
 
-        // Initialize query for rebate summary with date filtering
+        //     $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+        //     $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
+        // }
+
+        // // Initialize query for rebate summary with date filtering
+        // $query = TradeRebateSummary::with('symbolGroup')
+        //     ->where('upline_user_id', $userId)
+        //     ->whereNotNull('execute_at')
+        //     ->whereBetween('closed_time', [$startDate, $endDate]);
+
         $query = TradeRebateSummary::with('symbolGroup')
             ->where('upline_user_id', $userId)
-            ->whereNotNull('execute_at')
-            ->whereBetween('closed_time', [$startDate, $endDate]);
+            ->whereNotNull('execute_at');
+
+        if ($startDate && $endDate) {
+            // Both startDate and endDate are provided
+            $start = Carbon::parse($startDate, config('app.timezone'))->startOfDay()->utc();
+            $end = Carbon::parse($endDate, config('app.timezone'))->endOfDay()->utc();
+
+            $query->whereBetween('closed_time', [$start, $end]);
+        }
 
         // Fetch rebate summary data
         $rebateSummary = $query->get(['symbol_group_id', 'volume', 'rebate']);
@@ -93,31 +108,41 @@ class ReportController extends Controller
 
     public function getRebateDetails(Request $request)
     {
-        $monthYear = $request->query('selectedMonth');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
 
-        if ($monthYear === 'select_all') {
-            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
-            $endDate = Carbon::now()->endOfDay();
-        } elseif (str_starts_with($monthYear, 'last_')) {
-            preg_match('/last_(\d+)_week/', $monthYear, $matches);
-            $weeks = $matches[1] ?? 1;
+        // $monthYear = $request->query('selectedMonth');
 
-            $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
-            $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
-        } else {
-            $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+        // if ($monthYear === 'select_all') {
+        //     $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
+        //     $endDate = Carbon::now()->endOfDay();
+        // } elseif (str_starts_with($monthYear, 'last_')) {
+        //     preg_match('/last_(\d+)_week/', $monthYear, $matches);
+        //     $weeks = $matches[1] ?? 1;
 
-            $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
-            $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
-        }
+        //     $startDate = Carbon::now()->subWeeks($weeks)->startOfWeek();
+        //     $endDate = Carbon::now()->subWeek($weeks)->endOfWeek(); 
+        // } else {
+        //     $carbonDate = Carbon::createFromFormat('F Y', $monthYear);
+
+        //     $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
+        //     $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
+        // }
 
         // Fetch all symbol groups from the database, ordered by the primary key (id)
         $allSymbolGroups = SymbolGroup::pluck('display', 'id')->toArray();
 
         $query = TradeRebateSummary::with('user')
             ->where('upline_user_id', Auth::id())
-            ->whereNotNull('execute_at')
-            ->whereBetween('closed_time', [$startDate, $endDate]);
+            ->whereNotNull('execute_at');
+
+        if ($startDate && $endDate) {
+            // Both startDate and endDate are provided
+            $start = Carbon::parse($startDate, config('app.timezone'))->startOfDay()->utc();
+            $end = Carbon::parse($endDate, config('app.timezone'))->endOfDay()->utc();
+
+            $query->whereBetween('closed_time', [$start, $end]);
+        }
 
         // Fetch rebate listing data
         $data = $query->latest()

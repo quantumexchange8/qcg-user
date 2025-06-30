@@ -13,7 +13,7 @@ import Dialog from "primevue/dialog";
 import ProfilePhoto from "@/Components/ProfilePhoto.vue";
 import {Link, usePage} from "@inertiajs/vue3";
 import TieredMenu from "primevue/tieredmenu";
-import {ref} from "vue";
+import {ref, computed} from "vue";
 import Button from "@/Components/Button.vue";
 import {loadLanguageAsync} from "laravel-vue-i18n";
 import Tag from "primevue/tag";
@@ -81,6 +81,13 @@ const downloadQrCode = () => {
     link.href = canvas.toDataURL("image/png");
     link.click();
 }
+
+const user = usePage().props.auth.user;
+
+const showNotif = computed(() => {
+  return user?.has_new_forum_posts
+})
+
 </script>
 
 <template>
@@ -110,10 +117,10 @@ const downloadQrCode = () => {
                 class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('forum')"
                 method="get"
-                as="button"
+                as="button"  
             >
-                <ForumIcon aria-hidden="true" class="flex-shrink-0 w-5 h-5" />
-                <!-- <ForumNotifIcon aria-hidden="true" class="flex-shrink-0 w-5 h-5" /> -->
+                <ForumIcon v-if="!showNotif" aria-hidden="true" class="flex-shrink-0 w-5 h-5" />
+                <ForumNotifIcon v-else aria-hidden="true" class="flex-shrink-0 w-5 h-5" />
             </Link>
             <div
                 class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"

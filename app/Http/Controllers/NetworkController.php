@@ -192,20 +192,20 @@ class NetworkController extends Controller
         }
 
         $trading_accounts = $user->tradingAccounts->map(function($trading_account) {
-            $overrideType = null;
+            // $overrideType = null;
 
-            if ($trading_account->accountType->account_group === 'VIRTUAL') {
-                $overrideType = AccountType::where('account_group', 'STANDARD.t')->first();
-            }
+            // if ($trading_account->accountType->account_group === 'VIRTUAL') {
+            //     $overrideType = AccountType::where('account_group', 'STANDARD.t')->first();
+            // }
 
             return [
                 'id' => $trading_account->id,
                 'meta_login' => $trading_account->meta_login,
-                'account_type' => $overrideType->slug ?? $trading_account->accountType->slug,
+                'account_type' => $trading_account->accountType->slug,
                 'balance' => $trading_account->balance,
                 'credit' => $trading_account->credit,
                 'equity' => $trading_account->equity,
-                'account_type_color' => $overrideType->color ?? $trading_account->accountType->color,
+                'account_type_color' => $trading_account->accountType->color,
             ];
         });
 

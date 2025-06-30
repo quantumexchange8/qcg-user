@@ -553,4 +553,9 @@ return [
     'today' => '今天',
     'close' => '關閉',
     'redemption' => '獎勵兌換',
+    'generate' => '產生',
+    'empty_point_history_title' => '未找到點數記錄',
+    'empty_point_history_message' => '目前沒有可顯示的點數記錄，請稍後回來查看更新。',
+    'select_date_range' => '選擇日期範圍',
+    'virtual' => '虛擬帳戶',
 ];

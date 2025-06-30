@@ -159,7 +159,7 @@ watchEffect(() => {
                     </div>
                     <IconAlertCircleFilled :size="20" stroke-width="1.25" class="text-error-500" v-if="account.is_active === 'inactive'" v-tooltip.top="$t('public.account_inactive_warning')" />
                 </div>
-                <Action :account="account" :type="accountType" />
+                <Action v-if="account.account_group === 'STANDARD.t'" :account="account" :type="accountType" />
             </div>
             <div class="grid grid-cols-2 gap-2 self-stretch xl:grid-cols-4">
                 <div class="w-full flex items-start gap-1 flex-col">
@@ -180,7 +180,7 @@ watchEffect(() => {
                 </div>
             </div>
             <div class="flex justify-end items-center gap-3 self-stretch">
-                <ActionButton :account="account" :type="accountType" />
+                <ActionButton v-if="account.account_group === 'STANDARD.t'" :account="account" :type="accountType" />
             </div>
         </div>
     </div>

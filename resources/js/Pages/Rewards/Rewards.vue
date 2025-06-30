@@ -7,6 +7,7 @@ import { transactionFormat } from "@/Composables/index.js";
 import Button from "@/Components/Button.vue";
 import {ref, watchEffect, computed} from 'vue';
 import RewardRedemption from "./Partials/RewardRedemption.vue";
+import PointHistory from "./Partials/PointHistory.vue";
 import dayjs from "dayjs";
 import { trans } from "laravel-vue-i18n";
 import Dialog from "primevue/dialog";
@@ -67,13 +68,6 @@ const getSign = (type) => {
     return type === 'redemption' ? '-' : '+';
 };
 
-const showAll = ref(false);
-
-const limitedHistories = computed(() => pointHistories.value.slice(0, 6));
-
-const viewAll = () => {
-    showAll.value = true;
-};
 
 const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -129,29 +123,15 @@ const getStatusTooltip = (history) => {
                 <div class="bg-white shadow-card rounded-lg px-6 pt-6 pb-3 flex flex-col gap-2 self-stretch">
                     <div class="flex flex-row items-center justify-between">
                         <span class="font-bold text-gray-950">{{ $t('public.points_history') }}</span>
-                        <Button
-                            type="button"
-                            variant="gray-outlined"
-                            class="!py-2"
-                            @click="viewAll"
-                        >
-                            {{ $t('public.view_all') }}
-                        </Button>
+
+                        <PointHistory />
                     </div>
-                    <!-- <div 
-                        class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
-                    >
-                        <div class="flex flex-col">
-                            <span class="text-sm text-gray-950 font-medium">{{ $t('public.earned') }}</span>
-                            <span class="text-xs text-gray-500">2020/01/01</span>
-                        </div>
-                        <span class="text-sm text-gray-950 font-medium">+0.00 tp</span>
-                    </div> -->
+
                     <div class="w-full">
-                        <div v-for="(history, index) in limitedHistories"
+                        <div v-for="(history, index) in pointHistories"
                             :key="index"
                             class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
-                            :class="{ 'border-transparent': index === limitedHistories.length - 1 }"
+                            :class="{ 'border-transparent': index === pointHistories.length - 1 }"
                         >
                             <div class="flex flex-col">
                                 <span class="text-sm text-gray-950 font-medium">{{ getTransactionLabel(history.type) }}</span>
@@ -179,31 +159,4 @@ const getStatusTooltip = (history) => {
         </div>
     </AuthenticatedLayout>
 
-    <!-- Dialog for Full History -->
-    <Dialog v-model:visible="showAll"
-        modal
-        :header="$t('public.point_history')"
-        class="dialog-xs md:dialog-sm"
-    >
-        <div v-for="(history, index) in pointHistories"
-            :key="index"
-            class="flex flex-row py-[6px] justify-between items-center gap-5 self-stretch border-b border-gray-100"
-            :class="{ 'border-transparent': index === pointHistories.length - 1 }"
-        >
-            <div class="flex flex-col">
-                <span class="text-sm text-gray-950 font-medium">{{ getTransactionLabel(history.type) }}</span>
-                <div class="flex flex-row items-center gap-2">
-                    <span class="text-xs text-gray-500">{{ formatDate(history.date) }}</span>
-                    <span 
-                        v-if="history.type === 'redemption'" 
-                        :class="['px-1 py-0.5 text-xxs rounded-sm', getStatusBadgeClass(history.status)]"
-                        v-tooltip.top="history.status !== 'processing' ? getStatusTooltip(history) : null"
-                    >
-                        {{ $t(`public.${history.status}`) }}
-                    </span>
-                </div>
-            </div>
-            <span class="text-sm text-gray-950 font-medium">{{ getSign(history.type) }}{{ formatAmount(history.amount) }} tp</span>
-        </div>
-    </Dialog>
 </template>
