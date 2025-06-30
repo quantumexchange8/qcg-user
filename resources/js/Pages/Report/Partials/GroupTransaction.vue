@@ -41,9 +41,9 @@ const getCurrentMonthYear = () => {
 };
 
 // Fetch settlement months from API
-const getTransactionMonths = async () => {
+const getGroupTransactionMonths = async () => {
     try {
-        const response = await axios.get('/getTransactionMonths');
+        const response = await axios.get('/getGroupTransactionMonths');
         months.value = response.data.months;
 
         if (months.value.length) {
@@ -54,7 +54,7 @@ const getTransactionMonths = async () => {
     }
 };
 
-getTransactionMonths()
+getGroupTransactionMonths()
 
 const exportXLSX = () => {
     // Retrieve the array from the reactive proxy

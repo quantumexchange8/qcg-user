@@ -73,6 +73,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('deposit_return', [AccountController::class, 'depositReturn'])->name('depositReturn');
 
     Route::get('/getTransactionMonths', [GeneralController::class, 'getTransactionMonths'])->name('getTransactionMonths');
+    Route::get('/getGroupTransactionMonths', [GeneralController::class, 'getGroupTransactionMonths'])->name('getGroupTransactionMonths');
     Route::get('/getTradeMonths', [GeneralController::class, 'getTradeMonths'])->name('getTradeMonths');
     Route::get('/getIncentiveMonths', [GeneralController::class, 'getIncentiveMonths'])->name('getIncentiveMonths');
 

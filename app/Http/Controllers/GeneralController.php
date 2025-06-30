@@ -162,6 +162,50 @@ class GeneralController extends Controller
         ]);
     }
 
+    public function getGroupTransactionMonths($returnAsArray = false)
+    {
+        $user = Auth::user();
+        $groupIds = $user->getChildrenIds();
+        $groupIds[] = $user->id;
+
+        $firstTransaction = Transaction::whereIn('user_id', $groupIds)
+            ->oldest()
+            ->value('created_at'); // Get only the first transaction date
+
+        $months = collect();
+
+        if ($firstTransaction) {
+            $firstMonth = Carbon::parse($firstTransaction)->startOfMonth();
+            $currentMonth = Carbon::now()->startOfMonth();
+
+            // Generate all months from first transaction to current month
+            while ($firstMonth <= $currentMonth) {
+                $months->push('01 ' . $firstMonth->format('F Y'));
+                $firstMonth->addMonth();
+            }
+
+            $months = $months->reverse()->values();
+        }
+
+        // Add custom date ranges at the top
+        $additionalRanges = collect([
+            'select_all',
+            'last_week', 
+            'last_2_week', 
+            'last_3_week', 
+        ]);
+
+        $months = $additionalRanges->merge($months);
+
+        if ($returnAsArray) {
+            return $months;
+        }
+
+        return response()->json([
+            'months' => $months,
+        ]);
+    }
+
     public function getTradeMonths($returnAsArray = false)
     {
         $firstTransaction = TradeRebateSummary::where(function ($query) {
