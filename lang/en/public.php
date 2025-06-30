@@ -560,4 +560,6 @@ return [
     'empty_point_history_message' => 'There are no point histories to display at the moment. Check back later for updates.',
     'select_date_range' => 'Select Date Range',
     'virtual' => 'Virtual Account',
+    'personal_transaction' => 'Personal Transaction',
+    'deposit_withdrawal' => 'Transactions',
 ];

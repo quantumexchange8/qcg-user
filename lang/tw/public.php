@@ -558,4 +558,6 @@ return [
     'empty_point_history_message' => '目前沒有可顯示的點數記錄，請稍後回來查看更新。',
     'select_date_range' => '選擇日期範圍',
     'virtual' => '虛擬帳戶',
+    'personal_transaction' => '個人交易',
+    'deposit_withdrawal' => '出入金',
 ];

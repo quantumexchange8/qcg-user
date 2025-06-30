@@ -11,6 +11,7 @@ use App\Models\RebateAllocation;
 use App\Models\TradeRebateSummary;
 use App\Models\SymbolGroup;
 use App\Models\Transaction;
+use App\Models\User;
 
 class ReportController extends Controller
 {
@@ -233,12 +234,14 @@ class ReportController extends Controller
     public function getGroupTransaction(Request $request)
     {
         $user = Auth::user();
-        $groupIds = $user->getChildrenIds();
-        $groupIds[] = $user->id;
+        // $groupIds = $user->getChildrenIds();
+        // $groupIds[] = $user->id;
 
         $transactionType = $request->query('type');
         
         $monthYear = $request->input('selectedMonth');
+        $group = $request->input('selectedGroup');
+        $search = $request->input('search');
 
         if ($monthYear === 'select_all') {
             $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
@@ -254,6 +257,24 @@ class ReportController extends Controller
 
             $startDate = (clone $carbonDate)->startOfMonth()->startOfDay();
             $endDate = (clone $carbonDate)->endOfMonth()->endOfDay();
+        }
+
+        if ($group === 'personal') {
+            $groupIds = $user->directChildren()->pluck('id')->toArray();
+            $groupIds[] = $user->id;
+        } else {
+            $groupIds = $user->getChildrenIds();
+            $groupIds[] = $user->id;
+        }
+
+        if ($search) {
+            $searchUserIds = User::where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%$search%")
+                    ->orWhere('chinese_name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
+            })->pluck('id')->toArray();
+
+            $groupIds = array_intersect($groupIds, $searchUserIds);
         }
 
         $transactionTypes = match($transactionType) {

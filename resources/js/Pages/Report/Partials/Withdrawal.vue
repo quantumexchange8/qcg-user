@@ -8,6 +8,7 @@ import { transactionFormat } from '@/Composables/index.js';
 import Empty from '@/Components/Empty.vue';
 import Loader from "@/Components/Loader.vue";
 import dayjs from "dayjs";
+import debounce from "lodash/debounce.js";
 
 const { formatDate, formatDateTime, formatAmount } = transactionFormat();
 
@@ -16,18 +17,20 @@ const props = defineProps({
         type: [Array, String], // Allows both Array and String types
         default: () => '', // Default value as an empty array
     },
+    selectedGroup: String,
     filters: Object,
 });
 
 const selectedType = ref('withdrawal');
 const selectedMonth = ref(props.selectedMonth);
+const selectedGroup = ref(props.selectedGroup);
 const transactions = ref();
 const groupTotalWithdrawal = ref(0);
 const dt = ref();
 const filteredValue = ref();
 const loading = ref(false);
 
-const getResults = async (selectedMonth = '') => {
+const getResults = async (selectedMonth = '', selectedGroup = '', search = null) => {
     loading.value = true;
     try {
         let url = `/report/getGroupTransaction?type=${selectedType.value}`;
@@ -40,6 +43,14 @@ const getResults = async (selectedMonth = '') => {
             }
 
             url += `&selectedMonth=${formattedMonth}`;
+        }
+
+        if (selectedGroup) {
+            url += `&selectedGroup=${selectedGroup}`;
+        }
+
+        if (search) {
+            url += `&search=${search}`;
         }
 
         const response = await axios.get(url);
@@ -55,8 +66,19 @@ const getResults = async (selectedMonth = '') => {
 // Watch for changes in selectedDate
 watch(() => props.selectedMonth, (newMonth) => {
     selectedMonth.value = newMonth;
-    getResults(newMonth);
+    getResults(newMonth, selectedGroup.value);
 });
+
+watch(() => props.selectedGroup, (newGroup) => {
+    selectedGroup.value = newGroup;
+    getResults(selectedMonth.value, newGroup);
+});
+
+watch(props.filters.global,
+    debounce((newSearchValue) => {
+        getResults(selectedMonth.value, selectedGroup.value, newSearchValue)
+    }, 300)
+);
 
 const emit = defineEmits(['updateFilteredValue']);
 
@@ -70,6 +92,9 @@ watch(transactions, (newTransactions) => {
     if (newTransactions.length === 0) {
         filteredValue.value = [];
         emit('updateFilteredValue', []);
+    } else {
+        filteredValue.value = newTransactions;
+        emit('updateFilteredValue', filteredValue.value);
     }
 });
 
@@ -82,7 +107,6 @@ onMounted(() => {
 
 <template>
     <DataTable
-        v-model:filters="props.filters"
         :value="transactions"
         :paginator="transactions?.length > 0"
         removableSort
@@ -93,7 +117,6 @@ onMounted(() => {
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         :globalFilterFields="['name','email']"
         ref="dt"
-        @filter="handleFilter"
         :loading="loading"
         >
         <template #header v-if="transactions?.length > 0">

@@ -56,6 +56,13 @@ const getGroupTransactionMonths = async () => {
 
 getGroupTransactionMonths()
 
+const groups = ref([
+    { name: wTrans('public.personal_transaction'),  value: 'personal'  },
+    { name: wTrans('public.group_transaction'), value: 'group'  },
+]);
+
+const selectedGroup = ref('group');
+
 const exportXLSX = () => {
     // Retrieve the array from the reactive proxy
     const data = filteredValue.value;
@@ -148,7 +155,7 @@ const updateType = (event) => {
                     </TabList>
                 </Tabs>
             </div>
-            <div class="w-full md:w-auto flex flex-col items-center gap-3 md:hidden md:gap-5">
+            <!-- <div class="w-full md:w-auto flex flex-col items-center gap-3 md:hidden md:gap-5">
                 <div class="relative w-full md:w-60">
                     <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400">
                         <IconSearch size="20" stroke-width="1.25" />
@@ -170,16 +177,16 @@ const updateType = (event) => {
                     <IconDownload size="20" stroke-width="1.25" />
                     {{ $t('public.export') }}
                 </Button>
-            </div>
+            </div> -->
         </div>
 
         <div class="flex flex-col justify-between items-center gap-3 self-stretch md:flex-row">
-            <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-2">
+            <div class="grid grid-cols-2 md:grid-cols-3 items-center gap-3 self-stretch md:gap-2">
                 <Select 
                     v-model="selectedMonth" 
                     :options="months" 
                     :placeholder="$t('public.month_placeholder')"
-                    class="w-full md:w-60 font-normal truncate" scroll-height="236px" 
+                    class="col-span-1 w-full font-normal truncate" scroll-height="236px" 
                 >
                     <template #option="{ option }">
                         <span class="text-sm">
@@ -211,11 +218,19 @@ const updateType = (event) => {
                         </span>
                     </template>
                 </Select>
-                <div class="relative w-full hidden md:flex md:w-60">
+                <Select 
+                    v-model="selectedGroup" 
+                    :options="groups" 
+                    optionLabel="name"
+                    optionValue="value"
+                    :placeholder="$t('public.group_placeholder')"
+                    class="col-span-1 w-full font-normal truncate" scroll-height="236px" 
+                />
+               <div class="relative w-full col-span-1 ">
                     <div class="absolute top-2/4 -mt-[9px] left-4 text-gray-400 z-20">
                         <IconSearch size="20" stroke-width="1.25" />
                     </div>
-                    <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full md:w-60" />
+                    <InputText v-model="filters['global'].value" :placeholder="$t('public.search')" class="font-normal pl-12 w-full" />
                     <div
                         v-if="filters['global'].value"
                         class="absolute top-2/4 -mt-2 right-4 text-gray-300 hover:text-gray-400 select-none cursor-pointer z-10"
@@ -224,6 +239,14 @@ const updateType = (event) => {
                         <IconX size="16" />
                     </div>
                 </div>
+                <Button
+                    variant="primary-outlined"
+                    @click="filteredValue?.length > 0 ? exportXLSX($event) : null" 
+                    class="w-full col-span-1 md:hidden"
+                >
+                    <IconDownload size="20" stroke-width="1.25" />
+                    {{ $t('public.export') }}
+                </Button>
             </div>
             <Button
                 variant="primary-outlined"
@@ -238,7 +261,7 @@ const updateType = (event) => {
         <Tabs v-model:value="activeIndex" class="w-full">
             <TabPanels>
                 <TabPanel v-for="(tab, index) in tabs" :key="index" :value="index">
-                    <component :is="tab.component" v-if="activeIndex === index" :filters="filters" :selectedMonth="selectedMonth"  @updateFilteredValue="handleFilteredValue"/>
+                    <component :is="tab.component" v-if="activeIndex === index" :filters="filters" :selectedMonth="selectedMonth" :selectedGroup="selectedGroup" @updateFilteredValue="handleFilteredValue"/>
                 </TabPanel>
             </TabPanels>
         </Tabs>
