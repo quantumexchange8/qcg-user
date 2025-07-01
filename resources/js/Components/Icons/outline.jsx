@@ -331,3 +331,19 @@ export const ForumNotifIcon = defineComponent({
         )
     },
 })
+
+export const HelpCenterIcon = defineComponent({
+    setup() {
+        return () => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M16.971 14.9793C16.971 16.6292 15.6334 18 13.9834 18H10" stroke="#374151" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M13.9824 10.9932C13.9824 13.1931 12.199 14.9766 9.99903 14.9766C7.79906 14.9766 6.01562 13.1931 6.01562 10.9932C6.01562 8.79319 7.79906 7.00976 9.99903 7.00976C12.199 7.00976 13.9824 8.79319 13.9824 10.9932Z" stroke="#374151" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M4.0249 14.9766H3.02905C2.47907 14.9766 2 14.5307 2 13.9807V9.99731C2 9.44733 2.47907 9.00146 3.02905 9.00146H4.0249V14.9766Z" stroke="#374151" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.0015 13.9807C18.0015 14.5307 17.5224 14.9766 16.9724 14.9766H15.9766V9.00146H16.9724C17.5224 9.00146 18.0015 9.44733 18.0015 9.99731V13.9807Z" stroke="#374151" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 10C2 5.60007 5.60007 2 10 2C14.3999 2 18 5.60007 18 10" stroke="#374151" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.4959 9.00207C10.4959 9.27706 10.2729 9.5 9.99793 9.5C9.72294 9.5 9.5 9.27706 9.5 9.00207C9.5 8.72709 9.72294 8.50415 9.99793 8.50415C10.2729 8.50415 10.4959 8.72709 10.4959 9.00207Z" fill="#374151"/>
+                <path d="M10 10.9927V12.9844" stroke="#374151" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        )
+    },
+})

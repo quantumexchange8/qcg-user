@@ -19,6 +19,7 @@ use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\DownloadCenterController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\TicketController;
 
 Route::get('locale/{locale}', function ($locale) {
     App::setLocale($locale);
@@ -75,6 +76,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/getTransactionMonths', [GeneralController::class, 'getTransactionMonths'])->name('getTransactionMonths');
     Route::get('/getTradeMonths', [GeneralController::class, 'getTradeMonths'])->name('getTradeMonths');
     Route::get('/getIncentiveMonths', [GeneralController::class, 'getIncentiveMonths'])->name('getIncentiveMonths');
+    Route::get('/getTicketCategories', [GeneralController::class, 'getTicketCategories'])->name('getTicketCategories');
+
+    /**
+     * ==============================
+     *         Ticket Center
+     * ==============================
+     */
+    Route::prefix('tickets')->group(function() {
+        Route::get('/', [TicketController::class, 'index'])->name('tickets');
+        Route::post('/createTicket', [TicketController::class, 'createTicket'])->name('tickets.createTicket');
+        Route::get('/getTickets', [TicketController::class, 'getTickets'])->name('tickets.getTickets');
+        Route::get('/getTicketReplies', [TicketController::class, 'getTicketReplies'])->name('tickets.getTicketReplies');
+        Route::post('/sendReply', [TicketController::class, 'sendReply'])->name('tickets.sendReply');
+        // Route::post('/createPost', [TicketController::class, 'createPost'])->name('forum.createPost');
+        // Route::post('/postInteraction', [TicketController::class, 'postInteraction'])->name('forum.postInteraction');
+    });
 
     /**
      * ==============================

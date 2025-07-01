@@ -19,13 +19,13 @@ const baseClasses = [
 const variantClasses = computed(() => {
     if (props.variant === 'primary') {
         return 'bg-primary-600 text-white'
-    } else if (props.variant === 'successful' || props.variant === 'active' || props.variant === 'live') {
+    } else if (props.variant === 'successful' || props.variant === 'active' || props.variant === 'live' || props.variant === 'resolved') {
         return 'bg-success-500 text-white'
     } else if (props.variant === 'error' || props.variant === 'failed' || props.variant === 'rejected') {
         return 'bg-error-600 text-white'
-    } else if (props.variant === 'warning' || props.variant === 'ongoing') {
+    } else if (props.variant === 'warning' || props.variant === 'ongoing' || props.variant === 'in_progress') {
         return 'bg-warning-500 text-white'
-    } else if (props.variant === 'info' || props.variant === 'demo' || props.variant === 'processing' || props.variant === 'member') {
+    } else if (props.variant === 'info' || props.variant === 'demo' || props.variant === 'processing' || props.variant === 'member' || props.variant === 'new') {
         return 'bg-info-500 text-white'
     } else if (props.variant === 'gray' || props.variant === 'inactive' ) {
         return 'bg-gray-500 text-white'

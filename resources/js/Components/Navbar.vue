@@ -18,7 +18,7 @@ import Button from "@/Components/Button.vue";
 import {loadLanguageAsync} from "laravel-vue-i18n";
 import Tag from "primevue/tag";
 import InputText from "primevue/inputtext";
-import { ForumIcon, ForumNotifIcon } from '@/Components/Icons/outline'
+import { ForumIcon, ForumNotifIcon, HelpCenterIcon } from '@/Components/Icons/outline'
 
 defineProps({
     title: String
@@ -113,6 +113,14 @@ const showNotif = computed(() => {
             </Link>
         </div> -->
         <div class="flex items-center gap-2">
+            <Link
+                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                :href="route('tickets')"
+                method="get"
+                as="button"  
+            >
+                <HelpCenterIcon aria-hidden="true" class="flex-shrink-0 w-5 h-5" />
+            </Link>
             <Link
                 class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('forum')"

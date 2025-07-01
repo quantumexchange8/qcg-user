@@ -14,6 +14,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\TeamSettlement;
 use App\Models\TradingAccount;
+use App\Models\TicketCategory;
 use App\Models\SettingLeverage;
 use App\Models\TradeRebateSummary;
 use App\Services\CTraderService;
@@ -367,6 +368,26 @@ class GeneralController extends Controller
 
         return response()->json([
             'teams' => $teams,
+        ]);
+    }
+
+    public function getTicketCategories($returnAsArray = false)
+    {
+        $categories = TicketCategory::all()->map(function ($category) {
+            $title = json_decode($category->category, true);
+            return [
+                'value' => $category->id,
+                'name' => $title,
+
+            ];
+        });
+
+        if ($returnAsArray) {
+            return $categories;
+        }
+
+        return response()->json([
+            'categories' => $categories,
         ]);
     }
 }

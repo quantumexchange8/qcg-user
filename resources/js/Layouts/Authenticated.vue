@@ -19,11 +19,11 @@ defineProps({
         <!-- Main container for Sidebar and Navbar -->
         <div class="flex flex-col flex-1">
             <!-- Navbar -->
-            <Navbar :title="title" v-if="title!==$t('public.forum')"/>
+            <Navbar :title="title" v-if="title!==$t('public.forum') && title!==$t('public.ticket_center')"/>
 
             <div class="flex flex-1 p-3 md:p-5 gap-5">
                 <!-- Sidebar -->
-                <Sidebar  v-if="title!==$t('public.forum')"/>
+                <Sidebar  v-if="title!==$t('public.forum') && title!==$t('public.ticket_center')"/>
 
                 <!-- Page Content -->
                 <main class="flex flex-1 justify-center items-start overflow-hidden">
