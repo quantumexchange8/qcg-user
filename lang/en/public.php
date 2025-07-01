@@ -562,4 +562,6 @@ return [
     'virtual' => 'Virtual Account',
     'personal_transaction' => 'Personal Transaction',
     'deposit_withdrawal' => 'Transactions',
+    'personal_deposit' => 'Personal Deposit',
+    'personal_withdrawal' => 'Personal Withdrawal',
 ];

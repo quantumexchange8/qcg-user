@@ -157,7 +157,7 @@ return [
     'view_details' => '查看详情',
     'total_refree' => '总推荐人',
     'rebate' => '返利',
-    'group_transaction' => '群组交易',
+    'group_transaction' => '群组业绩',
     'rebate_percentage_breakdown' => '返利百分比细分',
     'forex' => '外汇',
     'stocks' => '股票',
@@ -558,6 +558,8 @@ return [
     'empty_point_history_message' => '目前没有可显示的积分记录，请稍后再查看更新。',
     'select_date_range' => '选择日期范围',
     'virtual' => '虚拟账户',
-    'personal_transaction' => '个人交易',
+    'personal_transaction' => '个人业绩',
     'deposit_withdrawal' => '出入金',
+    'personal_deposit' => '个人存款',
+    'personal_withdrawal' => '个人提现',
 ];
