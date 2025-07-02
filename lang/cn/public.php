@@ -562,4 +562,6 @@ return [
     'deposit_withdrawal' => '出入金',
     'personal_deposit' => '个人存款',
     'personal_withdrawal' => '个人提现',
+    'disable_popup' => '今日不再弹出',
+    'breaking_news' => '滚动新闻',
 ];

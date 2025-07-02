@@ -564,4 +564,6 @@ return [
     'deposit_withdrawal' => 'Transactions',
     'personal_deposit' => 'Personal Deposit',
     'personal_withdrawal' => 'Personal Withdrawal',
+    'disable_popup' => 'Disable popup for the day',
+    'breaking_news' => 'Breaking News',
 ];

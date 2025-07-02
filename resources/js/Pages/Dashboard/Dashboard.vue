@@ -21,6 +21,7 @@ import Vue3Autocounter from "vue3-autocounter";
 import Account from "@/Pages/Accounts/Account.vue";
 import Carousel from 'primevue/carousel';
 import Dialog from 'primevue/dialog';
+import Checkbox from 'primevue/checkbox';
 
 const props = defineProps({
     announcements: Object,
@@ -134,6 +135,7 @@ const getDashboardData = async () => {
 
 const isMounted = ref(false);
 // const autoplayInterval = ref(3000);
+const checkboxDaily = ref(false);
 const announcementsQueue = ref([...props.announcements]) // clone to avoid mutation
 const currentAnnouncement = ref(null)
 const showPopup = ref(false)
@@ -166,7 +168,7 @@ function showNextAnnouncement() {
 async function handlePopupClose() {
   showPopup.value = false;
 
-  if (currentAnnouncement.value?.popup_login === 'first') {
+  if (currentAnnouncement.value?.popup_login === 'first' || (currentAnnouncement.value?.popup_login === 'every' && checkboxDaily)) {
     // console.log(currentAnnouncement.value.id)
     await axios.post('/dashboard/markAsViewed', {
         announcement_id: currentAnnouncement.value.id,
@@ -175,6 +177,7 @@ async function handlePopupClose() {
 
   // Slight delay before showing the next popup
   setTimeout(() => {
+    checkboxDaily.value = false;
     showNextAnnouncement()
   }, 300)
 }
@@ -196,7 +199,6 @@ const responsiveOptions = ref([
         numScroll: 1
     },
 ]);
-
 </script>
 
 <template>
@@ -347,15 +349,22 @@ const responsiveOptions = ref([
 
         </div>
         <template #footer>
-            <Button 
-                type="button"
-                variant="primary-flat"
-                size="base"
-                class="w-full"
-                @click="handlePopupClose" 
-            >
-                {{ $t('public.close') }}
-            </Button>
+            <div class="flex flex-col gap-2 w-full pt-4">
+                <label v-if="currentAnnouncement.popup_login && currentAnnouncement.popup_login==='every'" class="flex items-center gap-2">
+                    <Checkbox binary v-model="checkboxDaily" class="w-4 h-4 flex-shrink-0" />
+                    <span class="text-gray-500 text-sm">{{ $t('public.disable_popup') }}</span>
+                </label>
+
+                <Button 
+                    type="button"
+                    variant="primary-flat"
+                    size="base"
+                    class="w-full"
+                    @click="handlePopupClose" 
+                >
+                    {{ $t('public.close') }}
+                </Button>
+            </div>
         </template>
     </Dialog>
 </template>

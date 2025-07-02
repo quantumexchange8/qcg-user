@@ -32,13 +32,18 @@ class DashboardController extends Controller
         $announcements = Announcement::where('popup', true)
         ->where('status', 'active')
         ->where(function ($query) use ($user) {
-            $query->where('popup_login', 'every')
-                  ->orWhere(function ($q) use ($user) {
-                      $q->where('popup_login', 'first')
-                        ->whereDoesntHave('read', function ($sub) use ($user) {
-                            $sub->where('user_id', $user->id);
-                        });
+            $query->where(function ($q) use ($user) {
+                $q->where('popup_login', 'every')
+                  ->whereDoesntHave('read', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id)
+                          ->whereDate('date_read', now()->toDateString());
                   });
+            })->orWhere(function ($q) use ($user) {
+                $q->where('popup_login', 'first')
+                  ->whereDoesntHave('read', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id);
+                  });
+            });
         })
         ->get()
         ->map(function ($announcement) {
@@ -70,11 +75,15 @@ class DashboardController extends Controller
         $user = Auth::user();
         $id = $request->input('announcement_id');
 
-        AnnouncementLog::create([
-            'user_id' => $user->id,
-            'announcementId' => $id,
-            'date_read' => now(),
-        ]);
+        AnnouncementLog::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'announcementId' => $id,
+            ],
+            [
+                'date_read' => now(),
+            ]
+        );
 
 
         return response()->json(['status' => 'ok']);

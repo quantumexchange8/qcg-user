@@ -212,7 +212,7 @@ const goBack = () => {
             >
                 <IconChevronLeft size="20" stroke-width="1.25"/>
             </Button>
-            <span class="text-gray-950 font-bold">{{ $t('public.welcome_to_forum') }}</span>
+            <span class="text-gray-950 font-bold">{{ $t('public.breaking_news') }}</span>
         </div>
         <CreatePost
             v-if="hasPermission('post_forum')"
