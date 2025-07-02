@@ -581,4 +581,5 @@ return [
     'toast_create_ticket_success' => 'Successfully created a new ticket!',
     'ticket_attachment_caption' => 'Upload screenshots or documents related to your issue. Maximum file size is 10 MB. Supported file types are .jpg and .png.',
     'ticket_attachment_file' => 'Ticket Attachment File',
+    'ticket_history' => 'Ticket History',
 ];

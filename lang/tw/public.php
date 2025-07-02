@@ -579,4 +579,5 @@ return [
     'toast_create_ticket_success' => '成功建立新工單！',
     'ticket_attachment_caption' => '上傳與問題相關的螢幕截圖或文件。最大檔案大小為10MB。支援的檔案格式為 .jpg 與 .png。',
     'ticket_attachment_file' => '工單附件檔案',
+    'ticket_history' => '工單紀錄',
 ];

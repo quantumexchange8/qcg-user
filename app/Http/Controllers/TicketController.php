@@ -62,9 +62,17 @@ class TicketController extends Controller
         ]);
     }
 
-    public function getTickets()
+    public function getTickets(Request $request)
     {
-        $query = Ticket::with(['category', 'user', 'replies']);
+        $status = $request->query('ticket_status');
+
+        $ticket_status = match($status) {
+            'ongoing' => ['new', 'in_progress'],
+            'resolved' => ['resolved'],
+            default => []
+        };
+
+        $query = Ticket::with(['category', 'user', 'replies'])->where('user_id', Auth::id())->whereIn('status', $ticket_status);
 
         $tickets = $query->get()
             ->map(function($ticket) {
@@ -200,12 +208,13 @@ class TicketController extends Controller
             'message' => $request->message,
         ]);
 
-        foreach ($request->file('ticket_attachment') as $file) {
-            $reply->addMedia($file)->toMediaCollection('ticket_attachment'); 
+        if ($request->file('ticket_attachment')) {
+            foreach ($request->file('ticket_attachment') as $file) {
+                $reply->addMedia($file)->toMediaCollection('ticket_attachment'); 
+            }
         }
 
         Ticket::where('id', $request->ticket_id)->update([
-            'status' => 'in_progress',
             'last_replied_at' => now(),
         ]);
         // $ticket_id = $request->query('ticket_id');
@@ -282,10 +291,10 @@ class TicketController extends Controller
             'status' => 'new',
         ]);
 
-        // $user = User::create($userData);
-
-        foreach ($request->file('ticket_attachment') as $file) {
-            $ticket->addMedia($file)->toMediaCollection('ticket_attachment'); 
+        if ($request->file('ticket_attachment')) {
+            foreach ($request->file('ticket_attachment') as $file) {
+                $reply->addMedia($file)->toMediaCollection('ticket_attachment'); 
+            }
         }
 
         return redirect()->back()->with('toast', [

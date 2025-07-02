@@ -207,14 +207,14 @@ getResults();
                                 </Button>
                                 <InputError :message="form.errors.ticket_attachment" />
                             </div>
-                            <div v-if="selectedAttachments.length" class="flex flex-row gap-2 w-full">
+                            <div v-if="selectedAttachments.length" class="grid grid-cols-2 gap-2 self-stretch">
                                 <div 
                                     v-for="(file, index) in selectedAttachments"
                                     :key="index"
-                                    class="relative py-3 pl-4 flex justify-between rounded-xl bg-gray-100 max-w-48"
+                                    class="flex items-center gap-3 w-full p-2 bg-gray-100 rounded-xl justify-between"
                                 >
                                     <div class="inline-flex items-center gap-3 truncate">
-                                        <img :src="file.url" alt="Selected Image" class="max-w-full h-9 object-contain rounded" />
+                                        <img :src="file.url" alt="Selected Image" class="w-8 h-6 md:w-16 md:h-12 object-contain rounded" />
                                         <div class="text-sm text-gray-950 truncate">
                                             {{ file.name }}
                                         </div>
@@ -245,21 +245,11 @@ getResults();
                 >
                     {{ $t('public.cancel') }}
                 </Button>
-                <!-- <Button
-                    type="button"
-                    size="base"
-                    class="w-full"
-                    variant="gray-outlined"
-                    @click="submitForm('draft')"
-                    :disabled="form.processing"
-                >
-                    {{ $t('public.save_as_draft') }}
-                </Button> -->
                 <Button
                     type="button"
                     variant="primary-flat"
                     size="base"
-                    class="w-full col-span-2"
+                    class="w-full"
                     @click="submitForm()"
                     :disabled="form.processing"
                 >
