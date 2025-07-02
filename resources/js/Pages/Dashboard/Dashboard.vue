@@ -72,8 +72,8 @@ const dataOverviews = computed(() => [
         // label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
         label: user.role === 'member' ? trans('public.personal_trade_points') : trans('public.personal_trade_points'),
         borderColor: 'border-green',
-        type: 'trade_volume',
-        route: '',
+        type: 'trade_points',
+        route: 'rewards',
     },
     {
         icon: NetBalanceIcon,
@@ -235,7 +235,7 @@ const responsiveOptions = ref([
                                 <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
                                 <div class="flex flex-col items-end truncate">
                                     <span class="text-gray-500 text-xxs md:text-sm text-right w-full truncate">{{ item.label }}</span>
-                                    <div v-if="item.type === 'trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
+                                    <div v-if="item.type === 'trade_points'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
                                         {{ formatAmount(item.total, 2) }}
                                     </div>
                                     <div v-else-if="item.type === 'trade_lots'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
