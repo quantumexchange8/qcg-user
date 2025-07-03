@@ -17,9 +17,32 @@ import {
     IconUserCircle,
     IconGift,
     IconWand,
+    IconTicket,
 } from '@tabler/icons-vue';
 
 const user = usePage().props.auth.user;
+
+const pendingTickets = ref(0);
+
+const getPendingCounts = async () => {
+    try {
+        const response = await axios.get(route('dashboard.getPendingCounts'));
+        pendingTickets.value = response.data.pendingTickets
+        // console.log(user)
+    } catch (error) {
+        console.error('Error pending counts:', error);
+    }
+};
+
+onMounted(() => {
+    getPendingCounts();
+})
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        getPendingCounts();
+    }
+});
 </script>
 
 <template>
@@ -139,6 +162,31 @@ const user = usePage().props.auth.user;
                 <IconDownload :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
+
+        <!-- Pending -->
+        <SidebarCollapsible
+            :title="$t('public.member_tickets')"
+            :active="route().current('member_tickets.*')"
+            :pendingCounts="pendingTickets"
+            v-if="user.ticket_agent_access !== 'none'"
+        >
+            <template #icon>
+                <IconTicket :size="20" stroke-width="1.25" />
+            </template>
+
+            <SidebarCollapsibleItem
+                :title="$t('public.pending')"
+                :href="route('member_tickets.pending')"
+                :active="route().current('member_tickets.pending')"
+                :pendingCounts="pendingTickets"
+            />
+
+            <SidebarCollapsibleItem
+                :title="$t('public.ticket_history')"
+                :href="route('member_tickets.history')"
+                :active="route().current('member_tickets.history')"
+            />
+        </SidebarCollapsible>
 
         <!-- My Profile -->
         <!-- <SidebarLink

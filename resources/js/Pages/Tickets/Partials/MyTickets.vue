@@ -44,6 +44,13 @@ const getResults = async () => {
 
 getResults();
 
+const rowClass = (data) => {
+    return {
+        '!bg-primary-100 hover:!bg-primary-200': !(data.last_reply_from_submitter),
+        'highlighted-ticket-row': !(data.last_reply_from_submitter)
+    };
+};
+
 const form = useForm({
     ticket_id: '',
     message: '',
@@ -140,6 +147,7 @@ const removeAttachment = (index) => {
         ref="dt"
         :loading="loading"
         selectionMode="single"
+        :rowClass="rowClass"
         @row-click="(event) => openDialog(event.data)"
     >
         <template #empty>
@@ -176,7 +184,7 @@ const removeAttachment = (index) => {
                             {{ slotProps.data.subject || '-' }}
                         </div>
                         <div class="flex flex-row md:hidden max-w-full gap-1 items-center text-gray-500 text-xs truncate">
-                            <div class="w-1.5 h-1.5" 
+                            <div class="w-1.5 h-1.5 flex-shrink-0" 
                                 :class="{
                                     'bg-success-500': slotProps.data.status === 'resolved', 
                                     'bg-info-500': slotProps.data.status === 'new',
@@ -209,6 +217,26 @@ const removeAttachment = (index) => {
     </DataTable>
 
     <Dialog v-model:visible="visible" modal :header="$t('public.ticket')" class="dialog-xs md:dialog-lg">
+        <template #header>
+            <div class="flex flex-col gap-0 md:gap-1 justify-center max-w-full truncate">
+                <span class="text-gray-950 text-base md:text-lg font-semibold">#{{ String(data.ticket_id).padStart(6, '0') }}</span>
+                <div class="flex flex-row gap-2 md:gap-3 items-center text-gray-500 text-xs md:text-sm max-w-full truncate">
+                    <StatusBadge :variant="data.status" :value="$t('public.' + data.status)" class="hidden md:flex"/>
+                    <div class="flex flex-row gap-1 items-center md:hidden">
+                        <div class="w-1.5 h-1.5 flex-shrink-0" 
+                            :class="{
+                                'bg-success-500': data.status === 'resolved', 
+                                'bg-info-500': data.status === 'new',
+                                'bg-warning-500': data.status === 'in_progress',
+                            }"
+                        ></div>
+                        <span>{{ $t(`public.${data.status}`) }}</span>
+                    </div>
+                    <div>|</div>
+                    <span class="truncate">{{ data.category[locale] }}</span>
+                </div>
+            </div>
+        </template>
         <div class="flex flex-col justify-center items-center gap-5 self-stretch pt-4 md:pt-6">
             <div class="flex flex-col items-center gap-2 self-stretch">
                 <div class="flex flex-row justify-between items-center self-stretch">
@@ -218,7 +246,7 @@ const removeAttachment = (index) => {
                 <div class="flex flex-col p-2 justify-center items-center gap-2 self-stretch rounded bg-primary-100">
                     <span class="text-sm font-semibold text-gray-950 self-stretch">{{ data.subject }}</span>
                     <span class="text-sm text-gray-950 self-stretch">{{ data.description }}</span>
-                    <div v-if="data.ticket_attachments" class="grid grid-cols-2 md:grid-cols-3 gap-2 self-stretch">
+                    <div v-if="data.ticket_attachments.length !== 0" class="grid grid-cols-2 md:grid-cols-3 gap-2 self-stretch">
                         <div v-for="file in data.ticket_attachments" :key="file.id" @click="openPhotoDialog(file)" 
                             class="flex items-center gap-3 w-full p-2 bg-white rounded border border-gray-200 cursor-pointer hover:bg-gray-100"
                         >
@@ -241,7 +269,7 @@ const removeAttachment = (index) => {
                 <TextArea
                     id="message"
                     type="text"
-                    class="w-full h-11 md:h-24"
+                    class="w-full h-10 md:h-24"
                     v-model="form.message"
                     :placeholder="$t('public.message_placeholder')"
                     rows="5"
@@ -311,3 +339,10 @@ const removeAttachment = (index) => {
         />
     </Dialog>
 </template>
+
+<style>
+tr.highlighted-ticket-row > td:first-child {
+    border-left: 2px solid rgb(var(--primary-600)) !important;
+}
+
+</style>

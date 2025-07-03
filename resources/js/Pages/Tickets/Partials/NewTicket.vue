@@ -112,6 +112,7 @@ getResults();
         type="button"
         variant="primary-flat"
         size="sm"
+        class="w-full md:w-auto"
         @click="openDialog()"
     >
         {{ $t('public.new_ticket') }}

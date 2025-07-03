@@ -20,6 +20,7 @@ use App\Http\Controllers\DownloadCenterController;
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\MemberTicketController;
 
 Route::get('locale/{locale}', function ($locale) {
     App::setLocale($locale);
@@ -78,6 +79,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/getIncentiveMonths', [GeneralController::class, 'getIncentiveMonths'])->name('getIncentiveMonths');
     Route::get('/getTicketCategories', [GeneralController::class, 'getTicketCategories'])->name('getTicketCategories');
 
+    Route::prefix('dashboard')->group(function () {
+        Route::get('/getPendingCounts', [DashboardController::class, 'getPendingCounts'])->name('dashboard.getPendingCounts');
+    });
+
     /**
      * ==============================
      *         Ticket Center
@@ -89,8 +94,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/getTickets', [TicketController::class, 'getTickets'])->name('tickets.getTickets');
         Route::get('/getTicketReplies', [TicketController::class, 'getTicketReplies'])->name('tickets.getTicketReplies');
         Route::post('/sendReply', [TicketController::class, 'sendReply'])->name('tickets.sendReply');
-        // Route::post('/createPost', [TicketController::class, 'createPost'])->name('forum.createPost');
-        // Route::post('/postInteraction', [TicketController::class, 'postInteraction'])->name('forum.postInteraction');
     });
 
     /**
@@ -264,6 +267,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
         // Route::post('/updateProfilePhoto', [ProfileController::class, 'updateProfilePhoto'])->name('profile.updateProfilePhoto');
         // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
+    
+    /**
+     * ==============================
+     *         Member Tickets
+     * ==============================
+     */
+    Route::prefix('member_tickets')->group(function () {
+
+        Route::get('pending', [MemberTicketController::class, 'pending'])->name('member_tickets.pending');
+        Route::get('history', [MemberTicketController::class, 'history'])->name('member_tickets.history');
+        Route::get('/getPendingTickets', [MemberTicketController::class, 'getPendingTickets'])->name('member_tickets.getPendingTickets');
+        Route::get('/getTicketHistory', [MemberTicketController::class, 'getTicketHistory'])->name('member_tickets.getTicketHistory');
+
+        Route::get('/getTicketReplies', [MemberTicketController::class, 'getTicketReplies'])->name('member_tickets.getTicketReplies');
+        Route::post('/sendReply', [MemberTicketController::class, 'sendReply'])->name('member_tickets.sendReply');
+        Route::post('/resolveTicket', [MemberTicketController::class, 'resolveTicket'])->name('member_tickets.resolveTicket');
     });
 
     /**

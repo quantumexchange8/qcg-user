@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/vue3'
 import { sidebarState } from '@/Composables'
 import { EmptyCircleIcon } from '@/Components/Icons/outline'
 import Badge from '@/Components/Badge.vue';
+import { IconAlertTriangleFilled } from '@tabler/icons-vue';
 
 const props = defineProps({
     href: {
@@ -84,11 +85,12 @@ const Tag = !props.external ? Link : 'a'
         </div>
 
         <span
-            class="text-sm font-medium"
+            class="text-sm font-medium text-left"
             v-show="sidebarState.isOpen || sidebarState.isHovered"
         >
             {{ title }}
         </span>
+        <IconAlertTriangleFilled v-if="pendingCounts > 0" size="16" stroke-width="1.25" color="#FF9800" class="flex-shrink-0"/>
         <slot name="arrow" />
     </button>
 </template>

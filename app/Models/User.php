@@ -40,7 +40,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         'remember_token',
     ];
 
-    protected $appends = ['has_new_forum_posts'];
+    protected $appends = ['has_new_forum_posts', 'has_new_ticket_replies', 'ticket_agent_access'];
 
     /**
      * Get the attributes that should be cast.
@@ -166,5 +166,27 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         $lastVisit = $this->forum_last_visit ?? now()->subYear();
         
         return ForumPost::where('created_at', '>', $lastVisit)->exists();
+    }
+
+    public function getHasNewTicketRepliesAttribute(): bool
+    {
+        $query = Ticket::with('replies')
+            ->where('user_id', Auth::id())
+            ->where('status', 'in_progress');
+
+        $tickets = $query->get();
+
+        $hasAdminReply = $tickets->contains(function ($ticket) {
+            $lastReply = $ticket->replies->sortByDesc('created_at')->first();
+            return $lastReply && $lastReply->user_id !== $ticket->user_id;
+        });
+
+        return $hasAdminReply;
+    }
+
+    public function getTicketAgentAccessAttribute(): string
+    {
+        return TicketAgentAccessibility::where('user_id', Auth::id())
+            ->value('access_level') ?? 'none';
     }
 }

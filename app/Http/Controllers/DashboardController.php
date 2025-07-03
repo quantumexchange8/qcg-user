@@ -15,6 +15,7 @@ use App\Models\AnnouncementLog;
 use App\Models\UserAnnouncementVisibility;
 use App\Models\TradeBrokerHistory;
 use App\Models\TradeRebateSummary;
+use App\Models\Ticket;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -78,6 +79,15 @@ class DashboardController extends Controller
 
 
         return response()->json(['status' => 'ok']);
+    }
+
+    public function getPendingCounts()
+    {
+        $pendingTickets = Ticket::whereIn('status', ['new','in_progress'])->count();
+
+        return response()->json([
+            'pendingTickets' => $pendingTickets,
+        ]);
     }
 
     public function getDashboardData()
