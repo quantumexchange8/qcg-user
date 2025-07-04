@@ -595,4 +595,8 @@ return [
     'keyword_search' => 'Search',
     'empty_pending_tickets_title' => 'No Pending Tickets',
     'empty_pending_tickets_message' => 'There are currently no pending tickets. Please check back later.',
+    'empty_my_tickets_title' => 'No Ongoing Tickets',
+    'empty_my_tickets_message' => 'There are currently no ongoing tickets.',
+    'empty_ticket_history_title' => 'No Ticket History',
+    'empty_ticket_history_message' => 'There are currently no resolved tickets. Please check back later.',
 ];

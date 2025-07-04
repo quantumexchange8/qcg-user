@@ -45,7 +45,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="flex justify-between items-center px-5 py-2 w-full">
+    <!-- <div class="flex justify-between items-center px-5 py-2 w-full">
         <div class="flex gap-2 items-center">
             <Button
                 variant="gray-text"
@@ -57,7 +57,7 @@ onUnmounted(() => {
             </Button>
             <span class="text-gray-950 font-bold">{{ $t('public.ticket_center') }}</span>
         </div>
-    </div>
+    </div> -->
     <AuthenticatedLayout :title="$t('public.ticket_center')">
         <div class="flex flex-col items-center gap-4 md:gap-6 self-stretch p-4 md:p-6 bg-white rounded-lg shadow-card w-full">
             <div class="flex w-full md:hidden">

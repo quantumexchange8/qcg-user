@@ -2,6 +2,7 @@
 import {ref, watch, watchEffect} from "vue";
 import dayjs from "dayjs";
 import {wTrans} from "laravel-vue-i18n";
+import Empty from "@/Components/Empty.vue";
 import {usePage, useForm, router} from "@inertiajs/vue3";
 import {usePermission} from "@/Composables/permissions.js";
 import DataTable from "primevue/datatable";
@@ -73,10 +74,10 @@ watchEffect(() => {
         @row-click="(event) => openDialog(event.data)"
     >
         <template #empty>
-            <!-- <Empty 
-                :title="$t('public.empty_pending_tickets_title')" 
-                :message="$t('public.empty_pending_tickets_message')" 
-            /> -->
+            <Empty 
+                :title="$t('public.empty_ticket_history_title')" 
+                :message="$t('public.empty_ticket_history_message')" 
+            />
         </template>
         <template #loading>
             <div class="flex flex-col gap-2 items-center justify-center">

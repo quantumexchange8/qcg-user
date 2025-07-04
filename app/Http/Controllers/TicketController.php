@@ -256,7 +256,7 @@ class TicketController extends Controller
 
         if ($request->file('ticket_attachment')) {
             foreach ($request->file('ticket_attachment') as $file) {
-                $reply->addMedia($file)->toMediaCollection('ticket_attachment'); 
+                $ticket->addMedia($file)->toMediaCollection('ticket_attachment'); 
             }
         }
 

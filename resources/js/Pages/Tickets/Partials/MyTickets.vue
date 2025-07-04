@@ -151,10 +151,10 @@ const removeAttachment = (index) => {
         @row-click="(event) => openDialog(event.data)"
     >
         <template #empty>
-            <!-- <Empty 
-                :title="$t('public.empty_pending_tickets_title')" 
-                :message="$t('public.empty_pending_tickets_message')" 
-            /> -->
+            <Empty 
+                :title="$t('public.empty_my_tickets_title')" 
+                :message="$t('public.empty_my_tickets_message')" 
+            />
         </template>
         <template #loading>
             <div class="flex flex-col gap-2 items-center justify-center">

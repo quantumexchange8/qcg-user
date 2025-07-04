@@ -19,7 +19,7 @@ defineProps({
         <!-- Main container for Sidebar and Navbar -->
         <div class="flex flex-col flex-1">
             <!-- Navbar -->
-            <Navbar :title="title" v-if="title!==$t('public.forum') && title!==$t('public.ticket_center')"/>
+            <Navbar :title="title"/>
 
             <div class="flex flex-1 p-3 md:p-5 gap-5">
                 <!-- Sidebar -->

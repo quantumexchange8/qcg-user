@@ -6,7 +6,8 @@ import {
     IconMenu2,
     IconQrcode,
     IconCopy,
-    IconMessage
+    IconMessage,
+    IconChevronLeft
 } from '@tabler/icons-vue';
 import QrcodeVue from 'qrcode.vue'
 import Dialog from "primevue/dialog";
@@ -100,6 +101,7 @@ const showTicketNotif = computed(() => {
         class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3 justify-between"
     >
         <div
+            v-if="title!==$t('public.forum') && title!==$t('public.ticket_center')"
             class="inline-flex justify-center items-center rounded-full border border-gray-200 hover:bg-gray-100 w-9 h-9 md:w-12 md:h-12 shrink-0 grow-0 hover:select-none hover:cursor-pointer"
             @click="sidebarState.isOpen = !sidebarState.isOpen"
         >
@@ -116,6 +118,21 @@ const showTicketNotif = computed(() => {
                 </div>
             </Link>
         </div> -->
+
+            <div v-else class="flex gap-1 md:gap-2 items-center">
+                <Button
+                    variant="gray-text"
+                    iconOnly
+                    pill
+                    :href="route('dashboard')"
+                    class="w-10 h-10 md:w-11 md:h-11"
+                    size="sm"
+                >
+                    <IconChevronLeft size="20" stroke-width="1.25"/>
+                </Button>
+                <span class="text-xs md:text-base text-gray-950 font-bold">{{ title }}</span>
+            </div>
+
         <div class="flex items-center gap-2">
             <Link
                 class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
