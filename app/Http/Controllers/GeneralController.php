@@ -14,6 +14,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use App\Models\TeamSettlement;
 use App\Models\TradingAccount;
+use App\Models\SettingTicketSchedule;
 use App\Models\TicketCategory;
 use App\Models\SettingLeverage;
 use App\Models\TradeRebateSummary;
@@ -371,8 +372,33 @@ class GeneralController extends Controller
         ]);
     }
 
-    public function getTicketCategories($returnAsArray = false)
+    public function getTicketSettings($returnAsArray = false)
     {
+        $is_blocked = false;
+
+        $now = Carbon::now('Asia/Kuala_Lumpur');
+        $currentDay = $now->dayOfWeekIso;
+
+        $setting = SettingTicketSchedule::where('day', $currentDay)
+        ->where('status', 'active')
+        ->where('is_enabled', true)
+        ->first();
+
+        if ($setting) {
+            $startTime = Carbon::createFromFormat('H:i', $setting->start_time, 'Asia/Kuala_Lumpur')
+                ->setDateFrom($now);
+
+            $endTime = Carbon::createFromFormat('H:i', $setting->end_time, 'Asia/Kuala_Lumpur')
+                ->setDateFrom($now);   
+
+            if ($now->between($startTime, $endTime)) 
+            {
+                $is_blocked = false;
+            } else {
+                $is_blocked = true;
+            }
+        }
+
         $categories = TicketCategory::all()->map(function ($category) {
             $title = json_decode($category->category, true);
             return [
@@ -387,6 +413,7 @@ class GeneralController extends Controller
         }
 
         return response()->json([
+            'is_blocked' => $is_blocked,
             'categories' => $categories,
         ]);
     }

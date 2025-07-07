@@ -599,4 +599,6 @@ return [
     'empty_my_tickets_message' => 'There are currently no ongoing tickets.',
     'empty_ticket_history_title' => 'No Ticket History',
     'empty_ticket_history_message' => 'There are currently no resolved tickets. Please check back later.',
+    'new_ticket_unavailable_title' => 'Creation of Tickets Unavailable',
+    'new_ticket_unavailable_message' => 'Creation of new tickets is currently unavailable. Please try again later according to the scheduled time.',
 ];

@@ -597,4 +597,6 @@ return [
     'empty_my_tickets_message' => '目前没有进行中的对话。',
     'empty_ticket_history_title' => '暂无解答记录',
     'empty_ticket_history_message' => '目前没有已解决的问题，请稍后再查看。',
+    'new_ticket_unavailable_title' => '无法新建对话',
+    'new_ticket_unavailable_message' => '目前无法新建对话。请根据预定时间稍后再试。',
 ];

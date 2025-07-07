@@ -161,6 +161,11 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         return $this->hasMany(AnnouncementLog::class, 'user_id');
     }
 
+    public function read_ticket()
+    {
+        return $this->hasMany(TicketLog::class, 'user_id');
+    }
+
     public function getHasNewForumPostsAttribute(): bool
     {
         $lastVisit = $this->forum_last_visit ?? now()->subYear();
