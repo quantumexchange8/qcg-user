@@ -94,6 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/getTickets', [TicketController::class, 'getTickets'])->name('tickets.getTickets');
         Route::get('/getTicketReplies', [TicketController::class, 'getTicketReplies'])->name('tickets.getTicketReplies');
         Route::post('/sendReply', [TicketController::class, 'sendReply'])->name('tickets.sendReply');
+        Route::post('/markAsViewed', [TicketController::class, 'markAsViewed'])->name('tickets.markAsViewed');
     });
 
     /**
@@ -284,6 +285,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/getTicketReplies', [MemberTicketController::class, 'getTicketReplies'])->name('member_tickets.getTicketReplies');
         Route::post('/sendReply', [MemberTicketController::class, 'sendReply'])->name('member_tickets.sendReply');
         Route::post('/resolveTicket', [MemberTicketController::class, 'resolveTicket'])->name('member_tickets.resolveTicket');
+        Route::post('/markAsViewed', [MemberTicketController::class, 'markAsViewed'])->name('member_tickets.markAsViewed');
     });
 
     /**

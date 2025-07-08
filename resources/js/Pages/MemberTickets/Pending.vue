@@ -21,6 +21,7 @@ import Checkbox from 'primevue/checkbox';
 import TextArea from "primevue/textarea";
 import TicketReplies from "@/Pages/MemberTickets/Partials/TicketReplies.vue";
 import { useConfirm } from "primevue/useconfirm";
+import InputError from '@/Components/InputError.vue';
 
 const {locale} = useLangObserver();
 
@@ -151,6 +152,12 @@ const openDialog = (rowData) => {
     data.value = rowData;
 
     form.ticket_id = data.value.ticket_id;
+
+    // update ticket_log here
+    rowData.read_status = true;
+    axios.post('/member_tickets/markAsViewed', {
+        ticket_id: data.value.ticket_id,
+    })
 };
 
 const visiblePhoto = ref(false);
@@ -308,8 +315,11 @@ const refreshChild = () => {
                     </Column>
                     <Column field="subject" :header="$t('public.subject')" class="hidden md:table-cell w-full md:w-[28%] px-3 ">
                         <template #body="slotProps">
-                            <div class="text-gray-950 text-sm">
-                                {{ slotProps.data?.subject || '-' }}
+                            <div class="flex items-center max-w-full gap-2">
+                                <div class="text-gray-950 text-sm truncate max-w-full">
+                                    {{ slotProps.data?.subject || '-' }}
+                                </div>
+                                <div v-if="!(slotProps.data.read_status)" class="w-2 h-2 flex-shrink-0 bg-error-500 rounded-full" ></div>
                             </div>
                         </template>
                     </Column>
@@ -317,13 +327,14 @@ const refreshChild = () => {
                         <template #body="slotProps">
                             <div class="flex flex-col items-start max-w-full gap-1 truncate">
                                 <div class="flex flex-row max-w-full gap-2 items-center text-gray-950 text-sm font-semibold truncate">
-                                    <div class="max-w-full">
+                                    <div class="truncate max-w-full">
                                         {{ slotProps.data.name }}
                                     </div>
                                     <div class="flex md:hidden">|</div>
                                     <div class="md:hidden truncate max-w-full">
                                         {{ slotProps.data.subject || '-' }}
                                     </div>
+                                    <div v-if="!(slotProps.data.read_status)" class="md:hidden w-2 h-2 flex-shrink-0 bg-error-500 rounded-full" ></div>
                                 </div>
                                 <div class="text-gray-500 text-xs truncate max-w-full hidden md:block">
                                     {{ slotProps.data.email }}
@@ -426,7 +437,9 @@ const refreshChild = () => {
                     :placeholder="$t('public.message_placeholder')"
                     rows="5"
                     cols="30"
+                    :invalid="form.errors.message"
                 />
+                <InputError :message="form.errors.message" />
                 <div class="flex flex-row justify-between items-center w-full">
                     <label class="flex items-center gap-2">
                         <Checkbox binary class="w-5 h-5" @click="confirmResolve('mark_resolved', data.ticket_id)"/>
@@ -436,6 +449,7 @@ const refreshChild = () => {
                         type="button"
                         variant="primary-flat"
                         @click="submitForm"
+                        :disabled="form.processing"
                     >
                         {{ $t('public.reply') }}
                     </Button>

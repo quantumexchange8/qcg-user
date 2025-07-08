@@ -165,7 +165,7 @@ watchEffect(() => {
 
         <!-- Pending -->
         <SidebarCollapsible
-            :title="$t('public.member_tickets')"
+            :title="$t('public.tickets')"
             :active="route().current('member_tickets.*')"
             :pendingCounts="pendingTickets"
             v-if="user.ticket_agent_access !== 'none'"

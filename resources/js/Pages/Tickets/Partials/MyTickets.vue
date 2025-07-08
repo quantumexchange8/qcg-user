@@ -78,6 +78,12 @@ const openDialog = (rowData) => {
 
     resetDialogForm();
     form.ticket_id = data.value.ticket_id;
+
+    // update ticket_log here
+    rowData.read_status = true;
+    axios.post('/tickets/markAsViewed', {
+        ticket_id: data.value.ticket_id,
+    })
 };
 
 const resetDialogForm = () => {
@@ -180,9 +186,15 @@ const removeAttachment = (index) => {
             <Column field="subject" :header="$t('public.subject')" headerClass="hidden" class="md:table-cell md:w-[30%] lg:w-[35%] xl:w-[40%] max-w-0">
                 <template #body="slotProps">
                     <div class="flex flex-col items-start max-w-full gap-1 truncate">
-                        <div class="text-gray-950 text-sm font-semibold md:font-normal truncate max-w-full">
-                            {{ slotProps.data.subject || '-' }}
+                        <div class="flex items-center max-w-full gap-2">
+                            <div class="text-gray-950 text-sm font-semibold md:font-normal truncate max-w-full">
+                                {{ slotProps.data?.subject || '-' }}
+                            </div>
+                            <div v-if="!(slotProps.data.read_status)" class="w-2 h-2 flex-shrink-0 bg-error-500 rounded-full" ></div>
                         </div>
+                        <!-- <div class="text-gray-950 text-sm font-semibold md:font-normal truncate max-w-full">
+                            {{ slotProps.data.subject || '-' }}
+                        </div> -->
                         <div class="flex flex-row md:hidden max-w-full gap-1 items-center text-gray-500 text-xs truncate">
                             <div class="w-1.5 h-1.5 flex-shrink-0" 
                                 :class="{
@@ -274,7 +286,9 @@ const removeAttachment = (index) => {
                     :placeholder="$t('public.message_placeholder')"
                     rows="5"
                     cols="30"
+                    :invalid="form.errors.message"
                 />
+                <InputError :message="form.errors.message" />
                 <div v-if="selectedAttachments.length" class="flex flex-row gap-2 w-full">
                     <div 
                         v-for="(file, index) in selectedAttachments"
@@ -323,6 +337,7 @@ const removeAttachment = (index) => {
                         type="button"
                         variant="primary-flat"
                         @click="submitForm"
+                        :disabled="form.processing"
                     >
                         {{ $t('public.reply') }}
                     </Button>

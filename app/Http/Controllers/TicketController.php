@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\TicketCategory;
+use App\Models\TicketLog;
 use App\Models\TicketReply;
 use Inertia\Inertia;
 use Illuminate\Support\Carbon;
@@ -72,7 +73,7 @@ class TicketController extends Controller
             default => []
         };
 
-        $query = Ticket::with(['category', 'user', 'replies'])->where('user_id', Auth::id())->whereIn('status', $ticket_status);
+        $query = Ticket::with(['category', 'user', 'replies', 'read'])->where('user_id', Auth::id())->whereIn('status', $ticket_status);
 
         $tickets = $query->orderByRaw('COALESCE(closed_at, last_replied_at, created_at) DESC')
             ->get()
@@ -83,6 +84,11 @@ class TicketController extends Controller
                 $lastReply = $ticket->replies->sortByDesc('created_at')->first();
 
                 $isLastReplyFromSubmitter = $lastReply ? $lastReply->user_id === $ticket->user_id : true;
+
+                $lastAdminReply = $ticket->replies->where('user_id', '!=', Auth::id())->sortByDesc('created_at')->first();
+                $lastRead = $ticket->read->where('user_id', Auth::id())->first();
+
+                $read_status = $lastAdminReply ? ($lastRead ? ($lastAdminReply->created_at < $lastRead->date_read) : false) : true;
 
                 return [
                     'ticket_id' => $ticket->id,
@@ -95,6 +101,7 @@ class TicketController extends Controller
                     'status' => $ticket->status,
                     'last_reply_from_submitter' => $isLastReplyFromSubmitter,
                     'ticket_attachments' => $ticket_attachments,
+                    'read_status' => $read_status,
                 ];
 
             })
@@ -145,9 +152,11 @@ class TicketController extends Controller
     public function sendReply(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'message' => ['required'],
             'ticket_attachment' => ['array'],
             'ticket_attachment.*' => ['mimes:jpg,png', 'max:10000'],
         ])->setAttributeNames([
+            'message' => trans('public.message'),
             'ticket_attachment' => trans('public.ticket_attachment'),
             'ticket_attachment.*' => trans('public.ticket_attachment_file'),
         ]);
@@ -264,5 +273,23 @@ class TicketController extends Controller
             'title' => trans('public.toast_create_ticket_success'),
             'type' => 'success'
         ]);
+    }
+
+    public function markAsViewed(Request $request)
+    {
+        $user = Auth::user();
+        $ticket_id = $request->input('ticket_id');
+
+        TicketLog::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'ticket_id' => $ticket_id,
+            ],
+            [
+                'date_read' => now(),
+            ]
+        );
+
+        return response()->json(['status' => 'ok']);
     }
 }
