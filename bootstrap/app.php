@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'role_and_permission' => \App\Http\Middleware\RoleAndPermissionMiddleware::class,
+            'ticket_access' => \App\Http\Middleware\CheckAgentTicketAccess::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [
@@ -36,8 +37,8 @@ return Application::configure(basePath: dirname(__DIR__))
                 case 400:
                     return Inertia::render('Errors/400');
                 case 401:
-                case 419:
                     return Inertia::render('Errors/401');
+                case 419:
                 case 403:
                     return Inertia::render('Errors/403');
                 case 404:

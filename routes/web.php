@@ -275,10 +275,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
      *         Member Tickets
      * ==============================
      */
-    Route::prefix('member_tickets')->group(function () {
+    Route::prefix('member_tickets')->middleware('ticket_access')->group(function () {
 
-        Route::get('pending', [MemberTicketController::class, 'pending'])->name('member_tickets.pending');
-        Route::get('history', [MemberTicketController::class, 'history'])->name('member_tickets.history');
+        Route::get('pending', [MemberTicketController::class, 'pending'])->name('member_tickets.pending')->middleware('ticket_access');
+        Route::get('history', [MemberTicketController::class, 'history'])->name('member_tickets.history')->middleware('ticket_access');
         Route::get('/getPendingTickets', [MemberTicketController::class, 'getPendingTickets'])->name('member_tickets.getPendingTickets');
         Route::get('/getTicketHistory', [MemberTicketController::class, 'getTicketHistory'])->name('member_tickets.getTicketHistory');
 
