@@ -21,7 +21,7 @@ export default {
                 'flex-row': props.orientation !== 'vertical',
                 'flex-col': props.orientation == 'vertical'
             },
-            '[&>[data-pc-extend=button]]:self-center px-1'
+            '[&>[data-pc-extend=button]]:self-center'
         ]
     }),
     viewport: {
@@ -33,7 +33,7 @@ export default {
     itemList: ({ props }) => ({
         class: [
             // Flexbox
-            'flex h-[170px] smd:h-full smd:max-h-72 md:h-[310.5px] md:max-h-none',
+            'flex h-[170px] smd:h-full smd:max-h-72 md:h-[250px] md:max-h-none',
 
             // Orientation & Sizing
             {
