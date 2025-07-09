@@ -33,13 +33,18 @@ class DashboardController extends Controller
         $announcements = Announcement::where('popup', true)
         ->where('status', 'active')
         ->where(function ($query) use ($user) {
-            $query->where('popup_login', 'every')
-                  ->orWhere(function ($q) use ($user) {
-                      $q->where('popup_login', 'first')
-                        ->whereDoesntHave('read', function ($sub) use ($user) {
-                            $sub->where('user_id', $user->id);
-                        });
+            $query->where(function ($q) use ($user) {
+                $q->where('popup_login', 'every')
+                  ->whereDoesntHave('read', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id)
+                          ->whereDate('date_read', now()->toDateString());
                   });
+            })->orWhere(function ($q) use ($user) {
+                $q->where('popup_login', 'first')
+                  ->whereDoesntHave('read', function ($sub) use ($user) {
+                      $sub->where('user_id', $user->id);
+                  });
+            });
         })
         ->get()
         ->map(function ($announcement) {
@@ -71,11 +76,15 @@ class DashboardController extends Controller
         $user = Auth::user();
         $id = $request->input('announcement_id');
 
-        AnnouncementLog::create([
-            'user_id' => $user->id,
-            'announcementId' => $id,
-            'date_read' => now(),
-        ]);
+        AnnouncementLog::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'announcementId' => $id,
+            ],
+            [
+                'date_read' => now(),
+            ]
+        );
 
 
         return response()->json(['status' => 'ok']);
@@ -98,14 +107,44 @@ class DashboardController extends Controller
 
         $rebate_wallet = $user->rebate_wallet;
 
+        $standardAccountCondition = function ($direction) {
+            return function ($query) use ($direction) {
+                $query->whereHas($direction, function ($q) {
+                    $q->whereHas('accountType', function ($q2) {
+                        $q2->where('account_group', 'STANDARD.t');
+                    });
+                })->orWhere(function ($q) use ($direction) {
+                    $column = $direction === 'toMetaLogin' ? 'to_meta_login' : 'from_meta_login';
+                    $q->whereNull($column)
+                      ->orWhereDoesntHave($direction);
+                });
+            };
+        };
+        
+        // Group totals
         $group_total_deposit = Transaction::whereIn('transaction_type', ['deposit', 'balance_in'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
+            ->where($standardAccountCondition('toMetaLogin'))
             ->sum('transaction_amount');
-
+        
         $group_total_withdrawal = Transaction::whereIn('transaction_type', ['withdrawal', 'balance_out'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
+            ->where($standardAccountCondition('fromMetaLogin'))
+            ->sum('amount');
+        
+        // Personal totals
+        $personal_total_deposit = Transaction::whereIn('transaction_type', ['deposit', 'balance_in'])
+            ->where('status', 'successful')
+            ->where('user_id', $user->id)
+            ->where($standardAccountCondition('toMetaLogin'))
+            ->sum('transaction_amount');
+        
+        $personal_total_withdrawal = Transaction::whereIn('transaction_type', ['withdrawal', 'balance_out'])
+            ->where('status', 'successful')
+            ->where('user_id', $user->id)
+            ->where($standardAccountCondition('fromMetaLogin'))
             ->sum('amount');
 
         $group_total_net_balance = TradingAccount::whereIn('user_id', $groupIds)
@@ -165,6 +204,8 @@ class DashboardController extends Controller
         return response()->json([
             'rebateWallet' => $rebate_wallet,
             'pinnedAnnouncements' => $pinned_announcements,
+            'personalTotalDeposit' => $personal_total_deposit,
+            'personalTotalWithdrawal' => $personal_total_withdrawal,
             'groupTotalDeposit' => $group_total_deposit,
             'groupTotalWithdrawal' => $group_total_withdrawal,
             // 'groupTotalNetBalance' => $group_total_deposit - $group_total_withdrawal,

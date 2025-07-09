@@ -257,12 +257,12 @@ const openDialog = (rowData) => {
             <div class="flex flex-col justify-center items-center self-stretch md:flex-row gap-3 md:gap-5">
                 <div class="px-6 py-7 w-full flex flex-col gap-4 rounded-lg justify-center items-center self-stretch bg-white shadow-card">
                     <div><DepositIcon /></div>
-                    <div class="text-sm font-medium text-gray-700">{{ $t('public.total_deposit') }}</div>
+                    <div class="text-sm font-medium text-gray-700">{{ $t('public.personal_deposit') }}</div>
                     <div class="text-xxl font-semibold text-gray-950">{{ `$&nbsp;${formatAmount(props.totalDeposit)}` }}</div>
                 </div>
                 <div class="px-6 py-7 w-full flex flex-col gap-4 rounded-lg justify-center items-center self-stretch bg-white shadow-card">
                     <div><WithdrawalIcon /></div>
-                    <div class="text-sm font-medium text-gray-700">{{ $t('public.total_withdrawal') }}</div>
+                    <div class="text-sm font-medium text-gray-700">{{ $t('public.personal_withdrawal') }}</div>
                     <div class="text-xxl font-semibold text-gray-950">{{ `$&nbsp;${formatAmount(props.totalWithdrawal)}` }}</div>
                 </div>
             </div>

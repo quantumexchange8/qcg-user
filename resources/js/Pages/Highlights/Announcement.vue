@@ -60,11 +60,11 @@ const getTimeLabel = (announcement) => {
 
 <template>
     <AuthenticatedLayout :title="$t('public.sidebar.highlights')">
-        <div class="flex flex-col gap-5 items-center justify-center w-full ">
-            <div class="flex flex-row gap-5 overflow-x-auto w-full">
+        <div class="flex flex-col gap-3 md:gap-5 items-center justify-center w-full ">
+            <div class="flex flex-row gap-3 md:gap-5 overflow-x-auto w-full">
                 <div
                     v-for="announcement in pinnedAnnouncements"
-                    class="relative rounded-lg w-[400px] h-[225px] flex-shrink-0 overflow-hidden hover:opacity-60 hover:cursor-pointer"
+                    class="relative rounded-lg w-[272px] h-[153px] md:w-[400px] md:h-[225px] flex-shrink-0 overflow-hidden hover:opacity-80 hover:cursor-pointer"
                     :class="{ 'bg-black': !announcement.thumbnail }"
                     @click="openDialog(announcement)"
                     >

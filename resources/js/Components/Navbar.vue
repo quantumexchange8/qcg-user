@@ -98,7 +98,7 @@ const showTicketNotif = computed(() => {
 <template>
     <nav
         aria-label="secondary"
-        class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3 justify-between"
+        class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3 justify-between rounded-b-lg"
     >
         <div
             v-if="title!==$t('public.forum') && title!==$t('public.ticket_center')"

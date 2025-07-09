@@ -11,6 +11,7 @@ import {
     NetAssetIcon,
     TradeLotIcon,
     TradeVolumeIcon,
+    DashboardPointIcon,
 } from '@/Components/Icons/outline.jsx';
 import {IconReport, IconDots} from '@tabler/icons-vue';
 import {trans} from "laravel-vue-i18n";
@@ -21,6 +22,7 @@ import Vue3Autocounter from "vue3-autocounter";
 import Account from "@/Pages/Accounts/Account.vue";
 import Carousel from 'primevue/carousel';
 import Dialog from 'primevue/dialog';
+import Checkbox from 'primevue/checkbox';
 
 const props = defineProps({
     announcements: Object,
@@ -28,6 +30,8 @@ const props = defineProps({
 
 const user = usePage().props.auth.user;
 const { formatAmount } = transactionFormat();
+const personalTotalDeposit = ref(0);
+const personalTotalWithdrawal = ref(0);
 const groupTotalDeposit = ref(0);
 const groupTotalWithdrawal = ref(0);
 const groupTotalNetBalance = ref(0);
@@ -58,23 +62,6 @@ const dataOverviews = computed(() => [
         query : 'group_transaction',
     },
     {
-        icon: TradeLotIcon,
-        total: groupTotalTradeLot.value,
-        label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
-        borderColor: 'border-green',
-        type: 'trade_lots',
-        route: user.role === 'member' ? '' : 'report',
-    },
-    {
-        icon: TradeVolumeIcon,
-        total: groupTotalTradePoints.value,
-        // label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
-        label: user.role === 'member' ? trans('public.personal_trade_points') : trans('public.personal_trade_points'),
-        borderColor: 'border-green',
-        type: 'trade_volume',
-        route: '',
-    },
-    {
         icon: NetBalanceIcon,
         total: groupTotalNetBalance.value,
         label: user.role === 'member' ? trans('public.total_net_balance') : trans('public.group_total_net_balance'),
@@ -89,6 +76,23 @@ const dataOverviews = computed(() => [
         borderColor: 'border-indigo',
         type: 'asset',
         route: '',
+    },
+    {
+        icon: TradeLotIcon,
+        total: groupTotalTradeLot.value,
+        label: user.role === 'member' ? trans('public.total_trade_lots') : trans('public.group_total_trade_lots'),
+        borderColor: 'border-green',
+        type: 'trade_lots',
+        route: user.role === 'member' ? '' : 'report',
+    },
+    {
+        icon: DashboardPointIcon,
+        total: groupTotalTradePoints.value,
+        // label: user.role === 'member' ? trans('public.total_trade_volume') : trans('public.group_total_trade_volume'),
+        label: user.role === 'member' ? trans('public.personal_trade_points') + ' (tp)': trans('public.personal_trade_points') + ' (tp)',
+        borderColor: 'border-green',
+        type: 'trade_points',
+        route: 'rewards',
     },
 ]);
 
@@ -121,6 +125,8 @@ const getDashboardData = async () => {
         const response = await axios.get('/dashboard/getDashboardData');
         rebateWallet.value = response.data.rebateWallet
         pinnedAnnouncements.value = response.data.pinnedAnnouncements
+        personalTotalDeposit.value = response.data.personalTotalDeposit
+        personalTotalWithdrawal.value = response.data.personalTotalWithdrawal
         groupTotalDeposit.value = response.data.groupTotalDeposit
         groupTotalWithdrawal.value = response.data.groupTotalWithdrawal
         groupTotalNetBalance.value = response.data.groupTotalNetBalance
@@ -134,6 +140,7 @@ const getDashboardData = async () => {
 
 const isMounted = ref(false);
 // const autoplayInterval = ref(3000);
+const checkboxDaily = ref(false);
 const announcementsQueue = ref([...props.announcements]) // clone to avoid mutation
 const currentAnnouncement = ref(null)
 const showPopup = ref(false)
@@ -166,7 +173,7 @@ function showNextAnnouncement() {
 async function handlePopupClose() {
   showPopup.value = false;
 
-  if (currentAnnouncement.value?.popup_login === 'first') {
+  if (currentAnnouncement.value?.popup_login === 'first' || (currentAnnouncement.value?.popup_login === 'every' && checkboxDaily)) {
     // console.log(currentAnnouncement.value.id)
     await axios.post('/dashboard/markAsViewed', {
         announcement_id: currentAnnouncement.value.id,
@@ -175,6 +182,7 @@ async function handlePopupClose() {
 
   // Slight delay before showing the next popup
   setTimeout(() => {
+    checkboxDaily.value = false;
     showNextAnnouncement()
   }, 300)
 }
@@ -196,7 +204,6 @@ const responsiveOptions = ref([
         numScroll: 1
     },
 ]);
-
 </script>
 
 <template>
@@ -205,25 +212,51 @@ const responsiveOptions = ref([
             <div class="flex flex-col items-center gap-3 md:gap-5 self-stretch w-full">
                 <div class="flex flex-col gap-3 md:gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
-                    <div class="bg-white rounded-lg h-[60px] md:h-20 shadow-card relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
+                    <div v-if="user.role==='agent'" class="flex flex-col justify-between bg-white rounded-lg h-[150px] md:h-[170px] shadow-card relative overflow-hidden px-3 py-[17px] md:px-6 md:py-[22px] items-start w-full">
                         <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-40px)]">
                             <span class="md:text-base text-sm text-gray-950 font-bold line-clamp-1">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
-                            <span v-if="user.role==='agent'" class="md:text-sm text-xs text-gray-700 line-clamp-1">{{ $t('public.welcome_back_caption') }}</span>
-                            <span v-else class="md:text-sm text-xs text-gray-700 line-clamp-1">{{ $t('public.member_welcome_back_caption') }}</span>
+                            <span class="md:text-sm text-xs text-gray-700 line-clamp-2">{{ $t('public.welcome_back_caption') }}</span>
+                        </div>
+                        <div class="flex flex-row gap-2 w-[calc(100%-80px)]">
+                            <div class="flex flex-col smd:w-[107px] smd:h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-primary-500">
+                                <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.personal_deposit') }}:</span>
+                                <span class="text-xs smd:text-base md:text-lg font-semibold text-primary-500">$ {{ formatAmount(personalTotalDeposit) }}</span>
+                            </div>
+                            <div class="flex flex-col smd:w-[115px] smd:h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-error-600">
+                                <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.personal_withdrawal') }}:</span>
+                                <span class="text-xs smd:text-base md:text-lg font-semibold text-error-600">$ {{ formatAmount(personalTotalWithdrawal) }}</span>
+                            </div>
                         </div>
 
-                        <div class="absolute right-0 top-0">
-                            <img src="/assets/greeting_banner.svg" alt="banner" class="hidden md:block">
-                            <img src="/assets/greeting_banner_sm.svg" alt="banner_sm" class="block md:hidden">
+                        <div class="absolute right-0 top-0 z-0 block md:hidden">
+                            <img src="/assets/agent_greeting_banner_sm.svg" alt="mobile banner" class="w-full h-full object-contain">
+                        </div>
+
+                        <div class="absolute right-0 top-0 z-0 hidden md:block">
+                            <img src="/assets/agent_greeting_banner.svg" alt="desktop banner" class="w-full h-full object-contain">
+                        </div>
+                    </div>
+                    <div v-else class="bg-white rounded-lg h-[60px] md:h-20 shadow-card relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
+                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-40px)]">
+                            <span class="md:text-base text-sm text-gray-950 font-bold line-clamp-1">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
+                            <span class="md:text-sm text-xs text-gray-700 line-clamp-1">{{ $t('public.member_welcome_back_caption') }}</span>
+                        </div>
+
+                        <div class="absolute right-0 top-0 z-0 block md:hidden">
+                            <img src="/assets/greeting_banner_sm.svg" alt="mobile banner" class="w-full h-full object-contain">
+                        </div>
+
+                        <div class="absolute right-0 top-0 z-0 hidden md:block">
+                            <img src="/assets/greeting_banner.svg" alt="desktop banner" class="w-full h-full object-contain">
                         </div>
                     </div>
 
                     <!-- overview data -->
                     <div
-                        class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-2"
+                        class="grid gap-3 md:gap-5 w-full grid-cols-2 xl:grid-cols-3"
                     >
                         <div
-                            class="flex flex-col justify-center p-2 md:px-6 md:py-4 rounded-lg w-full shadow-card bg-white min-w-[140px] md:min-w-[240px] xl:min-w-[200px]"
+                            class="flex flex-col justify-center p-2 md:px-6 md:py-4 rounded-lg w-full shadow-card bg-white md:min-w-[240px] xl:min-w-[200px]"
                             :class="item.borderColor, { 'cursor-pointer !pb-0': isClickable(item.route) }"
                             v-for="(item, index) in dataOverviews"
                             :key="index"
@@ -233,7 +266,7 @@ const responsiveOptions = ref([
                                 <component :is="item.icon" class="w-6 h-6 md:w-9 md:h-9 grow-0 shrink-0" />
                                 <div class="flex flex-col items-end truncate">
                                     <span class="text-gray-500 text-xxs md:text-sm text-right w-full truncate">{{ item.label }}</span>
-                                    <div v-if="item.type === 'trade_volume'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
+                                    <div v-if="item.type === 'trade_points'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
                                         {{ formatAmount(item.total, 2) }}
                                     </div>
                                     <div v-else-if="item.type === 'trade_lots'" class="text-gray-950 md:text-lg font-semibold text-right w-full truncate">
@@ -250,15 +283,9 @@ const responsiveOptions = ref([
                         </div>
                     </div>
 
-                    <div class="flex flex-col gap-3 bg-white rounded-lg shadow-card relative overflow-hidden p-3 md:p-6 items-center w-full">
+                    <div class="flex flex-col gap-3 relative overflow-hidden items-center w-full">
                         <div class="flex flex-row items-center justify-between self-stretch">
                             <span class="text-sm md:text-base font-bold text-gray-950">{{ $t('public.highlights') }}</span>
-                            <Button
-                            variant="primary-text"
-                            :href="route('highlights')"
-                            >
-                                {{ $t('public.see_more') }}
-                            </Button>
                         </div>
                         <Carousel v-if="pinnedAnnouncements.length > 0" :value="pinnedAnnouncements" 
                             :numVisible="1.43" :numScroll="1" circular :autoplayInterval="3000"
@@ -268,8 +295,8 @@ const responsiveOptions = ref([
                             <template #item="slotProps">
                                 <div class="w-full flex justify-start">
                                     <div
-                                        class="relative w-full h-[170px] smd:h-full smd:max-h-72 md:h-[310.5px] md:max-h-none overflow-hidden"
-                                        :class="{ 'bg-black': !slotProps.data.thumbnail }"
+                                        class="relative w-full h-[170px] smd:h-full smd:max-h-72 md:h-[250px] md:max-h-none overflow-hidden hover:opacity-80 hover:cursor-pointer rounded-[10px]"
+                                        @click="router.get(route('highlights'))"
                                     >
                                         <!-- Image -->
                                         <img
@@ -277,6 +304,8 @@ const responsiveOptions = ref([
                                         alt="cover"
                                         class="w-full h-full object-fill"
                                         />
+
+                                        <div class="absolute inset-0 bg-gradient-to-b from-black/0 to-black/40 pointer-events-none rounded-[10px]"></div>
 
                                         <!-- <div
                                             class="absolute inset-0 p-2 flex flex-col items-start overflow-hidden"
@@ -347,15 +376,22 @@ const responsiveOptions = ref([
 
         </div>
         <template #footer>
-            <Button 
-                type="button"
-                variant="primary-flat"
-                size="base"
-                class="w-full"
-                @click="handlePopupClose" 
-            >
-                {{ $t('public.close') }}
-            </Button>
+            <div class="flex flex-col gap-2 w-full pt-4">
+                <label v-if="currentAnnouncement.popup_login && currentAnnouncement.popup_login==='every'" class="flex items-center gap-2">
+                    <Checkbox binary v-model="checkboxDaily" class="w-4 h-4 flex-shrink-0" />
+                    <span class="text-gray-500 text-sm">{{ $t('public.disable_popup') }}</span>
+                </label>
+
+                <Button 
+                    type="button"
+                    variant="primary-flat"
+                    size="base"
+                    class="w-full"
+                    @click="handlePopupClose" 
+                >
+                    {{ $t('public.close') }}
+                </Button>
+            </div>
         </template>
     </Dialog>
 </template>

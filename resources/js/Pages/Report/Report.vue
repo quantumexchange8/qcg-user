@@ -19,7 +19,7 @@ const tabs = ref([
         component: h(Rebate),
     },
     {   
-        title: wTrans('public.group_transaction'),
+        title: wTrans('public.deposit_withdrawal'),
         type: 'group_transaction',
         component: h(GroupTransaction),
     },

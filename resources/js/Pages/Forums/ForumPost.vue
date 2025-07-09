@@ -202,6 +202,23 @@ const goBack = () => {
 </script>
 
 <template>
+    <div class="flex justify-between items-center px-5 py-2 w-full">
+        <div class="flex gap-2 items-center">
+            <Button
+                variant="gray-text"
+                iconOnly
+                pill
+                :href="route('dashboard')"
+            >
+                <IconChevronLeft size="20" stroke-width="1.25"/>
+            </Button>
+            <span class="text-gray-950 font-bold">{{ $t('public.breaking_news') }}</span>
+        </div>
+        <CreatePost
+            v-if="hasPermission('post_forum')"
+            :authorName="authorName"
+        />
+    </div>
     <AuthenticatedLayout :title="$t('public.forum')">
         <div
             class="flex flex-col gap-5 self-stretch p-4 md:py-6 md:px-8 bg-white rounded-lg shadow-card w-full h-[680px]"
