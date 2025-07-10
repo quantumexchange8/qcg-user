@@ -256,14 +256,14 @@ const downloadQrCode = () => {
                             <span class="md:text-base text-sm text-gray-950 font-bold line-clamp-1">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
                             <span class="md:text-sm text-xs text-gray-700 line-clamp-2">{{ $t('public.welcome_back_caption') }}</span>
                         </div>
-                        <div class="flex flex-row gap-10 md:gap-16 w-[calc(100%-80px)]">
+                        <div class="flex flex-row gap-5 smd:gap-10 md:gap-16 w-[calc(100%-80px)]">
                             <div class="flex flex-col w-[107px] h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-primary-500">
                                 <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.deposit') }}:</span>
-                                <span class="text-xs smd:text-base md:text-lg font-semibold text-primary-500">$ {{ formatAmount(personalTotalDeposit) }}</span>
+                                <span class="text-sm smd:text-base md:text-lg font-semibold text-primary-500">$ {{ formatAmount(personalTotalDeposit) }}</span>
                             </div>
                             <div class="flex flex-col w-[115px] h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-error-600">
                                 <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.withdrawal') }}:</span>
-                                <span class="text-xs smd:text-base md:text-lg font-semibold text-error-600">$ {{ formatAmount(personalTotalWithdrawal) }}</span>
+                                <span class="text-sm smd:text-base md:text-lg font-semibold text-error-600">$ {{ formatAmount(personalTotalWithdrawal) }}</span>
                             </div>
                         </div>
 
