@@ -48,6 +48,16 @@ const toggleExpand = (index) => {
     expandedPosts.value[index] = !expandedPosts.value[index];
 };
 
+const expand = (index) => {
+    expandedPosts.value[index] = true;
+};
+
+const collapse = (index) => {
+    expandedPosts.value[index] = false;
+};
+
+const isExpanded = (index) => !!expandedPosts.value[index];
+
 // Check content lines instead of height
 const checkContentLines = async () => {
     // Ensure DOM updates are applied before measurement
@@ -202,7 +212,7 @@ const goBack = () => {
 </script>
 
 <template>
-    <div class="flex justify-between items-center px-5 py-2 w-full">
+    <!-- <div class="flex justify-between items-center px-5 py-2 w-full">
         <div class="flex gap-2 items-center">
             <Button
                 variant="gray-text"
@@ -218,92 +228,122 @@ const goBack = () => {
             v-if="hasPermission('post_forum')"
             :authorName="authorName"
         />
-    </div>
-    <AuthenticatedLayout :title="$t('public.forum')">
-        <div
-            class="flex flex-col gap-5 self-stretch p-4 md:py-6 md:px-8 bg-white rounded-lg shadow-card w-full h-[680px]"
-        >
+    </div> -->
+    <AuthenticatedLayout :title="$t('public.breaking_news')">
+        <div class="flex flex-col gap-3 self-stretch">
+            <CreatePost
+                v-if="hasPermission('post_forum')"
+                :authorName="authorName"
+            />
             <div
-                v-if="postCounts === 0 && !posts.length"
-                class="flex flex-col items-center justify-center self-stretch h-full"
+                class="flex flex-col gap-5 self-stretch bg-white rounded-lg shadow-card w-full h-[680px]"
             >
-                <Empty
-                    :title="$t('public.no_posts_yet')"
-                    :message="$t('public.no_posts_yet_caption')"
-                >
-                    <template #image>
-                        <img src="/img/no_data/illustration-forum.svg" alt="no data" />
-                    </template>
-                </Empty>
-            </div>
-
-            <div
-                v-else-if="loading"
-                class="py-6 flex flex-col gap-5 items-center self-stretch"
-            >
-                <div class="flex justify-between items-start self-stretch">
-                    <div class="flex flex-col items-start text-sm">
-                        <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
-                    </div>
-                    <Skeleton width="2rem" height="0.6rem" class="my-1" borderRadius="2rem"></Skeleton>
-                </div>
-
-                <!-- content -->
-                <div class="flex flex-col gap-5 items-start self-stretch">
-                    <Skeleton width="10rem" height="4rem"></Skeleton>
-                    <div class="flex flex-col gap-3 items-start self-stretch text-sm text-gray-950">
-                        <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
-                        <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
-                    </div>
-                </div>
-            </div>
-
-            <ScrollPanel v-else style="width: 100%; height:100%">
                 <div
-                    v-for="post in posts"
-                    :key="post.id"
-                    class="border-b border-gray-200 last:border-transparent py-6 flex flex-col gap-5 items-center self-stretch"
+                    v-if="postCounts === 0 && !posts.length"
+                    class=" p-4 md:py-6 md:px-8 flex flex-col items-center justify-center self-stretch h-full"
+                >
+                    <Empty
+                        :title="$t('public.no_posts_yet')"
+                        :message="$t('public.no_posts_yet_caption')"
+                    >
+                        <template #image>
+                            <img src="/img/no_data/illustration-forum.svg" alt="no data" />
+                        </template>
+                    </Empty>
+                </div>
+
+                <div
+                    v-else-if="loading"
+                    class=" p-4 md:py-6 md:px-8 flex flex-col gap-5 items-center self-stretch"
                 >
                     <div class="flex justify-between items-start self-stretch">
-                        <span class="text-sm text-gray-950 font-bold">{{ post.display_name }}</span>
-                        <span class="text-gray-700 text-xs text-right min-w-28 mr-4">{{ formatPostDate(post.created_at) }}</span>
+                        <div class="flex flex-col items-start text-sm">
+                            <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
+                        </div>
+                        <Skeleton width="2rem" height="0.6rem" class="my-1" borderRadius="2rem"></Skeleton>
                     </div>
 
                     <!-- content -->
                     <div class="flex flex-col gap-5 items-start self-stretch">
-                        <Image
-                            v-if="post.post_attachment"
-                            :src="post.post_attachment"
-                            alt="Image"
-                            image-class="w-[250px] h-[160px] object-contain"
-                            preview
-                            :pt="{
-                                toolbar: 'hidden',
-                            }"
-                            @click="resetImageTransform()"
+                        <Skeleton width="10rem" height="4rem"></Skeleton>
+                        <div class="flex flex-col gap-3 items-start self-stretch text-sm text-gray-950">
+                            <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
+                            <Skeleton width="9rem" height="0.6rem" borderRadius="2rem"></Skeleton>
+                        </div>
+                    </div>
+                </div>
+
+                <ScrollPanel v-else style="width: 100%; height:100%">
+                    <div
+                        v-for="post in posts"
+                        :key="post.id"
+                        class="relative p-4 md:py-6 md:px-8 border-b border-gray-200 last:border-transparent flex flex-col gap-5 items-center self-stretch hover:bg-gray-50"
+                        :class="{ 'cursor-pointer':!isExpanded(post.id) }"
+                        @click="!isExpanded(post.id) && expand(post.id)"
+                    >
+                        <div
+                            v-if="isExpanded(post.id)"
+                            class="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 cursor-pointer"
+                            @click.stop="collapse(post.id)"
                         >
-                            <!-- Original image template with click event -->
-                            <template #original>
-                                <img
-                                    :src="post.post_attachment"
-                                    alt="Image"
-                                    class="max-h-full object-contain"
-                                    :class="[isEnlarged ? 'cursor-zoom-out' : 'cursor-zoom-in']"
-                                    @click="toggleEnlarged($event)"
-                                    @mousemove="followMouse"
-                                    :style="imageStyle"
-                                    data-pc-section="original"
-                                />
-                            </template>
-                        </Image>
-                        <div class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
-                            <div v-if="post.subject" class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
-                                <span class="font-semibold" :id="`subject-${post.id}`">{{ post.subject }}</span>
+                            <svg class="w-5 h-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </div>
+
+                        <div class="flex justify-between items-start self-stretch">
+                            <span class="text-sm text-gray-950 font-bold">{{ post.display_name }}</span>
+                            <span class="text-gray-700 text-xs text-right min-w-28 mr-4">{{ formatPostDate(post.created_at) }}</span>
+                        </div>
+
+                        <!-- content -->
+                        <div class="flex flex-col gap-5 items-start self-stretch">
+                            <Image
+                                v-if="post.post_attachment"
+                                :src="post.post_attachment"
+                                alt="Image"
+                                image-class="w-[250px] h-[160px] object-contain"
+                                preview
+                                :pt="{
+                                    toolbar: 'hidden',
+                                }"
+                                @click="resetImageTransform()"
+                            >
+                                <!-- Original image template with click event -->
+                                <template #original>
+                                    <img
+                                        :src="post.post_attachment"
+                                        alt="Image"
+                                        class="max-h-full object-contain"
+                                        :class="[isEnlarged ? 'cursor-zoom-out' : 'cursor-zoom-in']"
+                                        @click="toggleEnlarged($event)"
+                                        @mousemove="followMouse"
+                                        :style="imageStyle"
+                                        data-pc-section="original"
+                                    />
+                                </template>
+                            </Image>
+                            <div class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
+                                <div v-if="post.subject" class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
+                                    <span class="font-semibold" :id="`subject-${post.id}`">{{ post.subject }}</span>
+                                    <div
+                                        :class="[
+                                            'prose prose-p:my-0 prose-ul:my-0 w-full ',
+                                            {
+                                                'hidden': !expandedPosts[post.id] && isTruncated[post.id],
+                                                'max-h-auto block': expandedPosts[post.id],
+                                            }
+                                        ]"
+                                        :id="`content-${post.id}`"
+                                        v-html="post.message"
+                                    />
+                                </div>
                                 <div
+                                    v-else
                                     :class="[
                                         'prose prose-p:my-0 prose-ul:my-0 w-full',
                                         {
-                                            'hidden': !expandedPosts[post.id] && isTruncated[post.id],
+                                            'line-clamp-1': !expandedPosts[post.id] && isTruncated[post.id],
                                             'max-h-auto block': expandedPosts[post.id],
                                         }
                                     ]"
@@ -311,64 +351,54 @@ const goBack = () => {
                                     v-html="post.message"
                                 />
                             </div>
-                            <div
-                                v-else
-                                :class="[
-                                    'prose prose-p:my-0 prose-ul:my-0 w-full',
-                                    {
-                                        'line-clamp-1': !expandedPosts[post.id] && isTruncated[post.id],
-                                        'max-h-auto block': expandedPosts[post.id],
-                                    }
-                                ]"
-                                :id="`content-${post.id}`"
-                                v-html="post.message"
-                            />
-                        </div>
-                        <div
-                            v-if="isTruncated[post.id]"
-                            class="text-primary font-medium text-xs hover:text-primary-700 select-none cursor-pointer"
-                            @click="toggleExpand(post.id)"
-                        >
-                            {{ expandedPosts[post.id] ? $t('public.see_less') : $t('public.see_more') }}
-                        </div>
-                    </div>
+                            <!-- <div
+                                v-if="isTruncated[post.id]"
+                                class="text-primary font-medium text-xs hover:text-primary-700 select-none cursor-pointer"
+                                @click="toggleExpand(post.id)"
+                            >
+                                {{ expandedPosts[post.id] ? $t('public.see_less') : $t('public.see_more') }}
+                            </div> -->
 
-                    <div class="flex justify-between items-center self-stretch">
-                        <div class="flex items-center">
-                            <div class="flex justify-center items-center gap-1">
-                                <Button
-                                    type="button"
-                                    variant="success-text"
-                                    size="sm"
-                                    iconOnly
-                                    pill
-                                    class="hover:rotate-[-15deg]"
-                                    @click="handleUserInteraction(post.id, 'like')"
-                                >
-                                    <IconThumbUpFilled size="16" stroke-width="1.25" />
-                                </Button>
-                                <span class="min-w-10 text-gray-700 text-sm">{{ post.total_likes_count }}</span> 
-                            </div>
-                            <div class="flex justify-center items-center gap-1">
-                                <Button
-                                    type="button"
-                                    variant="error-text"
-                                    size="sm"
-                                    iconOnly
-                                    pill
-                                    class="hover:rotate-[-15deg]"
-                                    @click="handleUserInteraction(post.id, 'dislike')"
-                                >
-                                    <IconThumbDownFilled size="16" stroke-width="1.25" />
-                                </Button>
-                                <span class="min-w-10 text-gray-700 text-sm">{{ post.total_dislikes_count }}</span> 
+                        </div>
+
+                        <div class="flex justify-between items-center self-stretch">
+                            <div class="flex items-center">
+                                <div class="flex justify-center items-center gap-1">
+                                    <Button
+                                        type="button"
+                                        variant="success-text"
+                                        size="sm"
+                                        iconOnly
+                                        pill
+                                        class="hover:rotate-[-15deg]"
+                                        @click="handleUserInteraction(post.id, 'like')"
+                                    >
+                                        <IconThumbUpFilled size="16" stroke-width="1.25" />
+                                    </Button>
+                                    <span class="min-w-10 text-gray-700 text-sm">{{ post.total_likes_count }}</span> 
+                                </div>
+                                <div class="flex justify-center items-center gap-1">
+                                    <Button
+                                        type="button"
+                                        variant="error-text"
+                                        size="sm"
+                                        iconOnly
+                                        pill
+                                        class="hover:rotate-[-15deg]"
+                                        @click="handleUserInteraction(post.id, 'dislike')"
+                                    >
+                                        <IconThumbDownFilled size="16" stroke-width="1.25" />
+                                    </Button>
+                                    <span class="min-w-10 text-gray-700 text-sm">{{ post.total_dislikes_count }}</span> 
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                </div>
-            </ScrollPanel>
-                
+                    </div>
+                </ScrollPanel>
+                    
+            </div>
         </div>
+        
     </AuthenticatedLayout>
 </template>

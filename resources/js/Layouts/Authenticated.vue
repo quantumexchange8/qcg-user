@@ -17,17 +17,17 @@ defineProps({
 
     <div class="min-h-screen bg-gray-100 flex flex-col items-center">
         <!-- Main container for Sidebar and Navbar -->
-        <div class="flex flex-col px-3 md:px-5 flex-1 max-w-[1440px]">
+        <div class="flex flex-col px-3 md:px-5 flex-1 max-w-[1440px] w-full">
             <!-- Navbar -->
             <Navbar :title="title"/>
 
             <div class="flex flex-1 py-3 md:py-5 gap-5">
                 <!-- Sidebar -->
-                <Sidebar  v-if="title!==$t('public.forum') && title!==$t('public.ticket_center')"/>
+                <Sidebar v-if="title!==$t('public.breaking_news') && title!==$t('public.ticket_center')"/>
 
                 <!-- Page Content -->
-                <main class="flex flex-1 justify-center items-start overflow-hidden">
-                    <div class="flex flex-col h-full w-full">
+                <main class="flex flex-1 flex-col items-start justify-start relative min-w-0">
+                    <div class="flex flex-col w-full flex-1">
                         <!-- Toast -->
                         <ToastList />
                         <!-- Confirmation Dialog -->

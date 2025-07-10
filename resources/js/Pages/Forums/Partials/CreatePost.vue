@@ -71,13 +71,13 @@ const closeDialog = () => {
 <template>
     <Button
         type="button"
-        variant="gray-text"
-        icon-only
-        pill
-        size="sm"
+        variant="primary-flat"
+        size="base"
         @click="visible = true"
+        class="w-full md:max-w-40 self-end"
     >
-        <IconEdit size="16" stroke-width="1.25" />
+        <IconEdit size="20" stroke-width="1.25" />
+        {{ $t('public.create_post') }}
     </Button>
 
     <Dialog

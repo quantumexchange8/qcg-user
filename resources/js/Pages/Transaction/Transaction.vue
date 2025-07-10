@@ -153,65 +153,65 @@ watch(
 );
 
 
-const exportXLSX = () => {
-    // Retrieve the array from the reactive proxy
-    const data = filteredValue.value;
+// const exportXLSX = () => {
+//     // Retrieve the array from the reactive proxy
+//     const data = filteredValue.value;
 
-    // Specify the headers
-    const headers = [
-        trans('public.date'),
-        trans('public.id'),
-        trans('public.description'),
-        trans('public.sector'),
-        trans('public.amount') + ' ($)',
-        trans('public.status'),
-    ];
+//     // Specify the headers
+//     const headers = [
+//         trans('public.date'),
+//         trans('public.id'),
+//         trans('public.description'),
+//         trans('public.sector'),
+//         trans('public.amount') + ' ($)',
+//         trans('public.status'),
+//     ];
 
-    // Map the array data to XLSX rows
-    const rows = data.map(obj => {
-        const fromDisplay = obj.category === 'rebate_wallet' || obj.from === 'cash_wallet'
-        ? trans('public.' + obj.category)
-        : obj.transaction_type === 'deposit'
-            ? obj.to_meta_login
-            : obj.transaction_type === 'withdrawal' && obj.from_meta_login !== null
-                ? obj.from_meta_login
-                : trans('public.wallet'); // Default fallback for other cases
+//     // Map the array data to XLSX rows
+//     const rows = data.map(obj => {
+//         const fromDisplay = obj.category === 'rebate_wallet' || obj.from === 'cash_wallet'
+//         ? trans('public.' + obj.category)
+//         : obj.transaction_type === 'deposit'
+//             ? obj.to_meta_login
+//             : obj.transaction_type === 'withdrawal' && obj.from_meta_login !== null
+//                 ? obj.from_meta_login
+//                 : trans('public.wallet'); // Default fallback for other cases
 
 
-        return [
-            obj.created_at !== undefined ? dayjs(obj.created_at).format('YYYY/MM/DD') : '',
-            obj.transaction_number !== undefined ? obj.transaction_number : '',
-            obj.transaction_type !== undefined ? trans(`public.${obj.transaction_type}`) : '',
-            fromDisplay,
-            obj.amount !== undefined ? obj.amount : '',
-            obj.status !== undefined ? trans(`public.${obj.status}`) : '',
-        ];
-    });
+//         return [
+//             obj.created_at !== undefined ? dayjs(obj.created_at).format('YYYY/MM/DD') : '',
+//             obj.transaction_number !== undefined ? obj.transaction_number : '',
+//             obj.transaction_type !== undefined ? trans(`public.${obj.transaction_type}`) : '',
+//             fromDisplay,
+//             obj.amount !== undefined ? obj.amount : '',
+//             obj.status !== undefined ? trans(`public.${obj.status}`) : '',
+//         ];
+//     });
 
-    // Combine headers and rows into a single data array
-    const sheetData = [headers, ...rows];
+//     // Combine headers and rows into a single data array
+//     const sheetData = [headers, ...rows];
 
-    // Create the XLSX content
-    let csvContent = "data:text/xlsx;charset=utf-8,";
+//     // Create the XLSX content
+//     let csvContent = "data:text/xlsx;charset=utf-8,";
 
-    sheetData.forEach((rowArray) => {
-        const row = rowArray.join("\t"); // Use tabs for column separation
-        csvContent += row + "\r\n"; // Add a new line after each row
-    });
+//     sheetData.forEach((rowArray) => {
+//         const row = rowArray.join("\t"); // Use tabs for column separation
+//         csvContent += row + "\r\n"; // Add a new line after each row
+//     });
 
-    // Create a temporary link element
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "export.xlsx");
+//     // Create a temporary link element
+//     const encodedUri = encodeURI(csvContent);
+//     const link = document.createElement("a");
+//     link.setAttribute("href", encodedUri);
+//     link.setAttribute("download", "export.xlsx");
 
-    // Append the link to the document and trigger the download
-    document.body.appendChild(link);
-    link.click();
+//     // Append the link to the document and trigger the download
+//     document.body.appendChild(link);
+//     link.click();
 
-    // Clean up by removing the link
-    document.body.removeChild(link);
-};
+//     // Clean up by removing the link
+//     document.body.removeChild(link);
+// };
 
 
 const filters = ref({
@@ -254,16 +254,16 @@ const openDialog = (rowData) => {
 <template>
     <AuthenticatedLayout :title="$t('public.sidebar.transaction')">
         <div class="flex flex-col justify-center items-center gap-5">
-            <div class="flex flex-col justify-center items-center self-stretch md:flex-row gap-3 md:gap-5">
-                <div class="px-6 py-7 w-full flex flex-col gap-4 rounded-lg justify-center items-center self-stretch bg-white shadow-card">
-                    <div><DepositIcon /></div>
+            <div class="flex justify-center items-center self-stretch flex-row gap-3 md:gap-5">
+                <div class="px-3 py-5 md:px-6 md:py-7 w-full flex flex-col gap-4 rounded-lg justify-center items-center self-stretch bg-white shadow-card">
+                    <DepositIcon class="w-[30px] h-[30px] md:w-9 md:h-9"/>
                     <div class="text-sm font-medium text-gray-700">{{ $t('public.personal_deposit') }}</div>
-                    <div class="text-xxl font-semibold text-gray-950">{{ `$&nbsp;${formatAmount(props.totalDeposit)}` }}</div>
+                    <div class="text-lg md:text-xxl font-semibold text-success-600">{{ `$&nbsp;${formatAmount(props.totalDeposit)}` }}</div>
                 </div>
-                <div class="px-6 py-7 w-full flex flex-col gap-4 rounded-lg justify-center items-center self-stretch bg-white shadow-card">
-                    <div><WithdrawalIcon /></div>
+                <div class="px-3 py-5 md:px-6 md:py-7 w-full flex flex-col gap-4 rounded-lg justify-center items-center self-stretch bg-white shadow-card">
+                    <WithdrawalIcon class="w-[30px] h-[30px] md:w-9 md:h-9"/>
                     <div class="text-sm font-medium text-gray-700">{{ $t('public.personal_withdrawal') }}</div>
-                    <div class="text-xxl font-semibold text-gray-950">{{ `$&nbsp;${formatAmount(props.totalWithdrawal)}` }}</div>
+                    <div class="text-lg md:text-xxl font-semibold text-error-600">{{ `$&nbsp;${formatAmount(props.totalWithdrawal)}` }}</div>
                 </div>
             </div>
 
@@ -284,10 +284,10 @@ const openDialog = (rowData) => {
                                 <IconX size="16" />
                             </div>
                         </div>
-                        <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="w-full md:w-auto">
+                        <!-- <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="w-full md:w-auto">
                             <IconDownload size="20" stroke-width="1.25" />
                             {{ $t('public.export') }}
-                        </Button>
+                        </Button> -->
                     </div>
                 </div>
                 <DataTable
@@ -295,9 +295,8 @@ const openDialog = (rowData) => {
                     :value="transactions"
                     :paginator="transactions?.length > 0"
                     removableSort
-                    :rows="10"
-                    :rowsPerPageOptions="[10, 20, 50, 100]"
-                    paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    :rows="100"
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                     :currentPageReportTemplate="$t('public.paginator_caption')"
                     :globalFilterFields="['transaction_number', 'category', 'from_meta_login', 'to_meta_login']"
                     ref="dt"
@@ -308,12 +307,12 @@ const openDialog = (rowData) => {
                 >
                     <template #header>
                         <div class="flex flex-col justify-between items-center pb-5 gap-3 self-stretch md:flex-row md:pb-6">
-                            <div class="grid grid-cols-1 items-center gap-3 self-stretch md:grid-cols-4 md:gap-2">
+                            <div class="grid grid-cols-2 items-center gap-3 self-stretch md:grid-cols-4 md:gap-2">
                                 <Select
                                     v-model="selectedMonth"
                                     :options="months"
                                     :placeholder="$t('public.month_placeholder')"
-                                    class="w-full md:max-w-60 font-normal truncate" scroll-height="236px"
+                                    class="hidden md:flex w-full md:max-w-60 font-normal truncate" scroll-height="236px"
                                 >
                                     <template #option="{ option }">
                                         <span class="text-sm">
@@ -382,16 +381,52 @@ const openDialog = (rowData) => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex flex-col md:flex-row gap-3 md:gap-2 w-full md:w-auto">
-                                <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-[90px] hidden md:flex">
+                            <div class="grid grid-cols-2 md:flex md:flex-row gap-3 md:gap-2 w-full md:w-auto">
+                                <!-- <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-[90px] hidden md:flex">
                                     <IconDownload size="20" stroke-width="1.25" />
                                         {{ $t('public.export') }}
-                                    </Button>
+                                    </Button> -->
+                                <Select
+                                    v-model="selectedMonth"
+                                    :options="months"
+                                    :placeholder="$t('public.month_placeholder')"
+                                    class="col-span-1 md:hidden w-full md:max-w-60 font-normal truncate" scroll-height="236px"
+                                >
+                                    <template #option="{ option }">
+                                        <span class="text-sm">
+                                            <template v-if="option === 'select_all'">
+                                                {{ $t('public.select_all') }}
+                                            </template>
+                                            <template v-else-if="option.startsWith('last_')">
+                                                {{ $t(`public.${option}`) }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $t(`public.${option.split(' ')[1]}`) }} {{ option.split(' ')[2] }}
+                                            </template>
+                                        </span>
+                                    </template>
+                                    <template #value>
+                                        <span v-if="selectedMonth">
+                                            <template v-if="selectedMonth === 'select_all'">
+                                                {{ $t('public.select_all') }}
+                                            </template>
+                                            <template v-else-if="selectedMonth.startsWith('last_')">
+                                                {{ $t(`public.${selectedMonth}`) }}
+                                            </template>
+                                            <template v-else>
+                                                {{ $t(`public.${dayjs(selectedMonth).format('MMMM')}`) }} {{ dayjs(selectedMonth).format('YYYY') }}
+                                            </template>
+                                        </span>
+                                        <span v-else>
+                                            {{ $t('public.month_placeholder') }}
+                                        </span>
+                                    </template>
+                                </Select>
                                 <Button
                                     type="button"
                                     variant="error-outlined"
                                     size="base"
-                                    class='w-full md:w-[90px]'
+                                    class='w-full md:w-[90px] col-span-1'
                                     @click="clearFilter"
                                 >
                                     <IconFilterOff size="20" stroke-width="1.25" />
@@ -427,14 +462,14 @@ const openDialog = (rowData) => {
                                 </div>
                             </template>
                         </Column>
-                        <Column field="description" sortable :header="$t('public.description')" class="hidden md:table-cell w-auto">
+                        <Column field="type" sortable :header="$t('public.type')" class="hidden md:table-cell w-auto">
                             <template #body="slotProps">
                                 <div class="text-gray-950 text-sm">
                                     {{ $t(`public.${slotProps.data.transaction_type}`) }}
                                 </div>
                             </template>
                         </Column>
-                        <Column field="sector" :header="$t('public.sector')" class="hidden md:table-cell w-auto">
+                        <Column field="account" :header="$t('public.account')" class="hidden md:table-cell w-auto">
                             <template #body="slotProps">
                                 <div v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
                                     {{ $t(`public.${slotProps.data.category}`) }}
@@ -467,36 +502,39 @@ const openDialog = (rowData) => {
                                 </div>
                             </template>
                         </Column>
-                        <Column class="md:hidden">
+                        <Column class="md:hidden max-w-0" headerClass="hidden">
                             <template #body="slotProps">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex flex-col items-start">
-                                        <div class=" font-semibold">
+                                <div class="flex items-center justify-between w-full gap-3">
+                                    <div class="flex flex-col items-start flex-1 min-w-0">
+                                        <div class="font-semibold truncate w-full">
                                             {{ $t(`public.${slotProps.data.transaction_type}`) }}
                                         </div>
-                                        <div class="flex gap-1 items-center text-gray-500 text-xs">
-                                            <div>{{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}</div>
+                                        <div class="flex gap-1 items-center text-gray-500 text-xs truncate w-full overflow-hidden whitespace-nowrap">
+                                            <div class="truncate">{{ dayjs(slotProps.data.created_at).format('YYYY/MM/DD') }}</div>
                                             <div>|</div>
-                                            <div v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
-                                                {{ $t(`public.${slotProps.data.category}`) }}
-                                            </div>
-                                            <div v-else-if="slotProps.data.transaction_type === 'deposit'">
-                                                {{ slotProps.data.to_meta_login }}
-                                            </div>
-                                            <div v-else-if="slotProps.data.transaction_type === 'withdrawal' && slotProps.data.from_meta_login !== null">
-                                                {{ slotProps.data.from_meta_login }}
-                                            </div>
-                                            <div v-else>
-                                                <!-- Optional: Handle unexpected transaction types -->
-                                                {{ $t('public.wallet') }}
+                                            <div class="truncate">{{ dayjs(slotProps.data.created_at).format('HH:mm:ss') }}</div>
+                                            <div>|</div>
+                                            <div class="truncate">
+                                                <template v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
+                                                    {{ $t(`public.${slotProps.data.category}`) }}
+                                                </template>
+                                                <template v-else-if="slotProps.data.transaction_type === 'deposit'">
+                                                    {{ slotProps.data.to_meta_login }}
+                                                </template>
+                                                <template v-else-if="slotProps.data.transaction_type === 'withdrawal' && slotProps.data.from_meta_login !== null">
+                                                    {{ slotProps.data.from_meta_login }}
+                                                </template>
+                                                <template v-else>
+                                                    {{ $t('public.wallet') }}
+                                                </template>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-end">
-                                        <div class=" font-semibold text-right">
+                                    <div class="flex flex-col items-end text-right">
+                                        <div class=" font-semibold">
                                             $&nbsp;{{ formatAmount(slotProps.data.transaction_amount > 0 ? slotProps.data.transaction_amount : slotProps.data.amount) }}
                                         </div>
-                                        <div class="text-xs text-right" :style="{ color: getStatusColor(slotProps.data.status) }">
+                                        <div class="text-xs" :style="{ color: getStatusColor(slotProps.data.status) }">
                                             {{ $t(`public.${slotProps.data.status}`) }}
                                         </div>
                                     </div>
@@ -514,15 +552,30 @@ const openDialog = (rowData) => {
         <div class="flex flex-col justify-center items-center gap-3 self-stretch pt-4 md:pt-6">
             <div class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm" >{{ $t('public.amount') }}</span>
+                    <span class="w-full truncate text-gray-950 text-lg font-semibold"
+                        :class="{
+                            '!text-success-600': data.transaction_type === 'deposit', 
+                            '!text-error-600': data.transaction_type === 'withdrawal',
+                        }"
+                    >
+                        {{ `$&nbsp;${formatAmount(data.transaction_amount > 0 ? data.transaction_amount : data.amount)}` }}
+                    </span>
+                </div>
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.date') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ dayjs(data.created_at).format('YYYY/MM/DD') }}</span>
+                </div>
+                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.time') }}</span>
+                    <span class="w-full truncate text-gray-950 text-sm font-medium">{{ dayjs(data.created_at).format('HH:mm:ss') }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.transaction_id') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.transaction_number }}</span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
-                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.sector') }}</span>
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.account') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">
                         <!-- {{ data.from_meta_login }} {{ data.to_meta_login }} {{ $t(`public.${slotProps.data.category}`) }} -->
                         <div v-if="data.category === 'rebate_wallet' || data.category === 'cash_wallet'">
@@ -541,13 +594,13 @@ const openDialog = (rowData) => {
                     </span>
                 </div>
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
-                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.description') }}</span>
+                    <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.type') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ $t(`public.${data.transaction_type}`) }}</span>
                 </div>
-                <div class="w-full flex flex-col items-start gap-1 md:flex-row">
+                <!-- <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm" >{{ $t('public.amount') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ `$&nbsp;${formatAmount(data.transaction_amount > 0 ? data.transaction_amount : data.amount)}` }}</span>
-                </div>
+                </div> -->
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.status') }}</span>
                     <div class="flex items-center flex-1">

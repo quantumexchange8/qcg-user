@@ -13,7 +13,7 @@ import {
     TradeVolumeIcon,
     DashboardPointIcon,
 } from '@/Components/Icons/outline.jsx';
-import {IconReport, IconDots} from '@tabler/icons-vue';
+import {IconReport, IconDots, IconQrcode, IconCopy} from '@tabler/icons-vue';
 import {trans} from "laravel-vue-i18n";
 import RebateWalletAction from "@/Pages/Dashboard/Partials/RebateWalletAction.vue";
 import RebateEarn from "@/Pages/Dashboard/Partials/RebateEarn.vue";
@@ -23,6 +23,9 @@ import Account from "@/Pages/Accounts/Account.vue";
 import Carousel from 'primevue/carousel';
 import Dialog from 'primevue/dialog';
 import Checkbox from 'primevue/checkbox';
+import QrcodeVue from 'qrcode.vue'
+import Tag from "primevue/tag";
+import InputText from "primevue/inputtext";
 
 const props = defineProps({
     announcements: Object,
@@ -204,6 +207,42 @@ const responsiveOptions = ref([
         numScroll: 1
     },
 ]);
+
+const referralDialog = ref(false)
+const tooltipText = ref('copy')
+const qrcodeContainer = ref();
+const registerLink = ref(`${window.location.origin}/sign_up/${usePage().props.auth.user.referral_code}`);
+
+const copyToClipboard = (text) => {
+    const textToCopy = text;
+
+    const textArea = document.createElement('textarea');
+    document.body.appendChild(textArea);
+
+    textArea.value = textToCopy;
+    textArea.select();
+
+    try {
+        const successful = document.execCommand('copy');
+
+        tooltipText.value = 'copied';
+        setTimeout(() => {
+            tooltipText.value = 'copy';
+        }, 1500);
+    } catch (err) {
+        console.error('Copy to clipboard failed:', err);
+    }
+
+    document.body.removeChild(textArea);
+}
+
+const downloadQrCode = () => {
+    const canvas = qrcodeContainer.value.querySelector("canvas");
+    const link = document.createElement("a");
+    link.download = "qr-code.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+}
 </script>
 
 <template>
@@ -212,18 +251,18 @@ const responsiveOptions = ref([
             <div class="flex flex-col items-center gap-3 md:gap-5 self-stretch w-full">
                 <div class="flex flex-col gap-3 md:gap-5 items-center self-stretch w-full">
                     <!-- greeting card -->
-                    <div v-if="user.role==='agent'" class="flex flex-col justify-between bg-white rounded-lg h-[150px] md:h-[170px] shadow-card relative overflow-hidden px-3 py-[17px] md:px-6 md:py-[22px] items-start w-full">
-                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-40px)]">
+                    <div v-if="user.role==='agent'" class="flex flex-col justify-between bg-white rounded-lg h-[150px] md:h-[170px] shadow-box relative overflow-hidden px-3 py-[17px] md:px-6 md:py-[22px] items-start w-full">
+                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-50px)]">
                             <span class="md:text-base text-sm text-gray-950 font-bold line-clamp-1">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
                             <span class="md:text-sm text-xs text-gray-700 line-clamp-2">{{ $t('public.welcome_back_caption') }}</span>
                         </div>
-                        <div class="flex flex-row gap-2 w-[calc(100%-80px)]">
-                            <div class="flex flex-col smd:w-[107px] smd:h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-primary-500">
-                                <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.personal_deposit') }}:</span>
+                        <div class="flex flex-row gap-10 md:gap-16 w-[calc(100%-80px)]">
+                            <div class="flex flex-col w-[107px] h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-primary-500">
+                                <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.deposit') }}:</span>
                                 <span class="text-xs smd:text-base md:text-lg font-semibold text-primary-500">$ {{ formatAmount(personalTotalDeposit) }}</span>
                             </div>
-                            <div class="flex flex-col smd:w-[115px] smd:h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-error-600">
-                                <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.personal_withdrawal') }}:</span>
+                            <div class="flex flex-col w-[115px] h-10 md:w-[165px] md:h-12 justify-center items-start pl-[6px] rounded border-l-4 bg-white border-error-600">
+                                <span class="text-xxs md:text-sm text-gray-500 line-clamp-1">{{ $t('public.withdrawal') }}:</span>
                                 <span class="text-xs smd:text-base md:text-lg font-semibold text-error-600">$ {{ formatAmount(personalTotalWithdrawal) }}</span>
                             </div>
                         </div>
@@ -236,8 +275,8 @@ const responsiveOptions = ref([
                             <img src="/assets/agent_greeting_banner.svg" alt="desktop banner" class="w-full h-full object-contain">
                         </div>
                     </div>
-                    <div v-else class="bg-white rounded-lg h-[60px] md:h-20 shadow-card relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
-                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-40px)]">
+                    <div v-else class="bg-white rounded-lg h-[60px] md:h-20 shadow-box relative overflow-hidden px-3 py-[10px] md:px-6 md:py-4 items-center w-full">
+                        <div class="flex flex-col gap-1 items-start justify-center w-[calc(100%-50px)]">
                             <span class="md:text-base text-sm text-gray-950 font-bold line-clamp-1">{{ $t('public.welcome_back', {'name': user.first_name}) }}</span>
                             <span class="md:text-sm text-xs text-gray-700 line-clamp-1">{{ $t('public.member_welcome_back_caption') }}</span>
                         </div>
@@ -325,9 +364,22 @@ const responsiveOptions = ref([
                     </div>
                 </div>
 
+                <div class="grid grid-cols-2 gap-3 self-stretch h-[75px] font-semibold md:hidden">
+                    <div class="col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer bg-cover bg-no-repeat overflow-hidden" 
+                    :style="{ backgroundImage: `url('/assets/breaking_news.png')` }"
+                    @click="router.get(route('forum'))" >
+                        {{ $t('public.breaking_news') }}
+                    </div>
+                    <div class="col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer bg-cover bg-no-repeat overflow-hidden" 
+                    :style="{ backgroundImage: `url('/assets/referral.png')` }"
+                    @click="referralDialog = true">
+                        {{ $t('public.referral') }}
+                    </div>
+                </div>
+
                 <div
                     v-if="user.role === 'agent'"
-                    class="flex flex-col py-2 px-3 md:p-6 gap-3 items-center self-stretch w-full bg-white rounded-lg"
+                    class="flex flex-col py-2 px-3 md:p-6 gap-3 items-center self-stretch w-full bg-white rounded-lg shadow-box"
                 >
                     <div class="flex h-9 items-center justify-between self-stretch">
                         <span class="text-gray-950 text-sm md:text-base font-bold">
@@ -393,6 +445,67 @@ const responsiveOptions = ref([
                 </Button>
             </div>
         </template>
+    </Dialog>
+
+    <Dialog
+        v-model:visible="referralDialog"
+        modal
+        :header="$t('public.referral_qr_code')"
+        class="dialog-xs md:dialog-md"
+    >
+        <div class="flex flex-col pt-4 md:pt-6 gap-6 md:gap-8 items-center self-stretch">
+            <span class="text-xs md:text-base text-gray-500">{{ $t('public.referral_qr_caption_1') }}</span>
+
+            <!-- qr code -->
+            <div class="flex flex-col items-center gap-5 self-stretch">
+                <div
+                    ref="qrcodeContainer">
+                    <qrcode-vue
+                        ref="qrcode"
+                        :value="registerLink"
+                        :margin="2"
+                        :size="200"
+                    />
+                </div>
+                <Button
+                    type="button"
+                    variant="primary-flat"
+                    size="lg"
+                    @click="downloadQrCode"
+                >
+                    {{ $t('public.download_qr_caption') }}
+                </Button>
+            </div>
+
+            <div class="flex gap-3 items-center self-stretch">
+                <div class="h-[1px] bg-gray-200 rounded-[5px] w-full"></div>
+                <div class="text-xs md:text-sm text-gray-500 text-center min-w-[145px] md:w-full">{{ $t('public.referral_qr_caption_2') }}</div>
+                <div class="h-[1px] bg-gray-200 rounded-[5px] w-full"></div>
+            </div>
+
+            <div class="flex gap-3 items-center self-stretch relative">
+                <InputText
+                    v-model="registerLink"
+                    class="truncate w-full"
+                    readonly
+                />
+                <Tag
+                    v-if="tooltipText === 'copied'"
+                    class="absolute -top-7 -right-3"
+                    severity="contrast"
+                    :value="$t(`public.${tooltipText}`)"
+                ></Tag>
+                <Button
+                    type="button"
+                    variant="gray-text"
+                    iconOnly
+                    pill
+                    @click="copyToClipboard(registerLink)"
+                >
+                    <IconCopy size="20" color="#667085" stroke-width="1.25" />
+                </Button>
+            </div>
+        </div>
     </Dialog>
 </template>
 

@@ -43,7 +43,7 @@ const warningVisible = ref(true);
     <div class="flex flex-col gap-20 md:gap-[100px] w-full">
         <div class="flex flex-col items-start gap-2 self-stretch">
             <!-- banner -->
-            <div class="relative pt-3 px-3 pb-[44px] self-stretch rounded-lg bg-white shadow-card md:h-[180px]
+            <div class="relative pt-3 px-3 pb-[44px] self-stretch rounded-lg bg-white shadow-box md:h-[180px]
                 bg-no-repeat bg-right-bottom bg-contain overflow-hidden
                 md:pl-6 md:pt-5 md:pb-9 md:pr-[308px]
                 z-0"

@@ -98,10 +98,10 @@ const showTicketNotif = computed(() => {
 <template>
     <nav
         aria-label="secondary"
-        class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3 justify-between rounded-b-lg"
+        class="sticky top-0 z-10 py-2 px-2 md:px-5 bg-white flex items-center gap-2 md:gap-3 justify-between rounded-b-lg shadow-box"
     >
         <div
-            v-if="title!==$t('public.forum') && title!==$t('public.ticket_center')"
+            v-if="title!==$t('public.breaking_news') && title!==$t('public.ticket_center')"
             class="inline-flex justify-center items-center rounded-full border border-gray-200 hover:bg-gray-100 w-9 h-9 md:w-12 md:h-12 shrink-0 grow-0 hover:select-none hover:cursor-pointer"
             @click="sidebarState.isOpen = !sidebarState.isOpen"
         >
@@ -144,7 +144,7 @@ const showTicketNotif = computed(() => {
                 <HelpCenterNotifIcon v-else aria-hidden="true" class="flex-shrink-0 w-5 h-5" />
             </Link>
             <Link
-                class="w-9 h-9 md:w-12 md:h-12 p-3.5 flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
+                class="hidden w-9 h-9 md:w-12 md:h-12 p-3.5 md:flex items-center justify-center rounded-full border border-gray-200 outline-none hover:cursor-pointer hover:bg-gray-100 text-gray-700 focus:bg-gray-100"
                 :href="route('forum')"
                 method="get"
                 as="button"  
@@ -160,7 +160,7 @@ const showTicketNotif = computed(() => {
             </div>
             <Button
                 variant="gray-text"
-                class="w-9 h-9 md:w-12 md:h-12 p-3.5 !ring-0 border border-gray-200"
+                class="hidden md:flex w-9 h-9 md:w-12 md:h-12 p-3.5 !ring-0 border border-gray-200"
                 size="base"
                 type="button"
                 iconOnly

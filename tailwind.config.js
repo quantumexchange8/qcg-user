@@ -127,6 +127,7 @@ export default {
                 'card': '0px 4px 30px 0px #F3F4F6',
                 'primary-button': 'inset 2px 2px 4px #67C16B, 0 2px 2px #2E7D32',
                 'gray-button': 'inset 2px 2px 4px #D1D5DB, 0 2px 2px #D1D5DB',
+                'box': '1px 2px 2px 0px rgba(0, 0, 0, 0.25)',
                 // 'toast': '0 4px 20px 0 rgba(12, 17, 29, 0.08)',
                 // 'table': '0 2px 8px 0 rgba(12, 17, 29, 0.05)',
             },

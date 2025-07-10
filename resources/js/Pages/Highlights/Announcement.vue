@@ -110,9 +110,9 @@ const getTimeLabel = (announcement) => {
                                 <span class="text-sm text-gray-700 hidden md:line-clamp-4" v-html="announcement.content">
                                 </span>
                             </div>
-                            <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0 \n">
+                            <!-- <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0 \n"> -->
                         </div>
-                        <!-- <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0 hidden md:flex"> -->
+                        <img v-if="announcement.thumbnail" :src="announcement.thumbnail" alt="announcement_image" class="w-40 h-[90px] flex-shrink-0 hidden md:flex">
                     </div>
                 </div>
                 <Button

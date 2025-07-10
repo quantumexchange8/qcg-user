@@ -260,9 +260,8 @@ watchEffect(() => {
             paginator
             removableSort
             :rows="10"
-            :rowsPerPageOptions="[10, 20, 50, 100]"
             tableStyle="min-width: 50rem"
-            paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
             :currentPageReportTemplate="paginator_caption"
             :globalFilterFields="['name','email','account']"
             ref="dt"
@@ -293,13 +292,13 @@ watchEffect(() => {
                     {{ slotProps.data.level }}
                 </template>
             </Column>
-            <Column field="name" sortable :header="$t('public.name')"  class="md:w-auto">
+            <Column field="name" sortable :header="$t('public.name')"  class="md:w-auto max-w-0">
                 <template #body="slotProps">
-                    <div class="flex flex-col items-start">
-                        <div class="w-auto truncate font-medium">
+                    <div class="flex flex-col items-start truncate max-w-full">
+                        <div class="w-auto truncate font-medium max-w-full">
                             {{ slotProps.data.name }}
                         </div>
-                        <div class="w-auto truncate text-gray-500 text-xs">
+                        <div class="w-auto truncate text-gray-500 text-xs max-w-full">
                             {{ slotProps.data.email }}
                         </div>
                     </div>
@@ -313,12 +312,12 @@ watchEffect(() => {
                     {{ formatDate(slotProps.data.joined_date) }}
                 </template>
             </Column>
-            <Column field="role"  class="w-1/3 md:w-auto">
+            <Column field="role"  class="w-[10%]">
                 <template #header>
                     <span>{{ $t('public.role') }}</span>
                 </template>
                 <template #body="slotProps">
-                    <div class="flex py-1.5 items-center flex-1">
+                    <div class="flex px-2.5 py-1.5 items-center flex-1">
                         <div 
                             :class="{
                                 'w-2.5 h-2.5 rounded-full': true, 

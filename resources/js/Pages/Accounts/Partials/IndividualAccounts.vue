@@ -105,7 +105,7 @@ watchEffect(() => {
 <template>
     <div
         v-if="isLoading"
-        class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-5 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-card w-full md:w-1/2 animate-pulse"
+        class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-5 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-box w-full md:w-1/2 animate-pulse"
     >
         <div class="flex items-center gap-5 self-stretch">
             <div class="w-32 h-3 bg-gray-200 rounded-full my-2"></div>
@@ -142,7 +142,7 @@ watchEffect(() => {
         <div
             v-for="account in accounts"
             :key="account.id"
-            class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-3 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-card w-full"
+            class="flex flex-col justify-center items-center py-3 pl-4 pr-3 gap-3 flex-grow md:pr-6 rounded-lg border-l-8 bg-white shadow-box w-full"
             :style="{'borderColor': `#${account.account_type_color}`}"
             :class="{'opacity-50': account.is_active === 'inactive'}"
         >
