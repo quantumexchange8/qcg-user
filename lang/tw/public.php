@@ -606,5 +606,5 @@ return [
     'new_ticket_unavailable_title' => '無法新增對話',
     'new_ticket_unavailable_message' => '目前無法新增對話。請依照排定時間稍後再試。',
     'time' => '時間',
-    'referral' => '推薦',
+    'referral' => '分享好友',
 ];

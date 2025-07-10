@@ -334,7 +334,7 @@ const downloadQrCode = () => {
                             <template #item="slotProps">
                                 <div class="w-full flex justify-start">
                                     <div
-                                        class="relative w-full h-[170px] smd:h-full smd:max-h-72 md:h-[250px] md:max-h-none overflow-hidden hover:opacity-80 hover:cursor-pointer rounded-[10px]"
+                                        class="relative w-full h-[170px] smd:h-full smd:max-h-72 md:h-[250px] md:max-h-none overflow-hidden hover:opacity-80 hover:cursor-pointer rounded-[10px] shadow-box"
                                         @click="router.get(route('highlights'))"
                                     >
                                         <!-- Image -->
@@ -344,7 +344,7 @@ const downloadQrCode = () => {
                                         class="w-full h-full object-fill"
                                         />
 
-                                        <div class="absolute inset-0 bg-gradient-to-b from-black/0 to-black/40 pointer-events-none rounded-[10px]"></div>
+                                        <!-- <div class="absolute inset-0 bg-gradient-to-b from-black/0 to-black/40 pointer-events-none rounded-[10px]"></div> -->
 
                                         <!-- <div
                                             class="absolute inset-0 p-2 flex flex-col items-start overflow-hidden"
