@@ -46,7 +46,8 @@ export default {
         class: [
             // Flexbox
             'flex px-1',
-            'shrink-0 grow-0', 
+            'shrink-0 grow-0',
+            'shadow-box',
 
             // Size
             {
@@ -62,7 +63,8 @@ export default {
             // Flexbox
             'flex px-1',
             'shrink-0 grow-0', 
-            'unvisible',    
+            'unvisible',
+            'shadow-box',
 
             // Size
             {
