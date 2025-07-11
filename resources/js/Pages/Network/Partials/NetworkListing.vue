@@ -56,54 +56,54 @@ const getFilterData = async () => {
 
 getFilterData();
 
-const exportXLSX = () => {
-    // Retrieve the array from the reactive proxy
-    const data = filteredValue.value;
+// const exportXLSX = () => {
+//     // Retrieve the array from the reactive proxy
+//     const data = filteredValue.value;
 
-    // Specify the headers
-    const headers = [
-        trans('public.level'),
-        trans('public.name'),
-        trans('public.joined_date'),
-        trans('public.role'),
-        trans('public.upline'),
-    ];
+//     // Specify the headers
+//     const headers = [
+//         trans('public.level'),
+//         trans('public.name'),
+//         trans('public.joined_date'),
+//         trans('public.role'),
+//         trans('public.upline'),
+//     ];
 
-    // Map the array data to XLSX rows
-    const rows = data.map(obj => {
-        return [
-            obj.level !== undefined ? obj.level : '',
-            obj.name !== undefined ? obj.name : '',
-            obj.joined_date !== undefined ? dayjs(obj.joined_date).format('YYYY/MM/DD') : '',
-            obj.role !== undefined ? trans(`public.${obj.role}`) : '',
-            obj.upline_name !== undefined ? obj.upline_name : '',
-        ];
-    });
+//     // Map the array data to XLSX rows
+//     const rows = data.map(obj => {
+//         return [
+//             obj.level !== undefined ? obj.level : '',
+//             obj.name !== undefined ? obj.name : '',
+//             obj.joined_date !== undefined ? dayjs(obj.joined_date).format('YYYY/MM/DD') : '',
+//             obj.role !== undefined ? trans(`public.${obj.role}`) : '',
+//             obj.upline_name !== undefined ? obj.upline_name : '',
+//         ];
+//     });
 
-    // Combine headers and rows into a single data array
-    const sheetData = [headers, ...rows];
+//     // Combine headers and rows into a single data array
+//     const sheetData = [headers, ...rows];
 
-    // Create the XLSX content
-    let csvContent = "data:text/xlsx;charset=utf-8,";
+//     // Create the XLSX content
+//     let csvContent = "data:text/xlsx;charset=utf-8,";
     
-    sheetData.forEach((rowArray) => {
-        const row = rowArray.join("\t"); // Use tabs for column separation
-        csvContent += row + "\r\n"; // Add a new line after each row
-    });
+//     sheetData.forEach((rowArray) => {
+//         const row = rowArray.join("\t"); // Use tabs for column separation
+//         csvContent += row + "\r\n"; // Add a new line after each row
+//     });
 
-    // Create a temporary link element
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "export.xlsx");
+//     // Create a temporary link element
+//     const encodedUri = encodeURI(csvContent);
+//     const link = document.createElement("a");
+//     link.setAttribute("href", encodedUri);
+//     link.setAttribute("download", "export.xlsx");
 
-    // Append the link to the document and trigger the download
-    document.body.appendChild(link);
-    link.click();
+//     // Append the link to the document and trigger the download
+//     document.body.appendChild(link);
+//     link.click();
 
-    // Clean up by removing the link
-    document.body.removeChild(link);
-};
+//     // Clean up by removing the link
+//     document.body.removeChild(link);
+// };
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -191,15 +191,15 @@ watchEffect(() => {
                             <IconX size="16" />
                         </div>
                     </div>
-                    <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="w-full md:w-auto">
+                    <!-- <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="w-full md:w-auto">
                         <IconDownload size="20" stroke-width="1.25" />
                         {{ $t('public.export') }}
-                    </Button>
+                    </Button> -->
                 </div>
             </div>
 
             <div class="flex flex-col justify-between items-center gap-3 self-stretch md:flex-row">
-                <div class="flex flex-col items-center gap-3 self-stretch md:flex-row md:gap-2">
+                <div class="grid grid-cols-2 md:flex items-center self-stretch md:flex-row gap-2">
                     <Select
                         v-model="level"
                         :options="levels"
@@ -237,10 +237,10 @@ watchEffect(() => {
                     </div>
                 </div>
                 <div class="flex flex-col md:flex-row gap-3 md:gap-2 w-full md:w-auto">
-                    <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-auto hidden md:flex">
+                    <!-- <Button variant="primary-outlined" @click="filteredValue?.length > 0 ? exportXLSX($event) : null" class="md:w-auto hidden md:flex">
                         <IconDownload size="20" stroke-width="1.25" />
                             {{ $t('public.export') }}
-                        </Button>
+                    </Button> -->
                     <Button
                         type="button"
                         variant="error-outlined"

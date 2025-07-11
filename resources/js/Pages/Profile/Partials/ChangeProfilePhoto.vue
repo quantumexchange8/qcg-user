@@ -18,7 +18,7 @@ const removeProfilePhoto = () => {
     form.post(route('profile.updateProfilePhoto'))
 };
 
-const selectedProfilePhoto = ref(usePage().props.auth.profile_image);
+const selectedProfilePhoto = ref(usePage().props.auth.profile_photo);
 const handleUploadProfilePhoto = (event) => {
     const profilePhotoInput = event.target;
     const file = profilePhotoInput.files[0];

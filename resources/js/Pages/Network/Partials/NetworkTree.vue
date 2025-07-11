@@ -17,7 +17,6 @@ const children = ref([]);
 const upline_id = ref();
 const parent_id = ref();
 const loading = ref(false);
-const user = usePage().props.auth.user;
 
 const { formatAmount } = transactionFormat();
 

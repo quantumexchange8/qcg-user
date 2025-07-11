@@ -32,8 +32,18 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
-                'profile_image' => $request->user() ? $request->user()->getFirstMediaUrl('profile_image') : null,
+                'user' => fn () => $request->user()
+                            ? array_merge(
+                                $request->user()->only(['id', 'first_name', 'chinese_name', 'email', 'dial_code', 'phone', 'referral_code', 'kyc_approval', 'kyc_approved_at', 'kyc_approval_description', 'role', 'has_new_forum_posts' , 'has_new_ticket_replies', 'ticket_agent_access']),
+                                [
+                                    'roles' => $request->user()->roles->map(fn ($role) => [
+                                        'id' => $role->id,
+                                        'name' => $role->name,
+                                    ]),
+                                ]
+                            )
+                            : null,
+                'profile_photo' => $request->user() ? $request->user()->getFirstMediaUrl('profile_image') : null,
                 'payment_account' => $request->user() ? $request->user()->paymentAccounts : null,
                 'forum_visited' => $request->user() ? $request->user()->has_new_forum_posts : null,
             ],
