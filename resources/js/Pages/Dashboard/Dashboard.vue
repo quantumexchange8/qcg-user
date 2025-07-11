@@ -332,9 +332,10 @@ const downloadQrCode = () => {
                             :showNavigators="false" :showIndicators="false"
                             class="w-full relative">
                             <template #item="slotProps">
-                                <div class="w-full flex justify-start">
+                                <div class="flex w-full justify-start">
                                     <div
-                                        class="relative w-full h-[170px] smd:h-full smd:max-h-72 md:h-[250px] md:max-h-none overflow-hidden hover:opacity-80 hover:cursor-pointer rounded-[10px] shadow-box"
+                                        class="relative w-full h-[170px] smd:h-auto smd:max-h-60 md:h-[250px] md:max-h-none overflow-hidden hover:opacity-80 hover:cursor-pointer 
+                                        rounded-[10px] shadow-box"
                                         @click="router.get(route('highlights'))"
                                     >
                                         <!-- Image -->
@@ -343,8 +344,6 @@ const downloadQrCode = () => {
                                         alt="cover"
                                         class="w-full h-full object-fill"
                                         />
-
-                                        <!-- <div class="absolute inset-0 bg-gradient-to-b from-black/0 to-black/40 pointer-events-none rounded-[10px]"></div> -->
 
                                         <!-- <div
                                             class="absolute inset-0 p-2 flex flex-col items-start overflow-hidden"
@@ -364,16 +363,46 @@ const downloadQrCode = () => {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 self-stretch h-[75px] font-semibold md:hidden">
-                    <div class="col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer bg-cover bg-no-repeat overflow-hidden" 
+                <div class="grid grid-cols-2 gap-3 self-stretch h-20 font-semibold md:hidden">
+                    <!-- <div class="col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer bg-cover bg-no-repeat overflow-hidden" 
                     :style="{ backgroundImage: `url('/assets/breaking_news.png')` }"
                     @click="router.get(route('forum'))" >
                         {{ $t('public.breaking_news') }}
-                    </div>
-                    <div class="col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer bg-cover bg-no-repeat overflow-hidden" 
+                    </div> -->
+                    <!-- <div class="col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer bg-cover bg-no-repeat overflow-hidden" 
                     :style="{ backgroundImage: `url('/assets/referral.png')` }"
                     @click="referralDialog = true">
                         {{ $t('public.referral') }}
+                    </div> -->
+                    <div
+                        class="relative col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer overflow-hidden"
+                        @click="router.get(route('forum'))"
+                    >
+                        <img
+                        src="/assets/breaking_news.png"
+                        alt="cover"
+                        class="w-full h-full object-cover"
+                        />
+                        <div
+                            class="absolute inset-x-3 flex items-center justify-start text-gray-950 font-semibold w-2/3 text-left"
+                        >
+                            {{ $t('public.breaking_news') }}
+                        </div>
+                    </div>
+                    <div
+                        class="relative col-span-1 text-center shadow-box h-full w-full flex items-center justify-center rounded-lg hover:cursor-pointer overflow-hidden"
+                        @click="referralDialog = true"
+                    >
+                        <img
+                        src="/assets/referral.png"
+                        alt="cover"
+                        class="w-full h-full object-cover"
+                        />
+                        <div
+                            class="absolute inset-x-3 flex items-center justify-start text-gray-950 font-semibold w-2/3 text-left"
+                        >
+                            {{ $t('public.referral') }}
+                        </div>
                     </div>
                 </div>
 

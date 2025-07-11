@@ -27,13 +27,13 @@ export default {
     viewport: {
         class: [
             // Overflow & Width
-            'overflow-hidden w-full'
+            'overflow-hidden w-full pb-1'
         ]
     },
     itemList: ({ props }) => ({
         class: [
             // Flexbox
-            'flex h-[170px] smd:h-full smd:max-h-72 md:h-[250px] md:max-h-none',
+            'flex h-[170px] smd:h-auto smd:max-h-60 md:h-[250px] md:max-h-none',
 
             // Orientation & Sizing
             {
