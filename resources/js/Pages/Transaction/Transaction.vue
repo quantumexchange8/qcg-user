@@ -474,10 +474,10 @@ const openDialog = (rowData) => {
                                 <div v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
                                     {{ $t(`public.${slotProps.data.category}`) }}
                                 </div>
-                                <div v-else-if="slotProps.data.transaction_type === 'deposit'">
+                                <div v-else-if="slotProps.data.transaction_type === 'deposit' || slotProps.data.transaction_type === 'balance_in'">
                                     {{ slotProps.data.to_meta_login }}
                                 </div>
-                                <div v-else-if="slotProps.data.transaction_type === 'withdrawal' && slotProps.data.from_meta_login !== null">
+                                <div v-else-if="(slotProps.data.transaction_type === 'withdrawal' || slotProps.data.transaction_type === 'balance_out') && slotProps.data.from_meta_login !== null">
                                     {{ slotProps.data.from_meta_login }}
                                 </div>
                                 <div v-else>
@@ -518,10 +518,10 @@ const openDialog = (rowData) => {
                                                 <template v-if="slotProps.data.category === 'rebate_wallet' || slotProps.data.category === 'cash_wallet'">
                                                     {{ $t(`public.${slotProps.data.category}`) }}
                                                 </template>
-                                                <template v-else-if="slotProps.data.transaction_type === 'deposit'">
+                                                <template v-else-if="slotProps.data.transaction_type === 'deposit' || slotProps.data.transaction_type === 'balance_in'">
                                                     {{ slotProps.data.to_meta_login }}
                                                 </template>
-                                                <template v-else-if="slotProps.data.transaction_type === 'withdrawal' && slotProps.data.from_meta_login !== null">
+                                                <template v-else-if="(slotProps.data.transaction_type === 'withdrawal' || slotProps.data.transaction_type === 'balance_out') && slotProps.data.from_meta_login !== null">
                                                     {{ slotProps.data.from_meta_login }}
                                                 </template>
                                                 <template v-else>
@@ -555,8 +555,8 @@ const openDialog = (rowData) => {
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm" >{{ $t('public.amount') }}</span>
                     <span class="w-full truncate text-gray-950 text-lg font-semibold"
                         :class="{
-                            '!text-success-600': data.transaction_type === 'deposit', 
-                            '!text-error-600': data.transaction_type === 'withdrawal',
+                            '!text-success-600': data.transaction_type === 'deposit' || data.transaction_type === 'balance_in', 
+                            '!text-error-600': data.transaction_type === 'withdrawal' || data.transaction_type === 'balance_out',
                         }"
                     >
                         {{ `$&nbsp;${formatAmount(data.transaction_amount > 0 ? data.transaction_amount : data.amount)}` }}
@@ -581,10 +581,10 @@ const openDialog = (rowData) => {
                         <div v-if="data.category === 'rebate_wallet' || data.category === 'cash_wallet'">
                             {{ $t(`public.${data.category}`) }}
                         </div>
-                        <div v-else-if="data.transaction_type === 'deposit'">
+                        <div v-else-if="data.transaction_type === 'deposit' || data.transaction_type === 'balance_in'">
                             {{ data.to_meta_login }}
                         </div>
-                        <div v-else-if="data.transaction_type === 'withdrawal' && data.from_meta_login !== null">
+                        <div v-else-if="(data.transaction_type === 'withdrawal' || data.transaction_type === 'balance_out') && data.from_meta_login !== null">
                             {{ data.from_meta_login }}
                         </div>
                         <div v-else>
@@ -627,7 +627,7 @@ const openDialog = (rowData) => {
                 </div>
             </div>
 
-            <div v-else class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
+            <div v-else-if="data.transaction_type==='withdrawal'" class="flex flex-col items-center p-3 gap-3 self-stretch bg-gray-50">
                 <div class="w-full flex flex-col items-start gap-1 md:flex-row">
                     <span class="w-full max-w-[140px] truncate text-gray-500 text-sm">{{ $t('public.wallet_name') }}</span>
                     <span class="w-full truncate text-gray-950 text-sm font-medium">{{ data.wallet_name }}</span>

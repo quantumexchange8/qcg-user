@@ -27,12 +27,12 @@ class TransactionController extends Controller
         $id = Auth::id();
 
         $totalDeposit = Transaction::where('user_id', $id)
-            ->where('transaction_type', 'deposit')
+            ->whereIn('transaction_type', ['deposit', 'balance_in'])
             ->where('status', 'successful')
             ->sum('transaction_amount');
 
         $totalWithdrawal = Transaction::where('user_id', $id)
-            ->where('transaction_type', 'withdrawal')
+            ->whereIn('transaction_type', ['withdrawal', 'balance_out'])
             ->where('status', 'successful')
             ->sum('transaction_amount');
 
@@ -45,9 +45,16 @@ class TransactionController extends Controller
     public function getTransactionHistory(Request $request)
     {
         $id = Auth::id();
-        $query = Transaction::where('user_id', $id);
-
+        $transactionType = $request->query('type');
         $monthYear = $request->input('selectedMonth');
+
+        $transactionTypes = match($transactionType) {
+            'deposit' => ['deposit', 'balance_in'],
+            'withdrawal' => ['withdrawal', 'balance_out'],
+            default => ['deposit', 'balance_in', 'withdrawal', 'balance_out']
+        };
+        
+        $query = Transaction::whereIn('transaction_type', $transactionTypes)->where('user_id', $id);
 
         if ($monthYear === 'select_all') {
             $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
@@ -66,17 +73,6 @@ class TransactionController extends Controller
         }
 
         $query->whereBetween('created_at', [$startDate, $endDate]);
-
-        if ($request->filled('type')) {
-            $type = $request->input('type');
-            $query->where('transaction_type', $type);
-        }
-        else {
-            $query->where(function ($query) {
-                $query->where('transaction_type', 'deposit')
-                      ->orWhere('transaction_type', 'withdrawal');
-            });
-        }
 
         if ($request->filled('status')) {
             $status = $request->input('status');
