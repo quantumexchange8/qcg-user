@@ -240,7 +240,7 @@ return [
     'group_total_withdrawal' => '組織總提現',
     'group_total_net_balance' => '組織總淨餘額',
     'group_total_asset' => '組織總資產',
-    'agent_rebate' => '代理返利',
+    'agent_rebate' => '返利錢包',
     'available_rebate_balance' => '可用返利餘額',
     'welcome_to_forum' => '歡迎來到論壇!',
     'empty_post_title' => '目前沒有帖子',

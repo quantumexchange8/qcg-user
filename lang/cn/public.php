@@ -240,7 +240,7 @@ return [
     'group_total_withdrawal' => '组织总提现',
     'group_total_net_balance' => '组织总净余额',
     'group_total_asset' => '组织总资产',
-    'agent_rebate' => '代理返利',
+    'agent_rebate' => '返利钱包',
     'available_rebate_balance' => '可用返利余额',
     'welcome_to_forum' => '欢迎来到论坛!',
     'empty_post_title' => '目前没有帖子',
