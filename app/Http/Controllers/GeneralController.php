@@ -424,21 +424,25 @@ class GeneralController extends Controller
         $currentDay = $now->dayOfWeekIso;
 
         $setting = SettingTicketSchedule::where('day', $currentDay)
-        ->where('status', 'active')
         ->where('is_enabled', true)
         ->first();
 
         if ($setting) {
-            $startTime = Carbon::createFromFormat('H:i', $setting->start_time, 'Asia/Kuala_Lumpur')
-                ->setDateFrom($now);
+            if ($setting->status === 'active') {
+                $startTime = Carbon::createFromFormat('H:i', $setting->start_time, 'Asia/Kuala_Lumpur')
+                    ->setDateFrom($now);
 
-            $endTime = Carbon::createFromFormat('H:i', $setting->end_time, 'Asia/Kuala_Lumpur')
-                ->setDateFrom($now);   
+                $endTime = Carbon::createFromFormat('H:i', $setting->end_time, 'Asia/Kuala_Lumpur')
+                    ->setDateFrom($now);   
 
-            if ($now->between($startTime, $endTime)) 
-            {
-                $is_blocked = false;
-            } else {
+                if ($now->between($startTime, $endTime)) 
+                {
+                    $is_blocked = false;
+                } else {
+                    $is_blocked = true;
+                }
+            }
+            else {
                 $is_blocked = true;
             }
         }

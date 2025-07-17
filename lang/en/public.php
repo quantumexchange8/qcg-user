@@ -606,7 +606,7 @@ return [
     'empty_ticket_history_title' => 'No Ticket History',
     'empty_ticket_history_message' => 'There are currently no resolved tickets. Please check back later.',
     'new_ticket_unavailable_title' => 'Creation of Tickets Unavailable',
-    'new_ticket_unavailable_message' => 'Creation of new tickets is currently unavailable. Please try again later according to the scheduled time.',
+    'new_ticket_unavailable_message' => 'The handling time for online personnel is from 7:00 AM to 12:00 AM (midnight), Monday to Friday (GMT+8).',
     'time' => 'Time',
     'referral' => 'Referral',
 ];

@@ -73,7 +73,7 @@ const downloadApp = () => {
                         <Apple class="w-[26px] h-[31.20px] flex-shrink-0" />
                         <div class="w-[101.4px] flex flex-col items-start flex-shrink-0">
                             <span class="self-stretch text-white text-[11.7px] leading-none font-medium">{{ $t('public.download_on_the') }}</span>
-                            <span class="self-stretch text-white text-[23.4px] leading-none font-medium tracking-[-0.611px]">{{ $t('public.app_store') }}</span>
+                            <span class="self-stretch text-white text-lg leading-none font-medium tracking-[-0.611px]">{{ $t('public.app_store') }}</span>
                         </div>
                     </div>
                 </a>

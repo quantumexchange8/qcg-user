@@ -604,7 +604,7 @@ return [
     'empty_ticket_history_title' => '目前沒有解答記錄',
     'empty_ticket_history_message' => '目前沒有已解決的問題，請稍後再查看。',
     'new_ticket_unavailable_title' => '無法新增對話',
-    'new_ticket_unavailable_message' => '目前無法新增對話。請依照排定時間稍後再試。',
+    'new_ticket_unavailable_message' => '在線人員的處理時間為每週一至週五，早上7:00至凌晨12:00（GMT+8）。',
     'time' => '時間',
     'referral' => '分享好友',
 ];

@@ -604,7 +604,7 @@ return [
     'empty_ticket_history_title' => '暂无解答记录',
     'empty_ticket_history_message' => '目前没有已解决的问题，请稍后再查看。',
     'new_ticket_unavailable_title' => '无法新建对话',
-    'new_ticket_unavailable_message' => '目前无法新建对话。请根据预定时间稍后再试。',
+    'new_ticket_unavailable_message' => '在线人员的处理问题时间每逢周一至周五，早上7.00到凌晨12点为止（GMT+8）。',
     'time' => '时间',
     'referral' => '分享好友',
 ];
