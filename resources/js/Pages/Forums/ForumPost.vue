@@ -278,10 +278,10 @@ const goBack = () => {
                         v-for="post in posts"
                         :key="post.id"
                         class="relative p-4 md:py-6 md:px-8 border-b border-gray-200 last:border-transparent flex flex-col gap-5 items-center self-stretch hover:bg-gray-50"
-                        :class="{ 'cursor-pointer':!isExpanded(post.id) }"
-                        @click="!isExpanded(post.id) && expand(post.id)"
+                        :class="{ 'cursor-pointer': isExpanded(post.id) }"
+                        @click="isExpanded(post.id) && collapse(post.id)"
                     >
-                        <div
+                        <!-- <div
                             v-if="isExpanded(post.id)"
                             class="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 cursor-pointer"
                             @click.stop="collapse(post.id)"
@@ -289,7 +289,7 @@ const goBack = () => {
                             <svg class="w-5 h-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
                             </svg>
-                        </div>
+                        </div> -->
 
                         <div class="flex justify-between items-start self-stretch">
                             <span class="text-sm text-gray-950 font-bold">{{ post.display_name }}</span>
@@ -305,9 +305,18 @@ const goBack = () => {
                                 image-class="w-[250px] h-[160px] object-contain"
                                 preview
                                 :pt="{
-                                    toolbar: 'hidden',
+                                    rotateRightButton: 'hidden',
+                                    rotateLeftButton: 'hidden',
+                                    zoomOutButton: 'hidden',
+                                    zoomInButton: 'hidden',
                                 }"
                                 @click="resetImageTransform()"
+                                :class="[
+                                    {
+                                        'hidden': !expandedPosts[post.id],
+                                        'max-h-auto block': expandedPosts[post.id],
+                                    }
+                                ]"
                             >
                                 <!-- Original image template with click event -->
                                 <template #original>
@@ -315,8 +324,7 @@ const goBack = () => {
                                         :src="post.post_attachment"
                                         alt="Image"
                                         class="max-h-full object-contain"
-                                        :class="[isEnlarged ? 'cursor-zoom-out' : 'cursor-zoom-in']"
-                                        @click="toggleEnlarged($event)"
+                                        @click.stop="resetImageTransform()"
                                         @mousemove="followMouse"
                                         :style="imageStyle"
                                         data-pc-section="original"
@@ -328,9 +336,9 @@ const goBack = () => {
                                     <span class="font-semibold" :id="`subject-${post.id}`">{{ post.subject }}</span>
                                     <div
                                         :class="[
-                                            'prose prose-p:my-0 prose-ul:my-0 w-full ',
+                                            'prose prose-p:my-0 prose-ul:my-0 w-full max-w-full',
                                             {
-                                                'hidden': !expandedPosts[post.id] && isTruncated[post.id],
+                                                'hidden': !expandedPosts[post.id],
                                                 'max-h-auto block': expandedPosts[post.id],
                                             }
                                         ]"
@@ -341,9 +349,9 @@ const goBack = () => {
                                 <div
                                     v-else
                                     :class="[
-                                        'prose prose-p:my-0 prose-ul:my-0 w-full',
+                                        'prose prose-p:my-0 prose-ul:my-0 w-full max-w-full',
                                         {
-                                            'line-clamp-1': !expandedPosts[post.id] && isTruncated[post.id],
+                                            'line-clamp-1': !expandedPosts[post.id],
                                             'max-h-auto block': expandedPosts[post.id],
                                         }
                                     ]"
@@ -351,13 +359,13 @@ const goBack = () => {
                                     v-html="post.message"
                                 />
                             </div>
-                            <!-- <div
-                                v-if="isTruncated[post.id]"
+                            <div
+                                v-if="!expandedPosts[post.id]"
                                 class="text-primary font-medium text-xs hover:text-primary-700 select-none cursor-pointer"
-                                @click="toggleExpand(post.id)"
+                                @click.stop="!isExpanded(post.id) && expand(post.id)"
                             >
-                                {{ expandedPosts[post.id] ? $t('public.see_less') : $t('public.see_more') }}
-                            </div> -->
+                                {{ $t('public.see_more') }}
+                            </div>
 
                         </div>
 
