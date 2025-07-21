@@ -153,7 +153,7 @@ const closeDialog = () => {
                     @click="submitForm"
                     class="w-full text-nowrap"
                     size="base"
-                    :disabled="!physicalForm.checkbox"
+                    :disabled="!physicalForm.checkbox || physicalForm.processing"
                 >
                     {{ $t('public.confirm') }}
                 </Button>

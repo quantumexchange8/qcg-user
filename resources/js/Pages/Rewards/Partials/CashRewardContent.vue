@@ -88,7 +88,7 @@ const closeDialog = () => {
                     @click="submitForm"
                     class="w-full text-nowrap"
                     size="base"
-                    :disabled="!cashForm.checkbox"
+                    :disabled="!cashForm.checkbox || cashForm.processing"
                 >
                     {{ $t('public.confirm') }}
                 </Button>

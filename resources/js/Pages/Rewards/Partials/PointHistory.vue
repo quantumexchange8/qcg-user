@@ -127,10 +127,9 @@ const getStatusTooltip = (history) => {
                 paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
                 :currentPageReportTemplate="$t('public.paginator_caption')"
                 ref="dt"
-                selectionMode="single"
                 :loading="loading"
                 scrollable
-                scrollHeight="250px"
+                scrollHeight="280px"
             >
                 <template #header>
                     <div class="flex flex-col items-center gap-4 mb-4">
@@ -170,12 +169,12 @@ const getStatusTooltip = (history) => {
                     <Column field="date" :header="$t('public.date')" sortable style="width: 60%">
                         <template #body="slotProps">
                             <div class="flex flex-col">
-                                <span class="text-sm text-gray-950 font-medium">{{ getTransactionLabel(slotProps.data.type) }}</span>
+                                <span class="text-xs md:text-sm text-gray-950 font-medium">{{ getTransactionLabel(slotProps.data.type) }}</span>
                                 <div class="flex flex-row items-center gap-2">
-                                    <span class="text-xs text-gray-500">{{ formatDate(slotProps.data.date) }}</span>
+                                    <span class="text-xxs md:text-xs text-gray-500">{{ formatDate(slotProps.data.date) }}</span>
                                     <span 
                                         v-if="slotProps.data.type === 'redemption'" 
-                                        :class="['px-1 py-0.5 text-xxs rounded-sm', getStatusBadgeClass(slotProps.data.status)]"
+                                        :class="['px-1 py-0.5 text-xxxs md:text-xxs rounded-sm', getStatusBadgeClass(slotProps.data.status)]"
                                         v-tooltip.top="slotProps.data.status !== 'processing' ? getStatusTooltip(slotProps.data) : null"
                                     >
                                         {{ $t(`public.${slotProps.data.status ?? 'unknown'}`) }}
@@ -186,7 +185,7 @@ const getStatusTooltip = (history) => {
                     </Column>
                     <Column field="amount" :header="$t('public.amount')" sortable style="width: 40%">
                         <template #body="slotProps">
-                            <span class="text-sm text-gray-950 font-medium">{{ getSign(slotProps.data.type) }}{{ formatAmount(slotProps.data.amount) }} tp</span>
+                            <span class="text-xs md:text-sm text-gray-950 font-medium">{{ getSign(slotProps.data.type) }}{{ formatAmount(slotProps.data.amount) }} tp</span>
                         </template>
                     </Column>
                 </template>
