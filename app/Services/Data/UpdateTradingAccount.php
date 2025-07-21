@@ -30,6 +30,7 @@ class UpdateTradingAccount
         $tradingAccount->equity = $data['equity'] / 100;
         $tradingAccount->account_type_id = $accountType->id;
         $tradingAccount->account_type = $accountType->id;
+        $tradingAccount->report_status = $data['sendOwnStatement'];
         DB::transaction(function () use ($tradingAccount) {
             $tradingAccount->save();
         });
