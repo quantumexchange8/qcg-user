@@ -607,4 +607,5 @@ return [
     'new_ticket_unavailable_message' => '在线人员的处理问题时间每逢周一至周五，早上7.00到凌晨12点为止（GMT+8）。',
     'time' => '时间',
     'referral' => '分享好友',
+    'receive_trading_account_report' => '通过邮件获取交易账单',
 ];

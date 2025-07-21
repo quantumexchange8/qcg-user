@@ -607,4 +607,5 @@ return [
     'new_ticket_unavailable_message' => '在線人員的處理時間為每週一至週五，早上7:00至凌晨12:00（GMT+8）。',
     'time' => '時間',
     'referral' => '分享好友',
+    'receive_trading_account_report' => '透過郵件獲取交易帳單',
 ];
