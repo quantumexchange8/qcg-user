@@ -124,7 +124,7 @@ class AccountController extends Controller
         if (App::environment('production')) {
             $mainPassword = Str::random(8);
             $investorPassword = Str::random(8);
-            (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType, null, null, '');
+            (new CTraderService)->createUser($user,  $mainPassword, $investorPassword, $accountType->account_group, $request->leverage, $accountType, null, null, '', $request->report_status);
         }
 
         return back()->with('toast', [

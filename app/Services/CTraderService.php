@@ -84,7 +84,7 @@ class CTraderService
         }
     }
 
-    public function createUser(UserModel $user, $mainPassword, $investorPassword, $group, $leverage, AccountTypeModel $accountType, $leadCampaign = null, $leadSource = null, $remarks = null)
+    public function createUser(UserModel $user, $mainPassword, $investorPassword, $group, $leverage, AccountTypeModel $accountType, $leadCampaign = null, $leadSource = null, $remarks = null, $report_status)
     {
         try {
             $accountResponse = Http::acceptJson()->post($this->baseURL . "/v2/webserv/traders?token=$this->token", [
@@ -100,6 +100,7 @@ class CTraderService
                     'phone' => $user->phone,
                 ],
                 'accountType' => CTraderAccountType::HEDGED,
+                'sendOwnStatement' => $report_status,
             ])->json();
 
             // Log::debug('createUser accountResponse', ['accountResponse' => $accountResponse]);

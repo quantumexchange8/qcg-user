@@ -11,6 +11,7 @@ import {transactionFormat} from "@/Composables/index.js";
 import { usePage, useForm } from "@inertiajs/vue3";
 import TermsAndCondition from "@/Components/TermsAndCondition.vue";
 import {useLangObserver} from "@/Composables/localeObserver.js";
+import Checkbox from 'primevue/checkbox';
 
 const {locale} = useLangObserver();
 const { formatAmount } = transactionFormat();
@@ -20,6 +21,7 @@ const liveAccountForm = useForm({
     user_id: user.id,
     accountType: '',
     leverage: '',
+    report_status: false,
 });
 
 const demoAccountForm = useForm({
@@ -182,6 +184,10 @@ const openDemoAccount = () => {
                     <InputError :message="liveAccountForm.errors.leverage" />
                 </div>
             </div>
+            <label class="flex items-center gap-2 w-full">
+                <Checkbox binary v-model="liveAccountForm.report_status" class="w-6 h-6 flex-shrink-0" />
+                <span class="text-gray-700 text-sm font-medium">{{ $t('public.receive_trading_account_report') }}</span>
+            </label>
             <div class="self-stretch">
                 <div class="text-gray-500 text-xs">{{ $t('public.acknowledgement') }}
                     <TermsAndCondition

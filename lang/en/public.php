@@ -609,4 +609,5 @@ return [
     'new_ticket_unavailable_message' => 'The handling time for online personnel is from 7:00 AM to 12:00 AM (midnight), Monday to Friday (GMT+8).',
     'time' => 'Time',
     'referral' => 'Referral',
+    'receive_trading_account_report' => 'Receive trading account report',
 ];
