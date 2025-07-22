@@ -6,13 +6,13 @@ import {ref} from "vue";
 import Avatar from 'primevue/avatar';
 
 const form = useForm({
-    profile_image: null,
+    profile_photo: null,
     action: ''
 })
 
 const removeProfilePhoto = () => {
     selectedProfilePhoto.value = null;
-    form.profile_image = null;
+    form.profile_photo = null;
 
     form.action = 'remove';
     form.post(route('profile.updateProfilePhoto'))
@@ -30,7 +30,7 @@ const handleUploadProfilePhoto = (event) => {
             selectedProfilePhoto.value = reader.result;
         };
         reader.readAsDataURL(file);
-        form.profile_image = event.target.files[0];
+        form.profile_photo = event.target.files[0];
         form.action = 'upload';
         form.post(route('profile.updateProfilePhoto'))
     } else {

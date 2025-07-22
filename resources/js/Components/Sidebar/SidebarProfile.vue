@@ -23,8 +23,8 @@ const $page = usePage();
         >
             <div class="relative infline-flex items-center">
                 <div class="w-8 h-8 rounded-full overflow-hidden shrink-0 grow-0 relative">
-                    <div v-if="$page.props.auth.profile_image" class="h-full w-full">
-                        <img :src="$page.props.auth.profile_image" alt="Profile Image" class="h-full w-full"/>
+                    <div v-if="$page.props.auth.profile_photo" class="h-full w-full">
+                        <img :src="$page.props.auth.profile_photo" alt="Profile Image" class="h-full w-full"/>
                     </div>
                     <div v-else>
                         <DefaultProfilePhoto />

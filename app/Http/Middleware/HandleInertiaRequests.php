@@ -43,7 +43,7 @@ class HandleInertiaRequests extends Middleware
                                 ]
                             )
                             : null,
-                'profile_photo' => $request->user() ? $request->user()->getFirstMediaUrl('profile_image') : null,
+                'profile_photo' => $request->user() ? $request->user()->getFirstMediaUrl('profile_photo') : null,
                 'payment_account' => $request->user() ? $request->user()->paymentAccounts : null,
                 'forum_visited' => $request->user() ? $request->user()->has_new_forum_posts : null,
             ],
