@@ -18,6 +18,7 @@ import {
     IconGift,
     IconWand,
     IconTicket,
+    IconStars
 } from '@tabler/icons-vue';
 
 const user = usePage().props.auth.user;
@@ -149,6 +150,17 @@ watchEffect(() => {
         >
             <template #icon>
                 <IconTrophy :size="20" stroke-width="1.25" />
+            </template>
+        </SidebarLink>
+
+        <!-- Competition -->
+        <SidebarLink
+            :title="$t('public.competition')"
+            :href="route('competition')"
+            :active="route().current('competition')"
+        >
+            <template #icon>
+                <IconStars :size="20" stroke-width="1.25" />
             </template>
         </SidebarLink>
 

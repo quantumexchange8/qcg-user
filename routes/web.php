@@ -21,6 +21,7 @@ use App\Http\Controllers\ForumController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\MemberTicketController;
+use App\Http\Controllers\CompetitionController;
 
 Route::get('locale/{locale}', function ($locale) {
     App::setLocale($locale);
@@ -256,6 +257,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/getAchievements', [LeaderboardController::class, 'getAchievements'])->name('leaderboard.getAchievements');
         Route::get('/getAgents', [LeaderboardController::class, 'getAgents'])->name('leaderboard.getAgents');
         Route::get('/getStatementData', [LeaderboardController::class, 'getStatementData'])->name('leaderboard.getStatementData');
+    });
+
+    /**
+     * ==============================
+     *          Competition
+     * ==============================
+     */
+    Route::prefix('competition')->group(function () {
+        Route::get('/', [CompetitionController::class, 'index'])->name('competition');
+        Route::get('/getCurrentCompetitions', [CompetitionController::class, 'getCurrentCompetitions'])->name('competition.getCurrentCompetitions');
+        Route::get('/getCompetitionHistory', [CompetitionController::class, 'getCompetitionHistory'])->name('competition.getCompetitionHistory');
+        Route::get('/new_competition', [CompetitionController::class, 'newCompetition'])->name('competition.new_competition');
+        Route::post('/createCompetition', [CompetitionController::class, 'createCompetition'])->name('competition.createCompetition');
+        Route::delete('/deleteCompetition', [CompetitionController::class, 'deleteCompetition'])->name('competition.deleteCompetition');
+        Route::get('/{id}/edit', [CompetitionController::class, 'editCompetition'])->name('competition.editCompetition');
+        Route::post('/saveCompetition', [CompetitionController::class, 'saveCompetition'])->name('competition.saveCompetition');
+
+        Route::get('/{id}/view', [CompetitionController::class, 'viewCompetition'])->name('competition.viewCompetition');
+        Route::get('/getParticipants', [CompetitionController::class, 'getParticipants'])->name('competition.getParticipants');
+        Route::post('/addVirtual', [CompetitionController::class, 'addVirtual'])->name('competition.addVirtual');
+        Route::post('/editVirtual', [CompetitionController::class, 'editVirtual'])->name('competition.editVirtual');
+        Route::delete('/deleteVirtual', [CompetitionController::class, 'deleteVirtual'])->name('competition.deleteVirtual');
     });
 
     /**
