@@ -610,7 +610,6 @@ return [
     'time' => 'Time',
     'referral' => 'Referral',
     'receive_trading_account_report' => 'Receive trading account report',
-    
     'competition' => 'Competition',
     'upcoming_ongoing_competition' => 'Upcoming/Ongoing Competition',
     'new_competition' => 'New Competition',
