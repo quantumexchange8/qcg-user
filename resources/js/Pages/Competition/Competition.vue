@@ -16,6 +16,8 @@ import TabList from 'primevue/tablist';
 import Tab from 'primevue/tab';
 import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
+import { Vue3Lottie } from 'vue3-lottie';
+import OneStarBadge from '@/Components/Icons/OneStarBadge.json';
 
 const props = defineProps({
     competitions: Object,
@@ -107,6 +109,12 @@ const updateCountdown = () => {
     seconds.value = remainingSeconds;
 };
 
+const tableSize = ref(null);
+
+const checkScreenSize = () => {
+    tableSize.value = window.innerWidth < 768 ? 'small' : null;
+};
+
 onMounted(() => {
     if (props.competitions.length > 0) {
         activeCompetitionId.value = props.competitions[0].id;
@@ -114,6 +122,9 @@ onMounted(() => {
 
     updateCountdown(); 
     timer = setInterval(updateCountdown, 1000);
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
 });
 
 watch(activeCompetitionId, (newId) => {
@@ -126,6 +137,7 @@ watch(activeCompetitionId, (newId) => {
 
 onUnmounted(() => {
     clearInterval(timer);
+    window.removeEventListener('resize', checkScreenSize);
 });
 
 const dynamicSuffix = computed(() => {
@@ -159,14 +171,14 @@ watchEffect(() => {
 <template>
     <AuthenticatedLayout :title="$t('public.competition')">
         <!-- Competition Information -->
-        <div class="w-full flex flex-col gap-5 justify-center items-center py-6 px-12 rounded-t-lg bg-primary-500 bg-blend-multiply bg-[url(/assets/Competition/competition-bg.jpg)] bg-cover bg-center">
+        <div class="w-full flex flex-col gap-3 md:gap-5 justify-center items-center p-3 md:py-6 md:px-12 rounded-t-lg bg-primary-500 bg-blend-multiply bg-[url(/assets/Competition/competition-bg.jpg)] bg-cover bg-center">
             <Tabs v-model:value="activeCompetitionId">
                 <TabList>
                     <Tab v-for="competition in competitions" :key="competition.id" :value="competition.id" 
                                 :pt="{
                         root: ({ context }) => ({
                             class: [
-                                'relative shrink-0 p-3 outline-transparent font-semibold cursor-pointer select-none whitespace-nowrap user-select-none',
+                                'relative shrink-0 p-3 outline-transparent font-semibold cursor-pointer select-none whitespace-nowrap user-select-none text-xs md:text-sm',
                                 {
                                     'text-gray-200 hover:text-white': !context.active,
                                     'text-white border-b-2 border-white': context.active
@@ -178,14 +190,14 @@ watchEffect(() => {
                     </Tab>
                 </TabList>
             </Tabs>
-            <div v-if="activeCompetition" class="flex flex-col self-stretch gap-8 items-center py-10 px-8 bg-black">
+            <div v-if="activeCompetition" class="flex flex-col self-stretch gap-5 md:gap-8 items-center py-5 px-2 md:py-8 md:px-[60px] bg-black">
                 <div class="flex flex-col items-center gap-2 ">
-                    <span class="text-white text-xl font-bold">{{ activeCompetition.name[locale] }}</span>
+                    <span class="text-white text-base md:text-xl font-bold">{{ activeCompetition.name[locale] }}</span>
                     <div class="flex px-2 py-1 justify-center items-center bg-primary-600 rounded-[50px]">
                         <span class="text-center text-white text-xs">{{ formatDate(activeCompetition.start_datetime) }} - {{ formatDate(activeCompetition.end_datetime) }}</span>
                     </div>
                 </div>
-                <div v-if="isCompetitionActive" class="flex flex-col w-full gap-8 ">
+                <div v-if="isCompetitionActive" class="flex flex-col w-full gap-5 md:gap-8 ">
                     <div class="flex items-center self-stretch flex-1">
                         <div class="flex flex-col items-center gap-1 flex-1">
                             <span class="text-xxl font-medium text-white">{{ days }}</span>
@@ -204,7 +216,7 @@ watchEffect(() => {
                             <span class="text-xs text-gray-500">{{ $t('public.second_s') }}</span>
                         </div>
                     </div>
-                    <span class="text-xs text-gray-300 text-center animate-pulse">{{ $t('public.competition_live_desc') }}</span>
+                    <span class="text-xxs md:text-xs text-gray-300 text-center animate-pulse">{{ $t('public.competition_live_desc') }}</span>
                 </div>
                 <div v-else class="flex flex-col w-full gap-8">                 
                     <div v-if="countdownTarget > new Date()" class="flex items-center self-stretch flex-1">
@@ -225,7 +237,7 @@ watchEffect(() => {
                             <span class="text-xs text-gray-500">{{ $t('public.second_s') }}</span>
                         </div>
                     </div>
-                    <p class="text-xs text-gray-300 text-center animate-pulse">
+                    <p class="text-xxs md:text-xs text-gray-300 text-center animate-pulse">
                         <span v-if="countdownTarget > new Date()">{{ $t('public.competition_soon_desc') }}</span>
                         <span v-else>{{ $t('public.competition_ended_desc') }}</span>
                     </p>
@@ -233,7 +245,7 @@ watchEffect(() => {
             </div>
         </div>
         <!-- Competition Rank List -->
-        <div class="w-full flex flex-col justify-center items-center py-5 px-6 gap-5 rounded-b-lg bg-white ">
+        <div class="w-full flex flex-col justify-center items-center p-3 md:py-5 md:px-6 gap-5 rounded-b-lg bg-white ">
             <!-- Ranking List -->
             <DataTable
                 :value="participants"
@@ -241,6 +253,7 @@ watchEffect(() => {
                 :rows="21"
                 ref="dt"
                 :loading="loading"
+                :size="tableSize"
             >
                 <!-- <template #header>
                 </template> -->
@@ -257,7 +270,7 @@ watchEffect(() => {
                     </div>
                 </template>
                 <template v-if="participants?.length > 0">
-                    <Column field="rank" sortable :header="$t('public.rank')" class="">
+                    <Column field="rank" :header="$t('public.rank')" headerClass="hidden md:table-cell" class="w-1/6">
                         <template #body="slotProps">
                             <div class="text-gray-950 text-sm">
                                 <component :is="getRankContent(slotProps.data.rank)" v-if="typeof getRankContent(slotProps.data.rank) === 'object'" />
@@ -267,31 +280,37 @@ watchEffect(() => {
                             </div>
                         </template>
                     </Column>
-                    <Column field="name" :header="$t('public.participant')" class="">
+                    <Column field="name" :header="$t('public.participant')" headerClass="hidden md:table-cell" >
                         <template #body="slotProps">
                             <div class="flex gap-3 items-center">
                                 <img :src="slotProps.data.rank_badge" class="w-8 h-8"/>
-                                <span class="text-gray-950 text-sm">{{ slotProps.data.name }}</span>
+                                <span class="text-gray-950 text-sm truncate">{{ slotProps.data.name }}</span>
                             </div>
                         </template>
                     </Column>
-                    <Column field="score" sortable :header="$t(`public.${activeCompetition.category}`)" class="">
+                    <Column field="score" :header="$t(`public.${activeCompetition.category}`)" headerClass="hidden md:table-cell">
                         <template #body="slotProps">
-                            <div class="flex px-2 py-1 items-center rounded-[50px] bg-primary-100 text-sm text-primary-600 w-fit">
+                            <div class="flex px-2 py-1 items-center rounded-[50px] bg-primary-100 text-sm text-primary-600 w-fit whitespace-nowrap">
                                 {{ formatAmount(slotProps.data.score) }}{{ dynamicSuffix }}
                             </div>
                         </template>
                     </Column>
-                    <Column field="title" :header="$t('public.category')" class="">
+                    <Column field="title" :header="$t('public.category')" class="hidden md:table-cell">
                         <template #body="slotProps">
                             <div class="text-gray-950 text-sm max-w-full">
                                 {{ slotProps.data.title ? slotProps.data.title[locale] : '-' }}
                             </div>
                         </template>
                     </Column>
-                    <Column field="points_rewarded" :header="$t('public.rewards') + ' (tp)'" class="">
+                    <Column field="points_rewarded" :header="$t('public.rewards') + ' (tp)'" headerClass="hidden md:table-cell" class="w-1/5" size="small">
                         <template #body="slotProps">
-                            {{ slotProps.data.points_rewarded ? slotProps.data.points_rewarded : '-' }}
+                            <div class="flex gap-0.5 items-center md:hidden">
+                                <div class="w-4 h-4">
+                                    <Vue3Lottie :animationData="OneStarBadge" :loop="true" :autoplay="true" />
+                                </div>
+                                <span class="text-gray-950 text-sm">{{ slotProps.data.points_rewarded ? slotProps.data.points_rewarded + 'tp' : '0tp' }}</span>
+                            </div>
+                            <span class="text-gray-950 text-sm hidden md:flex">{{ slotProps.data.points_rewarded ? slotProps.data.points_rewarded : '-' }}</span>
                         </template>
                     </Column>
                 </template>
