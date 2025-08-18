@@ -146,6 +146,7 @@ class ProfileController extends Controller
         // Validate wallets and addresses
         foreach ($wallet_names as $index => $wallet_name) {
             $token_address = $token_addresses[$index] ?? '';
+            $record_id = $request->id[$index] ?? null;
 
             if (empty($wallet_name) && !empty($token_address)) {
                 $errors["wallet_name.$index"] = trans('validation.required', ['attribute' => trans('public.wallet_name') . ' #' . ($index + 1)]);
@@ -153,6 +154,12 @@ class ProfileController extends Controller
 
             if (!empty($wallet_name) && empty($token_address)) {
                 $errors["token_address.$index"] = trans('validation.required', ['attribute' => trans('public.token_address') . ' #' . ($index + 1)]);
+            }
+
+            // Check if both fields are empty and an ID exists for an existing record
+            if (empty($wallet_name) && empty($token_address) && !empty($record_id)) {
+                PaymentAccount::where('id', $record_id)->delete();
+                continue;
             }
         }
 
@@ -204,7 +211,7 @@ class ProfileController extends Controller
             }
         }
 
-        return redirect()->back()->with('toast', [
+        return back()->with('toast', [
             'title' => trans('public.toast_update_crypto_wallet_success'),
             'type' => 'success'
         ]);
