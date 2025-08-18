@@ -221,7 +221,7 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'kyc_verification' => ['required',  'array', 'size:2'],
-            'kyc_verification.* ' => ['required', 'mimes:jpg,png', 'max:10000'],
+            'kyc_verification.*' => ['required', 'mimes:jpg,png', 'max:10000'],
         ])->setAttributeNames([
             'kyc_verification' => trans('public.kyc_verification'),
             'kyc_verification.*' => trans('public.kyc_verification_file'),

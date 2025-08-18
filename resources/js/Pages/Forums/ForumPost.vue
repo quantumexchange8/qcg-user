@@ -298,19 +298,7 @@ const goBack = () => {
 
                         <!-- content -->
                         <div class="flex flex-col gap-5 items-start self-stretch">
-                            <Image
-                                v-if="post.post_attachment"
-                                :src="post.post_attachment"
-                                alt="Image"
-                                image-class="w-[250px] h-[160px] object-contain"
-                                preview
-                                :pt="{
-                                    rotateRightButton: 'hidden',
-                                    rotateLeftButton: 'hidden',
-                                    zoomOutButton: 'hidden',
-                                    zoomInButton: 'hidden',
-                                }"
-                                @click="resetImageTransform()"
+                            <div v-if="post.post_attachments" class="flex flex-row gap-1 w-full overflow-x-auto"
                                 :class="[
                                     {
                                         'hidden': !expandedPosts[post.id],
@@ -318,19 +306,35 @@ const goBack = () => {
                                     }
                                 ]"
                             >
-                                <!-- Original image template with click event -->
-                                <template #original>
-                                    <img
-                                        :src="post.post_attachment"
-                                        alt="Image"
-                                        class="max-h-full object-contain"
-                                        @click.stop="resetImageTransform()"
-                                        @mousemove="followMouse"
-                                        :style="imageStyle"
-                                        data-pc-section="original"
-                                    />
-                                </template>
-                            </Image>
+                                <Image
+                                    v-for="file in post.post_attachments"
+                                    :key="file.id"
+                                    :src="file.original_url"
+                                    alt="Image"
+                                    image-class="max-w-none w-[250px] h-[160px] object-contain"
+                                    preview
+                                    :pt="{
+                                        rotateRightButton: 'hidden',
+                                        rotateLeftButton: 'hidden',
+                                        zoomOutButton: 'hidden',
+                                        zoomInButton: 'hidden',
+                                    }"
+                                    @click.stop="resetImageTransform()"
+                                >
+                                    <!-- Original image template with click event -->
+                                    <template #original>
+                                        <img
+                                            :src="file.original_url"
+                                            alt="Image"
+                                            class="max-h-full object-contain"
+                                            @click.stop="resetImageTransform()"
+                                            @mousemove="followMouse"
+                                            :style="imageStyle"
+                                            data-pc-section="original"
+                                        />
+                                    </template>
+                                </Image>
+                            </div>
                             <div class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
                                 <div v-if="post.subject" class="grid grid-cols-1 gap-3 items-start self-stretch text-sm text-gray-950">
                                     <span class="font-semibold" :id="`subject-${post.id}`">{{ post.subject }}</span>

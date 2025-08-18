@@ -39,7 +39,7 @@ class ForumController extends Controller
             ->latest()
             ->get()
             ->map(function ($post) {
-                $post->post_attachment = $post->getFirstMediaUrl('post_attachment');
+                $post->post_attachments = $post->getMedia('post_attachment');
                 return $post;
             });
 
