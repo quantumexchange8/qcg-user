@@ -702,24 +702,29 @@ class AccountController extends Controller
                 ]);
             }
 
-            $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Withdraw From Account", ChangeTraderBalanceType::WITHDRAW);
-            $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Deposit To Account", ChangeTraderBalanceType::DEPOSIT);
-
-            $ticketFrom = $tradeFrom->getTicket();
-            $ticketTo = $tradeTo->getTicket();
-            Transaction::create([
+            $transaction = Transaction::create([
                 'user_id' => Auth::id(),
                 'category' => 'trading_account',
                 'transaction_type' => 'account_to_account',
                 'from_meta_login' => $tradingAccount->meta_login,
                 'to_meta_login' => $to_meta_login,
-                'ticket' => $ticketFrom . ','. $ticketTo,
                 'transaction_number' => RunningNumberService::getID('transaction'),
                 'amount' => $amount,
                 'transaction_charges' => 0,
                 'transaction_amount' => $amount,
-                'status' => 'successful',
+                'status' => 'processing',
                 'comment' => 'to ' . $to_meta_login
+            ]);
+
+            $tradeFrom = (new CTraderService)->createTrade($tradingAccount->meta_login, $amount, "Transfer to Account " . $to_meta_login, ChangeTraderBalanceType::WITHDRAW);
+            $tradeTo = (new CTraderService)->createTrade($to_meta_login, $amount, "Transfer from Account " . $tradingAccount->meta_login, ChangeTraderBalanceType::DEPOSIT);
+
+            $ticketFrom = $tradeFrom->getTicket();
+            $ticketTo = $tradeTo->getTicket();
+
+            $transaction->update([
+                'ticket' => $ticketFrom . ','. $ticketTo,
+                'status' => 'successful',
             ]);
          } catch (\Throwable $e) {
              if ($e->getMessage() == "Not found") {
