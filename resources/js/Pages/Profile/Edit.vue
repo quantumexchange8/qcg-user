@@ -6,6 +6,8 @@ import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfile
 import ChangeProfilePhoto from "@/Pages/Profile/Partials/ChangeProfilePhoto.vue";
 import CryptocurrencyWalletForm from '@/Pages/Profile/Partials/CryptocurrencyWalletForm.vue';
 import KycVerification from '@/Pages/Profile/Partials/KycVerification.vue';
+import {watchEffect} from "vue";
+import {usePage} from "@inertiajs/vue3";
 
 const props = defineProps({
     mustVerifyEmail: {
@@ -16,6 +18,14 @@ const props = defineProps({
     },
     countries: Array,
 })
+
+watchEffect(() => {
+    if (usePage().props.toast !== null) {
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+    }
+});
 
 </script>
 
