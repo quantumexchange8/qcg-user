@@ -657,10 +657,15 @@ class AccountController extends Controller
 
     public function internal_transfer(Request $request)
     {
-         $request->validate([
-             'account_id' => 'required|exists:trading_accounts,id',
-             'amount' => ['required', 'numeric', 'gte:50'],
-         ]);
+         Validator::make($request->all(), [
+            'account_id' => 'required|exists:trading_accounts,id',
+            'to_meta_login' => 'required',
+            'amount' => ['required', 'numeric', 'gte:50'],
+        ])->setAttributeNames([
+            'account_id' => trans('public.account'),
+            'to_meta_login' => trans('public.transfer_to'),
+            'amount' => trans('public.amount'),
+        ])->validate();
 
          $conn = (new CTraderService)->connectionStatus();
          if ($conn['code'] != 0) {

@@ -253,6 +253,7 @@ const isTransferFormValid = computed(() => {
                         class="w-full"
                         scroll-height="236px"
                         :disabled="!filteredTransferOptions.length"
+                        :invalid="!!transferForm.errors.to_meta_login"
                     />
                     <span class="self-stretch text-gray-500 text-xs">{{ $t('public.balance') }}: $ {{ selectedAccount ? selectedAccount.value : selectedAccount }}</span>
                     <InputError :message="transferForm.errors.to_meta_login" />
