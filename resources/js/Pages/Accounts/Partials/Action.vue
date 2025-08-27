@@ -100,6 +100,10 @@ const filteredItems = computed(() => {
             return item.label === 'account_report';
         }
 
+        if (props.account.account_group === 'COMPETITION') {
+            return !(item.label === 'withdrawal');
+        }
+
         if (item.account_type) {
             return item.account_type === props.account.account_type;
         }
