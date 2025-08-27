@@ -120,16 +120,21 @@ class DropdownOptionService
     {
         $user = Auth::user();
 
-        $trading_accounts = $user->tradingAccounts;
+        $standard_accounts = $user->tradingAccounts()
+        ->whereHas('accountType', function ($query) {
+            $query->where('name', 'LIKE', 'STANDARD.t');
+        })
+        ->get(); 
+        
         try {
-            foreach ($trading_accounts as $trading_account) {
+            foreach ($standard_accounts as $trading_account) {
                 (new CTraderService)->getUserInfo($trading_account->meta_login);
             }
         } catch (\Throwable $e) {
             Log::error($e->getMessage());
         }
 
-        return $user->tradingAccounts->map(function($trading_account) {
+        return $standard_accounts->map(function($trading_account) {
             return [
                 'name' => $trading_account->meta_login,
                 'value' => $trading_account->balance,
