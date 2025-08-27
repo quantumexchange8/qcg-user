@@ -257,7 +257,7 @@ watchEffect(() => {
                 :value="participants"
                 :rowClass="rowClass"
                 removableSort
-                :rows="21"
+                :rows="100"
                 ref="dt"
                 :loading="loading"
                 :size="tableSize"
