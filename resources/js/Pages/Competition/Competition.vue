@@ -23,6 +23,8 @@ const props = defineProps({
     competitions: Object,
 })
 
+const user = usePage().props.auth.user;
+
 const { formatAmount, formatDate } = transactionFormat();
 const {locale} = useLangObserver();
 
@@ -161,6 +163,10 @@ const getRankContent = (rank) => {
     }
 };
 
+const rowClass = (data) => {
+    return data.user_id === user.id ? '!bg-primary-50' : '';
+};
+
 watchEffect(() => {
     if (usePage().props.toast !== null) {
         getResults();
@@ -249,6 +255,7 @@ watchEffect(() => {
             <!-- Ranking List -->
             <DataTable
                 :value="participants"
+                :rowClass="rowClass"
                 removableSort
                 :rows="21"
                 ref="dt"
