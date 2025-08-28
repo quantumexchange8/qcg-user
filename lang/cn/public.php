@@ -648,4 +648,5 @@ return [
     'competition_live_desc' => '比赛正在进行中 — 快来冲榜！',
     'competition_soon_desc' => '挑战即将开始，准备好迎战了吗？',
     'competition_ended_desc' => '比赛已结束，下一轮再见！',
+    'trade_profit' => '交易收益',
 ];

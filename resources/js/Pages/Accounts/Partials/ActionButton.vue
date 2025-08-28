@@ -122,7 +122,6 @@ const isTransferFormValid = computed(() => {
         {{ $t('public.deposit') }}
     </Button>
     <Button
-        v-if="account.account_group === 'STANDARD.t'"
         type="button"
         variant="gray-outlined"
         size="sm"

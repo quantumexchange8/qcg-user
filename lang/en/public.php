@@ -650,4 +650,5 @@ return [
     'competition_live_desc' => 'The competition is live — start climbing the ranks!',
     'competition_soon_desc' => 'The challenge is near. Are you ready to compete?',
     'competition_ended_desc' => 'The competition is over. See you in the next round!',
+    'trade_profit' => 'Trade Profit',
 ];

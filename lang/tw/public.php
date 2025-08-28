@@ -648,4 +648,5 @@ return [
     'competition_live_desc' => '比賽進行中 — 開始爬榜吧！',
     'competition_soon_desc' => '挑戰即將來臨，你準備好了嗎？',
     'competition_ended_desc' => '比賽已結束，下回見！',
+    'trade_profit' => '交易收益',
 ];

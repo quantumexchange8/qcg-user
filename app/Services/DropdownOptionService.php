@@ -122,7 +122,8 @@ class DropdownOptionService
 
         $standard_accounts = $user->tradingAccounts()
         ->whereHas('accountType', function ($query) {
-            $query->where('name', 'LIKE', 'STANDARD.t');
+            $query->where('account_group', 'LIKE', 'STANDARD.t')
+                ->orWhere('account_group', 'LIKE', 'COMPETITION');
         })
         ->get(); 
         
