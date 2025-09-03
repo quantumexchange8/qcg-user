@@ -57,7 +57,7 @@ const openDialog = (dialogRef) => {
 const closeDialog = (dialogName) => {
     if (dialogName === 'deposit') {
         showDepositDialog.value = false;
-        formDepositDialog.value = false;
+        missingDepositDialog.value = false;
         contDepositDialog.value = false;
         depositForm.reset();
     } else if (dialogName === 'transfer') {
