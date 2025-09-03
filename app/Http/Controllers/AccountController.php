@@ -419,12 +419,10 @@ class AccountController extends Controller
     {
         Validator::make($request->all(), [
             'meta_login' => ['required', 'exists:trading_accounts,meta_login'],
-            'amount' => ['required', 'numeric', 'min:1'],
             'checkbox1' => 'accepted',
             'checkbox2' => 'accepted',
         ])->setAttributeNames([
             'meta_login' => trans('public.account_no'),
-            'amount' => trans('public.amount'),
             'checkbox1' => trans('public.terms_and_conditions'),
             'checkbox2' => trans('public.terms_and_conditions'),
         ])->validate();
@@ -446,12 +444,12 @@ class AccountController extends Controller
                 'transaction_type' => 'deposit',
                 'to_meta_login' => $request->meta_login,
                 'transaction_number' => RunningNumberService::getID('transaction'),
-                'amount' => $request->amount,
+                'amount' => null,
                 'status' => 'processing',
             ]);
         } else {
             $transaction->update([
-                'amount' => $request->amount,
+                'amount' => null,
             ]);
         }
 
@@ -471,7 +469,8 @@ class AccountController extends Controller
             'userEmail' => $user->email,
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
-            'amount' => $transaction->amount,
+            'meta_login' =>  $request->meta_login,
+            'amount' => 0.01,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
             'locale' => app()->getLocale(),
@@ -925,56 +924,64 @@ class AccountController extends Controller
             $original_amount = $result['amount'];
             $formatted_amount = floor($original_amount * 100) / 100;
 
-            if ($result['transfer_amount_type'] == 'invalid') {
-                $now = Carbon::now('Asia/Kuala_Lumpur');
-                $currentDay = $now->dayOfWeekIso;
+            // if ($result['transfer_amount_type'] == 'invalid') {
+            //     $now = Carbon::now('Asia/Kuala_Lumpur');
+            //     $currentDay = $now->dayOfWeekIso;
 
-                $setting = SettingAutoApproval::where('day', $currentDay)
-                ->where('type', 'deposit')
-                ->where('status', 'active')
-                ->first();
+            //     $setting = SettingAutoApproval::where('day', $currentDay)
+            //     ->where('type', 'deposit')
+            //     ->where('status', 'active')
+            //     ->first();
 
-                if ($setting) {
-                    $startTime = Carbon::createFromFormat('H:i', $setting->start_time, 'Asia/Kuala_Lumpur')
-                        ->setDateFrom($now);
+            //     if ($setting) {
+            //         $startTime = Carbon::createFromFormat('H:i', $setting->start_time, 'Asia/Kuala_Lumpur')
+            //             ->setDateFrom($now);
 
-                    $endTime = Carbon::createFromFormat('H:i', $setting->end_time, 'Asia/Kuala_Lumpur')
-                        ->setDateFrom($now);
+            //         $endTime = Carbon::createFromFormat('H:i', $setting->end_time, 'Asia/Kuala_Lumpur')
+            //             ->setDateFrom($now);
 
-                    $lowerBound = $transaction->amount - $setting->spread_amount;
-                    $upperBound = $transaction->amount + $setting->spread_amount;
+            //         $lowerBound = $transaction->amount - $setting->spread_amount;
+            //         $upperBound = $transaction->amount + $setting->spread_amount;
                     
-                    if (
-                        $now->between($startTime, $endTime) &&
-                        $formatted_amount >= $lowerBound &&
-                        $formatted_amount <= $upperBound
-                    ) {
-                        $transaction->update([
-                            'transaction_amount' => $formatted_amount,
-                            'status' => 'successful',
-                            'remarks' => $result['remarks'],
-                            'approved_at' => now()
-                        ]);
-                    } else {
-                    $transaction->update([
-                        'transaction_amount' => $formatted_amount,
-                        'status' => 'processing',
-                    ]);
+            //         if (
+            //             $now->between($startTime, $endTime) &&
+            //             $formatted_amount >= $lowerBound &&
+            //             $formatted_amount <= $upperBound
+            //         ) {
+            //             $transaction->update([
+            //                 'transaction_amount' => $formatted_amount,
+            //                 'status' => 'successful',
+            //                 'remarks' => $result['remarks'],
+            //                 'approved_at' => now()
+            //             ]);
+            //         } else {
+            //         $transaction->update([
+            //             'transaction_amount' => $formatted_amount,
+            //             'status' => 'processing',
+            //         ]);
 
-                    Notification::route('mail', 'payment@currenttech.pro')
-                        ->notify(new DepositApprovalNotification($transaction));
-                    }
-                }
+            //         Notification::route('mail', 'payment@currenttech.pro')
+            //             ->notify(new DepositApprovalNotification($transaction));
+            //         }
+            //     }
 
-            } else {
-                $transaction->update([
-                    'amount' => $formatted_amount,
-                    'transaction_amount' => $formatted_amount,
-                    'status' => $status,
-                    'remarks' => $result['remarks'],
-                    'approved_at' => now()
-                ]);
-            }
+            // } else {
+            //     $transaction->update([
+            //         'amount' => $formatted_amount,
+            //         'transaction_amount' => $formatted_amount,
+            //         'status' => $status,
+            //         'remarks' => $result['remarks'],
+            //         'approved_at' => now()
+            //     ]);
+            // }
+
+            $transaction->update([
+                'amount' => $formatted_amount,
+                'transaction_amount' => $formatted_amount,
+                'status' => $status,
+                'remarks' => $result['remarks'],
+                'approved_at' => now()
+            ]);
 
             if ($transaction->status == 'successful' && $transaction->transaction_type == 'deposit') {
                 try {
