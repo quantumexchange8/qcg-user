@@ -444,12 +444,12 @@ class AccountController extends Controller
                 'transaction_type' => 'deposit',
                 'to_meta_login' => $request->meta_login,
                 'transaction_number' => RunningNumberService::getID('transaction'),
-                'amount' => null,
+                'amount' => 0.01,
                 'status' => 'processing',
             ]);
         } else {
             $transaction->update([
-                'amount' => null,
+                'amount' => 0.01,
             ]);
         }
 
@@ -470,7 +470,7 @@ class AccountController extends Controller
             'orderNumber' => $transaction->transaction_number,
             'userId' => $user->id,
             'meta_login' =>  $request->meta_login,
-            'amount' => 0.01,
+            'amount' => $transaction->amount,
             'merchantId' => $selectedPayout['merchantId'],
             'vCode' => $vCode,
             'locale' => app()->getLocale(),
