@@ -1053,8 +1053,8 @@ class AccountController extends Controller
                     }
                 }
 
-                Notification::route('mail', 'payment@currenttech.pro')
-                    ->notify(new DepositApprovalNotification($transaction));
+                // Notification::route('mail', 'payment@currenttech.pro')
+                //     ->notify(new DepositApprovalNotification($transaction));
 
                 return response()->json(['success' => true, 'message' => 'Deposit Success']);
             }
