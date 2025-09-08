@@ -199,10 +199,6 @@ class RegisteredUserController extends Controller
 
         $user = User::create($userData);
 
-        foreach ($request->file('kyc_verification') as $file) {
-            $user->addMedia($file)->toMediaCollection('kyc_verification'); 
-        }
-
         $user->setReferralId();
 
         $id_no = ($user->role == 'agent' ? 'AID' : 'MID') . Str::padLeft($user->id, 5, "0");
@@ -228,6 +224,10 @@ class RegisteredUserController extends Controller
             $ctUser = (new CTraderService)->CreateCTID($user->email);
             $user->ct_user_id = $ctUser['userId'];
             $user->save();
+        }
+
+        foreach ($request->file('kyc_verification') as $file) {
+            $user->addMedia($file)->toMediaCollection('kyc_verification'); 
         }
 
         event(new Registered($user));
