@@ -44,7 +44,7 @@ const selectedAttachments = ref([]); // Array for up to 2 images
 
 const handleAttachment = (event) => {
     const files = Array.from(event.target.files);
-
+    const maxSizeInBytes = 10000 * 1024;
     // if (files.length > 2) {
     //     alert("You can only upload up to 2 files.");
     //     return;
@@ -54,6 +54,13 @@ const handleAttachment = (event) => {
     form.ticket_attachment = [];
 
     files.forEach((file) => {
+        if (file.size > maxSizeInBytes) {
+            alert(`File "${file.name}" is too large. The maximum size is 10MB.`);
+            selectedKycVerifications.value = [];
+            form.kyc_verification = [];
+            event.target.value = null; 
+            return; 
+        }
         const reader = new FileReader();
         reader.onload = (e) => {
             selectedAttachments.value.push({

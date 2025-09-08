@@ -12,6 +12,8 @@ use App\Models\TradeRebateSummary;
 use App\Models\SymbolGroup;
 use App\Models\Transaction;
 use App\Models\User;
+use App\Models\Team;
+use App\Models\TeamHasUser;
 
 class ReportController extends Controller
 {
@@ -263,19 +265,25 @@ class ReportController extends Controller
             $groupIds = $user->directChildren()->pluck('id')->toArray();
             $groupIds[] = $user->id;
         } else {
-            $groupIds = $user->getChildrenIds();
-            $groupIds[] = $user->id;
+            $team_id = TeamHasUser::where('user_id', $user->id)->value('team_id');
+            $groupIds = TeamHasUser::where('team_id', $team_id)
+            ->pluck('user_id')
+            ->toArray();
+
+            Log::info($groupIds);
+            // $groupIds = $user->getChildrenIds();
+            // $groupIds[] = $user->id;
         }
 
-        if ($search) {
-            $searchUserIds = User::where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%$search%")
-                    ->orWhere('chinese_name', 'like', "%$search%")
-                    ->orWhere('email', 'like', "%$search%");
-            })->pluck('id')->toArray();
+        // if ($search) {
+        //     $searchUserIds = User::where(function ($q) use ($search) {
+        //         $q->where('first_name', 'like', "%$search%")
+        //             ->orWhere('chinese_name', 'like', "%$search%")
+        //             ->orWhere('email', 'like', "%$search%");
+        //     })->pluck('id')->toArray();
 
-            $groupIds = array_intersect($groupIds, $searchUserIds);
-        }
+        //     $groupIds = array_intersect($groupIds, $searchUserIds);
+        // }
 
         $transactionTypes = match($transactionType) {
             'deposit' => ['deposit', 'balance_in'],

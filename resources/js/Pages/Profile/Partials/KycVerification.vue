@@ -49,6 +49,7 @@ const selectedKycVerifications = ref([]); // Array for up to 2 images
 
 const handleKycVerification = (event) => {
     const files = Array.from(event.target.files);
+    const maxSizeInBytes = 10000 * 1024;
 
     if (files.length > 2) {
         alert("You can only upload up to 2 files.");
@@ -59,6 +60,14 @@ const handleKycVerification = (event) => {
     form.kyc_verification = [];
 
     files.forEach((file) => {
+        if (file.size > maxSizeInBytes) {
+            alert(`File "${file.name}" is too large. The maximum size is 10MB.`);
+            selectedKycVerifications.value = [];
+            form.kyc_verification = [];
+            event.target.value = null; 
+            return; 
+        }
+
         const reader = new FileReader();
         reader.onload = (e) => {
             selectedKycVerifications.value.push({
@@ -85,6 +94,9 @@ const submitForm = () => {
             setTimeout(() => {
                 window.location.reload();
             }, 1500);
+        },
+        onError: () => {
+            console.log(form)
         }
     })
 }
@@ -216,6 +228,7 @@ const submitForm = () => {
                                         >
                                             <IconX class="text-gray-700 w-5 h-5" />
                                         </Button>
+                                        <!-- <InputError :message="form.errors[`kyc_verification.${index}`]" /> -->
                                     </div>
                                 </div>
                                 <InputError :message="form.errors.kyc_verification" />
