@@ -266,24 +266,26 @@ class ReportController extends Controller
             $groupIds[] = $user->id;
         } else {
             $team_id = TeamHasUser::where('user_id', $user->id)->value('team_id');
-            $groupIds = TeamHasUser::where('team_id', $team_id)
+            $team_user_ids = TeamHasUser::where('team_id', $team_id)
             ->pluck('user_id')
             ->toArray();
 
-            Log::info($groupIds);
-            // $groupIds = $user->getChildrenIds();
-            // $groupIds[] = $user->id;
+            // Log::info($groupIds);
+            $groupIds = $user->getChildrenIds();
+            $groupIds[] = $user->id;
+
+            $groupIds = array_intersect($groupIds, $team_user_ids);
         }
 
-        // if ($search) {
-        //     $searchUserIds = User::where(function ($q) use ($search) {
-        //         $q->where('first_name', 'like', "%$search%")
-        //             ->orWhere('chinese_name', 'like', "%$search%")
-        //             ->orWhere('email', 'like', "%$search%");
-        //     })->pluck('id')->toArray();
+        if ($search) {
+            $searchUserIds = User::where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%$search%")
+                    ->orWhere('chinese_name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
+            })->pluck('id')->toArray();
 
-        //     $groupIds = array_intersect($groupIds, $searchUserIds);
-        // }
+            $groupIds = array_intersect($groupIds, $searchUserIds);
+        }
 
         $transactionTypes = match($transactionType) {
             'deposit' => ['deposit', 'balance_in'],
