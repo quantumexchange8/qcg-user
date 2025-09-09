@@ -270,11 +270,12 @@ class ReportController extends Controller
             ->pluck('user_id')
             ->toArray();
 
-            // Log::info($groupIds);
+            // Log::info($team_user_ids);
             $groupIds = $user->getChildrenIds();
             $groupIds[] = $user->id;
-
+            // Log::info($groupIds);
             $groupIds = array_intersect($groupIds, $team_user_ids);
+            // Log::info($groupIds);
         }
 
         if ($search) {
@@ -297,7 +298,7 @@ class ReportController extends Controller
         $query = Transaction::whereIn('transaction_type', $transactionTypes)
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
-            ->whereBetween('created_at', [$startDate, $endDate]);
+            ->whereBetween('approved_at', [$startDate, $endDate]);
 
         $transactions = $query->latest()
             ->get()
@@ -321,7 +322,7 @@ class ReportController extends Controller
 
                 // Return the formatted transaction data
                 return [
-                    'created_at' => $transaction->created_at,
+                    'created_at' => $transaction->approved_at,
                     'user_id' => $transaction->user_id,
                     'name' => $transaction->user->first_name,
                     'email' => $transaction->user->email,
@@ -334,13 +335,13 @@ class ReportController extends Controller
         $group_total_deposit = Transaction::whereIn('transaction_type', ['deposit', 'balance_in'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
-            ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereBetween('approved_at', [$startDate, $endDate])
             ->sum('transaction_amount');
 
         $group_total_withdrawal = Transaction::whereIn('transaction_type', ['withdrawal', 'balance_out'])
             ->where('status', 'successful')
             ->whereIn('user_id', $groupIds)
-            ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereBetween('approved_at', [$startDate, $endDate])
             ->sum('transaction_amount');
 
         return response()->json([
