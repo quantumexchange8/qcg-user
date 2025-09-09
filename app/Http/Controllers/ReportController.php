@@ -236,8 +236,6 @@ class ReportController extends Controller
     public function getGroupTransaction(Request $request)
     {
         $user = Auth::user();
-        // $groupIds = $user->getChildrenIds();
-        // $groupIds[] = $user->id;
 
         $transactionType = $request->query('type');
         
@@ -245,9 +243,11 @@ class ReportController extends Controller
         $group = $request->input('selectedGroup');
         $search = $request->input('search');
 
+        $startDate = null;
+        $endDate = null;
         if ($monthYear === 'select_all') {
-            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
-            $endDate = Carbon::now()->endOfDay();
+            $startDate = null;
+            $endDate = null;
         } elseif (str_starts_with($monthYear, 'last_')) {
             preg_match('/last_(\d+)_week/', $monthYear, $matches);
             $weeks = $matches[1] ?? 1;
@@ -294,13 +294,14 @@ class ReportController extends Controller
             default => []
         };
 
-        // Initialize the query for transactions
-        $query = Transaction::whereIn('transaction_type', $transactionTypes)
-            ->where('status', 'successful')
-            ->whereIn('user_id', $groupIds)
-            ->whereBetween('approved_at', [$startDate, $endDate]);
+        $transactionQuery = Transaction::whereIn('user_id', $groupIds)
+            ->where('status', 'successful');
 
-        $transactions = $query->latest()
+        if ($startDate && $endDate) {
+            $transactionQuery->whereBetween('approved_at', [$startDate, $endDate]);
+        }
+
+        $transactions = (clone $transactionQuery)->whereIn('transaction_type', $transactionTypes)->latest()
             ->get()
             ->map(function ($transaction) {
                 $metaLogin = $transaction->to_meta_login ?: $transaction->from_meta_login;
@@ -332,16 +333,10 @@ class ReportController extends Controller
             });
 
         // Calculate total deposit and withdrawal amounts for the given date range
-        $group_total_deposit = Transaction::whereIn('transaction_type', ['deposit', 'balance_in'])
-            ->where('status', 'successful')
-            ->whereIn('user_id', $groupIds)
-            ->whereBetween('approved_at', [$startDate, $endDate])
+        $group_total_deposit = (clone $transactionQuery)->whereIn('transaction_type', ['deposit', 'balance_in'])
             ->sum('transaction_amount');
 
-        $group_total_withdrawal = Transaction::whereIn('transaction_type', ['withdrawal', 'balance_out'])
-            ->where('status', 'successful')
-            ->whereIn('user_id', $groupIds)
-            ->whereBetween('approved_at', [$startDate, $endDate])
+        $group_total_withdrawal = (clone $transactionQuery)->whereIn('transaction_type', ['withdrawal', 'balance_out'])
             ->sum('transaction_amount');
 
         return response()->json([
