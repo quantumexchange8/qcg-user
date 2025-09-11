@@ -236,8 +236,6 @@ class ReportController extends Controller
     public function getGroupTransaction(Request $request)
     {
         $user = Auth::user();
-        // $groupIds = $user->getChildrenIds();
-        // $groupIds[] = $user->id;
 
         $transactionType = $request->query('type');
         
@@ -245,9 +243,11 @@ class ReportController extends Controller
         $group = $request->input('selectedGroup');
         $search = $request->input('search');
 
+        $startDate = null;
+        $endDate = null;
         if ($monthYear === 'select_all') {
-            $startDate = Carbon::createFromDate(2020, 1, 1)->startOfDay();
-            $endDate = Carbon::now()->endOfDay();
+            $startDate = null;
+            $endDate = null;
         } elseif (str_starts_with($monthYear, 'last_')) {
             preg_match('/last_(\d+)_week/', $monthYear, $matches);
             $weeks = $matches[1] ?? 1;
@@ -266,24 +266,27 @@ class ReportController extends Controller
             $groupIds[] = $user->id;
         } else {
             $team_id = TeamHasUser::where('user_id', $user->id)->value('team_id');
-            $groupIds = TeamHasUser::where('team_id', $team_id)
+            $team_user_ids = TeamHasUser::where('team_id', $team_id)
             ->pluck('user_id')
             ->toArray();
 
-            Log::info($groupIds);
-            // $groupIds = $user->getChildrenIds();
-            // $groupIds[] = $user->id;
+            // Log::info($team_user_ids);
+            $groupIds = $user->getChildrenIds();
+            $groupIds[] = $user->id;
+            // Log::info($groupIds);
+            $groupIds = array_intersect($groupIds, $team_user_ids);
+            // Log::info($groupIds);
         }
 
-        // if ($search) {
-        //     $searchUserIds = User::where(function ($q) use ($search) {
-        //         $q->where('first_name', 'like', "%$search%")
-        //             ->orWhere('chinese_name', 'like', "%$search%")
-        //             ->orWhere('email', 'like', "%$search%");
-        //     })->pluck('id')->toArray();
+        if ($search) {
+            $searchUserIds = User::where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%$search%")
+                    ->orWhere('chinese_name', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
+            })->pluck('id')->toArray();
 
-        //     $groupIds = array_intersect($groupIds, $searchUserIds);
-        // }
+            $groupIds = array_intersect($groupIds, $searchUserIds);
+        }
 
         $transactionTypes = match($transactionType) {
             'deposit' => ['deposit', 'balance_in'],
@@ -291,13 +294,14 @@ class ReportController extends Controller
             default => []
         };
 
-        // Initialize the query for transactions
-        $query = Transaction::whereIn('transaction_type', $transactionTypes)
-            ->where('status', 'successful')
-            ->whereIn('user_id', $groupIds)
-            ->whereBetween('created_at', [$startDate, $endDate]);
+        $transactionQuery = Transaction::whereIn('user_id', $groupIds)
+            ->where('status', 'successful');
 
-        $transactions = $query->latest()
+        if ($startDate && $endDate) {
+            $transactionQuery->whereBetween('approved_at', [$startDate, $endDate]);
+        }
+
+        $transactions = (clone $transactionQuery)->whereIn('transaction_type', $transactionTypes)->latest()
             ->get()
             ->map(function ($transaction) {
                 $metaLogin = $transaction->to_meta_login ?: $transaction->from_meta_login;
@@ -319,7 +323,7 @@ class ReportController extends Controller
 
                 // Return the formatted transaction data
                 return [
-                    'created_at' => $transaction->created_at,
+                    'created_at' => $transaction->approved_at,
                     'user_id' => $transaction->user_id,
                     'name' => $transaction->user->first_name,
                     'email' => $transaction->user->email,
@@ -329,16 +333,10 @@ class ReportController extends Controller
             });
 
         // Calculate total deposit and withdrawal amounts for the given date range
-        $group_total_deposit = Transaction::whereIn('transaction_type', ['deposit', 'balance_in'])
-            ->where('status', 'successful')
-            ->whereIn('user_id', $groupIds)
-            ->whereBetween('created_at', [$startDate, $endDate])
+        $group_total_deposit = (clone $transactionQuery)->whereIn('transaction_type', ['deposit', 'balance_in'])
             ->sum('transaction_amount');
 
-        $group_total_withdrawal = Transaction::whereIn('transaction_type', ['withdrawal', 'balance_out'])
-            ->where('status', 'successful')
-            ->whereIn('user_id', $groupIds)
-            ->whereBetween('created_at', [$startDate, $endDate])
+        $group_total_withdrawal = (clone $transactionQuery)->whereIn('transaction_type', ['withdrawal', 'balance_out'])
             ->sum('transaction_amount');
 
         return response()->json([
