@@ -18,6 +18,7 @@ class CompetitionController extends Controller
     public function index()
     {
         $competitions = Competition::with('rewards')->get();
+        $availableCategories = Competition::distinct()->pluck('category');
 
         $competitionsData = $competitions->map(function ($competition) {
             $name = json_decode($competition->name, true);
@@ -36,104 +37,9 @@ class CompetitionController extends Controller
 
         return Inertia::render('Competition/Competition', [
             'competitions' => $competitionsData,
+            'categories' => $availableCategories
         ]);
     }
-
-    public function newCompetition()
-    {
-        return Inertia::render('Competition/Partials/NewCompetition');
-
-    }
-
-    public function getCurrentCompetitions()
-    {
-        $competitions = Competition::whereNot('status', 'completed')
-            ->with('rewards')
-            ->orderBy('start_date')
-            ->get()
-            ->map(function ($competition) {
-                $name = json_decode($competition->name, true);
-
-                $totalPointsDistributed = $competition->rewards->sum(function ($reward) {
-                    $numberOfRanksInTier = ($reward->max_rank - $reward->min_rank + 1);
-        
-                    return $numberOfRanksInTier * $reward->points_rewarded;
-                });
-
-                return [
-                    'competition_id' => $competition->id,
-                    'category' => $competition->category,
-                    'name' => $name,
-                    'status' => $competition->status,
-                    'start_date' => $competition->start_date,
-                    'end_date' => $competition->end_date,
-                    'total_points' => $totalPointsDistributed,
-                ];
-            })
-            ->values();
-
-        return response()->json([
-            'competitions' => $competitions,
-        ]);
-    }
-
-    public function getCompetitionHistory(Request $request)
-    {
-        $category = $request->query('category');
-        $query = Competition::where('status', 'completed');
-
-        if ($category) {
-            $query->where('category', $category);
-        }
-
-        $competitions = $query->orderBy('end_date')
-            ->with('rewards')
-            ->get()
-            ->map(function ($competition) {
-                $name = json_decode($competition->name, true);
-
-                $totalPointsDistributed = $competition->rewards->sum(function ($reward) {
-                    $numberOfRanksInTier = ($reward->max_rank - $reward->min_rank + 1);
-        
-                    return $numberOfRanksInTier * $reward->points_rewarded;
-                });
-
-                return [
-                    'competition_id' => $competition->id,
-                    'category' => $competition->category,
-                    'name' => $name,
-                    'start_date' => $competition->start_date,
-                    'end_date' => $competition->end_date,
-                    'total_points' => $totalPointsDistributed,
-                ];
-            })
-            ->values();
-
-        return response()->json([
-            'competitions' => $competitions,
-        ]);
-    }
-
-    public function viewCompetition(Request $request, string $id)
-    {
-        $competition = Competition::with('rewards')->findOrFail($request->id);
-
-        $name = json_decode($competition->name, true); 
-
-        $competitionData = [
-            'competition_id' => $competition->id,
-            'category' => $competition->category,
-            'name' => $name,
-            'start_datetime' =>  Carbon::parse($competition->start_date, 'UTC')->toIso8601String(),
-            'end_datetime' => Carbon::parse($competition->end_date, 'UTC')->toIso8601String(),
-            'minimum_amount' => $competition->minimum_amount,
-        ];
-
-        return Inertia::render('Competition/Partials/ViewCompetition', [
-            'competition' => $competitionData,
-        ]);
-    }
-
 
     public function getParticipants(Request $request)
     {
@@ -303,96 +209,4 @@ class CompetitionController extends Controller
         ]);
     }
 
-    public function addVirtual(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'virtual_name' => ['required'],
-            'amount' => ['required'],
-        ])->setAttributeNames([
-            'virtual_name' => trans('public.name'),
-            'amount' => trans('public.amount'),
-        ]);
-        $validator->validate();
-
-        try {
-            Participant::create([
-                'competition_id' => $request->competition_id,
-                'user_type' => 'virtual',
-                'user_name' => $request->virtual_name,
-                'score' => $request->amount,
-            ]);
-
-            // Redirect with success message
-            return back()->with('toast', [
-                'title' => trans("public.toast_add_participant_success"),
-                'type' => 'success',
-            ]);
-        } catch (\Exception $e) {
-            // Log the exception and show a generic error message
-            Log::error('Error adding participant : '.$e->getMessage());
-
-            return back()->with('toast', [
-                'title' => 'There was an error adding the participant.',
-                'type' => 'error'
-            ]);
-        }
-    }
-
-    public function editVirtual(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'virtual_name' => ['required'],
-            'amount' => ['required'],
-        ])->setAttributeNames([
-            'virtual_name' => trans('public.name'),
-            'amount' => trans('public.amount'),
-        ]);
-        $validator->validate();
-
-        try {
-            $participant = Participant::findOrFail($request->participant_id);
-
-            $participant->update([
-                'user_name' => $request->virtual_name,
-                'score' => $request->amount,
-            ]);
-
-            // Redirect with success message
-            return back()->with('toast', [
-                'title' => trans("public.toast_edit_participant_success"),
-                'type' => 'success',
-            ]);
-        } catch (\Exception $e) {
-            // Log the exception and show a generic error message
-            Log::error('Error editing participant : '.$e->getMessage());
-
-            return back()->with('toast', [
-                'title' => 'There was an error editing the participant.',
-                'type' => 'error'
-            ]);
-        }
-    }
-
-    public function deleteVirtual(Request $request)
-    {
-        try {
-            $participant = Participant::findOrFail($request->participant_id);
-            
-            $participant->delete();
-
-            // Redirect with success message
-            return back()->with('toast', [
-                'title' => trans("public.toast_delete_participant_success"),
-                'type' => 'success',
-            ]);
-        } catch (\Exception $e) {
-            // Log the exception and show a generic error message
-            Log::error('Error deleting participant : '.$e->getMessage());
-
-            return back()->with('toast', [
-                'title' => 'There was an error deleting the participant.',
-                'type' => 'error'
-            ]);
-        }
-    }
 }

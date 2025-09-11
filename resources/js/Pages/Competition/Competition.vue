@@ -18,9 +18,12 @@ import TabPanels from 'primevue/tabpanels';
 import TabPanel from 'primevue/tabpanel';
 import { Vue3Lottie } from 'vue3-lottie';
 import OneStarBadge from '@/Components/Icons/OneStarBadge.json';
+import Select from "primevue/select";
+import {wTrans} from "laravel-vue-i18n";
 
 const props = defineProps({
     competitions: Object,
+    categories: Object,
 })
 
 const user = usePage().props.auth.user;
@@ -30,21 +33,15 @@ const {locale} = useLangObserver();
 
 const loading = ref(false);
 const participants = ref();
-const activeCompetitionId = ref(props.competitions[0]?.id || null);
-
-// A computed property to get the full competition object from the ID
-const activeCompetition = computed(() => {
-    if (!activeCompetitionId.value) return null;
-    return props.competitions.find(comp => comp.id === activeCompetitionId.value);
-});
+const selectedCompetition = ref(null);
 
 const getResults = async () => {
     // console.log(activeCompetition.value)
-    if (!activeCompetition.value) return;
+    if (!selectedCompetition.value) return;
 
     loading.value = true;
     try {
-        const response = await axios.get(`/competition/getParticipants?competition_id=${activeCompetition.value.id}`);
+        const response = await axios.get(`/competition/getParticipants?competition_id=${selectedCompetition.value.id}`);
         
         participants.value = response.data.participants;
     } catch (error) {
@@ -56,7 +53,6 @@ const getResults = async () => {
 
 getResults();
 
-// Create reactive variables to store the countdown values
 const days = ref(0);
 const hours = ref(0);
 const minutes = ref(0);
@@ -67,19 +63,20 @@ let timer = null;
 // We'll countdown to the start date if it's in the future, otherwise we countdown to the end date
 const countdownTarget = computed(() => {
     const now = new Date();
-    const startDate = new Date(activeCompetition.value.start_datetime);
+    // console.log(selectedCompetition)
+    const startDate = new Date(selectedCompetition.value.start_datetime);
 
     if (now < startDate) {
         return startDate; // Countdown to the start of the competition
     } else {
-        return new Date(activeCompetition.value.end_datetime); // Countdown to the end
+        return new Date(selectedCompetition.value.end_datetime); // Countdown to the end
     }
 });
 
 const isCompetitionActive = computed(() => {
     const now = new Date();
-    const startDate = new Date(activeCompetition.value.start_datetime);
-    const endDate = new Date(activeCompetition.value.end_datetime);
+    const startDate = new Date(selectedCompetition.value.start_datetime);
+    const endDate = new Date(selectedCompetition.value.end_datetime);
 
     return now >= startDate && now < endDate;
 });
@@ -118,10 +115,6 @@ const checkScreenSize = () => {
 };
 
 onMounted(() => {
-    if (props.competitions.length > 0) {
-        activeCompetitionId.value = props.competitions[0].id;
-    }
-
     updateCountdown(); 
     timer = setInterval(updateCountdown, 1000);
 
@@ -129,23 +122,15 @@ onMounted(() => {
     window.addEventListener('resize', checkScreenSize);
 });
 
-watch(activeCompetitionId, (newId) => {
-    if (newId) {
-        updateCountdown(); 
-        timer = setInterval(updateCountdown, 1000);
-        getResults();
-    }
-}, { immediate: true });
-
 onUnmounted(() => {
     clearInterval(timer);
     window.removeEventListener('resize', checkScreenSize);
 });
 
 const dynamicSuffix = computed(() => {
-    if (activeCompetition.value.category === 'profit_rate') {
+    if (activeCategory.value === 'profit_rate') {
         return ' %';
-    } else if (activeCompetition.value.category === 'trade_lot') {
+    } else if (activeCategory.value === 'trade_lot') {
         return ' Ł';
     }
     return '';
@@ -172,13 +157,36 @@ watchEffect(() => {
         getResults();
     }
 });
+
+const activeCategory = ref(props.categories[0] || null);
+
+const filteredCompetitions = computed(() => {
+    console.log(props.categories)
+    return props.competitions.filter(comp => comp.category === activeCategory.value);
+});
+
+watch(filteredCompetitions, (newCompetitions) => {
+    if (newCompetitions) {
+        // console.log(newCompetitions)
+        selectedCompetition.value = newCompetitions[0];
+    }
+}, { immediate: true });
+
+watch(selectedCompetition, (newCompetition) => {
+    if (newCompetition) {
+        updateCountdown(); 
+        timer = setInterval(updateCountdown, 1000);
+        getResults();
+    }
+}, { immediate: true });
+
 </script>
 
 <template>
     <AuthenticatedLayout :title="$t('public.competition')">
         <!-- Competition Information -->
         <div class="w-full flex flex-col gap-3 md:gap-5 justify-center items-center p-3 md:py-6 md:px-12 rounded-t-lg bg-primary-500 bg-blend-multiply bg-[url(/assets/Competition/competition-bg.jpg)] bg-cover bg-center">
-            <Tabs v-model:value="activeCompetitionId">
+            <!-- <Tabs v-model:value="selectedCompetitionId">
                 <TabList>
                     <Tab v-for="competition in competitions" :key="competition.id" :value="competition.id" 
                                 :pt="{
@@ -195,12 +203,32 @@ watchEffect(() => {
                             {{ competition.name[locale] }}
                     </Tab>
                 </TabList>
+            </Tabs> -->
+            <Tabs v-model:value="activeCategory">
+                <TabList>
+                    <Tab v-for="category in categories" :key="category" :value="category"
+                    class="grow shrink"
+                        :pt="{
+                            root: ({ context }) => ({
+                                class: [
+                                    ' relative shrink-0 p-3 outline-transparent font-semibold cursor-pointer select-none whitespace-nowrap user-select-none text-xs md:text-sm',
+                                    {
+                                        'text-gray-200 hover:text-white': !context.active,
+                                        'text-white border-b-2 border-white': context.active
+                                    }
+                                ]
+                            })
+                        }"
+                    >
+                        {{ $t(`public.${category}`) }}
+                    </Tab>
+                </TabList>
             </Tabs>
-            <div v-if="activeCompetition" class="flex flex-col self-stretch gap-5 md:gap-8 items-center py-5 px-2 md:py-8 md:px-[60px] bg-black">
+            <div v-if="selectedCompetition" class="flex flex-col self-stretch gap-5 md:gap-8 items-center py-5 px-2 md:py-8 md:px-[60px] bg-black">
                 <div class="flex flex-col items-center gap-2 ">
-                    <span class="text-white text-base md:text-xl font-bold">{{ activeCompetition.name[locale] }}</span>
+                    <span class="text-white text-base md:text-xl font-bold">{{ selectedCompetition.name[locale] }}</span>
                     <div class="flex px-2 py-1 justify-center items-center bg-primary-600 rounded-[50px]">
-                        <span class="text-center text-white text-xs">{{ formatDate(activeCompetition.start_datetime) }} - {{ formatDate(activeCompetition.end_datetime) }}</span>
+                        <span class="text-center text-white text-xs">{{ formatDate(selectedCompetition.start_datetime) }} - {{ formatDate(selectedCompetition.end_datetime) }}</span>
                     </div>
                 </div>
                 <div v-if="isCompetitionActive" class="flex flex-col w-full gap-5 md:gap-8 ">
@@ -252,6 +280,15 @@ watchEffect(() => {
         </div>
         <!-- Competition Rank List -->
         <div class="w-full flex flex-col justify-center items-center p-3 md:py-5 md:px-6 gap-5 rounded-b-lg bg-white ">
+            <!-- Competition List -->
+            <Select
+                v-model="selectedCompetition"
+                :options="filteredCompetitions"
+                :optionLabel="(option) => option.name[locale]"
+                :placeholder="$t('public.select')"
+                class="w-full"
+                scroll-height="236px"
+            />
             <!-- Ranking List -->
             <DataTable
                 :value="participants"
@@ -295,7 +332,7 @@ watchEffect(() => {
                             </div>
                         </template>
                     </Column>
-                    <Column field="score" :header="$t(`public.${activeCompetition.category}`)" headerClass="hidden md:table-cell">
+                    <Column field="score" :header="$t(`public.${activeCategory}`)" headerClass="hidden md:table-cell">
                         <template #body="slotProps">
                             <div class="flex px-2 py-1 items-center rounded-[50px] bg-primary-100 text-sm text-primary-600 w-fit whitespace-nowrap">
                                 {{ formatAmount(slotProps.data.score) }}{{ dynamicSuffix }}
