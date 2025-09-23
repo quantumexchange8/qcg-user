@@ -264,10 +264,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
      *          Competition
      * ==============================
      */
-    Route::prefix('competition')->group(function () {
-        Route::get('/', [CompetitionController::class, 'index'])->name('competition');
-        Route::get('/getParticipants', [CompetitionController::class, 'getParticipants'])->name('competition.getParticipants');
-    });
+    // Route::prefix('competition')->group(function () {
+    //     Route::get('/', [CompetitionController::class, 'index'])->name('competition');
+    //     Route::get('/getParticipants', [CompetitionController::class, 'getParticipants'])->name('competition.getParticipants');
+    // });
 
     /**
      * ==============================

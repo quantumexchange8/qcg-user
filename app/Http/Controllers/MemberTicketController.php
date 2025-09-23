@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\TicketCategory;
 use App\Models\TicketReply;
+use App\Models\TicketLog;
 use Inertia\Inertia;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class MemberTicketController extends Controller
 {

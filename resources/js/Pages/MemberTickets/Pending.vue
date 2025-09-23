@@ -474,7 +474,7 @@ const removeAttachment = (index) => {
         </div>
 
         <template #footer v-if="user.ticket_agent_access === 'full'">
-            <div class="flex flex-col gap-2 md:gap-4 justify-center w-full pt-4">
+            <div class="flex flex-col gap-2 md:gap-4 justify-center items-start w-full pt-4">
 
                 <TextArea
                     id="message"
@@ -540,6 +540,7 @@ const removeAttachment = (index) => {
                         variant="primary-flat"
                         @click="submitForm"
                         :disabled="form.processing"
+                        size="sm"
                     >
                         {{ $t('public.reply') }}
                     </Button>
