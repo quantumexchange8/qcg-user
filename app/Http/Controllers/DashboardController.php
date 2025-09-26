@@ -14,6 +14,7 @@ use App\Models\UserPostInteraction;
 use App\Models\AnnouncementLog;
 use App\Models\UserAnnouncementVisibility;
 use App\Models\TradeBrokerHistory;
+use App\Models\TeamHasUser;
 use App\Models\TradeRebateSummary;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\DB;
@@ -102,8 +103,23 @@ class DashboardController extends Controller
     public function getDashboardData()
     {
         $user = Auth::user();
-        $groupIds = $user->role === 'agent' ? $user->getChildrenIds() : [];
-        $groupIds[] = $user->id;
+
+        if ($user->role === 'agent') {
+            $teamId = $user->teamHasUser->team_id ?? null;
+        
+            if ($teamId) {
+                $teamUserIds = TeamHasUser::where('team_id', $teamId)->pluck('user_id')->toArray();
+            } else {
+                $teamUserIds = [];
+            }
+        
+            $groupIds = $user->getChildrenIds();
+            $groupIds[] = $user->id;
+        
+            $groupIds = array_intersect($groupIds, $teamUserIds);
+        } else {
+            $groupIds = [$user->id];
+        }
 
         $rebate_wallet = $user->rebate_wallet;
 
